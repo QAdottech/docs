@@ -1,5 +1,6 @@
 ---
 title: Project Context
+description: 'Learn how to write effective project context that helps AI agents understand your application and execute tests more accurately'
 icon: info
 ---
 
@@ -9,15 +10,370 @@ icon: info
   [Knowledge](/core-concepts/knowledge).
 </Note>
 
-## What should i add to the project context?
+# Project Context: Guiding AI Agents
 
-The project context should be information that the AI agent should be aware of when executing tests. It can, for example be information about your service that helps the agent understand the website better.
+Project context provides essential information that helps AI agents understand your application, its purpose, and specific requirements. Well-written context enables more accurate test execution and better results.
 
-## Examples:
+## What is Project Context?
 
-These are some examples of things that could be added to the project context:
+Project context is information that AI agents use to understand your application better when executing tests. It serves as the "knowledge base" that guides agent behavior, decision-making, and test execution strategies.
 
-- The service is a route planning service for American railways.
-- When creating users, always use Swedish names.
-- Always fail tests when obvious typos are found.
-- If a button is red, it should never be clicked.
+### Purpose and Benefits
+
+- **Improved Accuracy**: Agents understand your application's purpose and requirements
+- **Better Decision Making**: Context helps agents make appropriate choices during testing
+- **Reduced False Positives**: Clear guidelines prevent misinterpretation of expected behaviors
+- **Enhanced Coverage**: Agents can identify relevant test scenarios based on context
+- **Consistent Behavior**: Standardized understanding across all test executions
+
+## What Should You Add to Project Context?
+
+### Essential Information Categories
+
+#### **1. Application Purpose and Domain**
+- **Service Description**: What your application does and who it serves
+- **Industry Context**: Domain-specific terminology and conventions
+- **User Types**: Different user roles and their typical behaviors
+- **Business Rules**: Core business logic and constraints
+
+#### **2. Technical Specifications**
+- **Technology Stack**: Frameworks, libraries, and platforms used
+- **Architecture Patterns**: How the application is structured
+- **Integration Points**: External services and APIs
+- **Performance Requirements**: Expected response times and load handling
+
+#### **3. User Experience Guidelines**
+- **Design Patterns**: UI/UX conventions and standards
+- **Navigation Flow**: Expected user journey patterns
+- **Accessibility Requirements**: Standards for inclusive design
+- **Responsive Behavior**: How the application adapts to different devices
+
+#### **4. Testing Requirements**
+- **Critical Paths**: Most important user workflows
+- **Edge Cases**: Unusual scenarios that should be tested
+- **Error Handling**: How the application should respond to errors
+- **Data Requirements**: Test data specifications and constraints
+
+## Writing Effective Project Context
+
+### Structure and Organization
+
+#### **Clear Sections**
+Organize your context into logical sections:
+
+```markdown
+## Application Overview
+[High-level description of what your application does]
+
+## User Types and Roles
+[Different types of users and their typical behaviors]
+
+## Core Functionality
+[Main features and workflows]
+
+## Technical Specifications
+[Technology stack and architecture details]
+
+## Testing Guidelines
+[Specific requirements for test execution]
+```
+
+#### **Concise and Specific**
+- **Be Specific**: Avoid vague descriptions that could be interpreted differently
+- **Use Examples**: Provide concrete examples to illustrate concepts
+- **Prioritize Information**: Put the most important information first
+- **Keep It Updated**: Regularly review and update context as your application evolves
+
+### Language and Tone
+
+#### **Clear and Direct**
+- **Use Simple Language**: Avoid jargon unless domain-specific terms are necessary
+- **Be Explicit**: State requirements clearly rather than implying them
+- **Provide Context**: Explain why certain rules or requirements exist
+- **Use Active Voice**: Make instructions direct and actionable
+
+#### **Consistent Terminology**
+- **Define Terms**: Explain domain-specific terminology
+- **Use Consistent Naming**: Refer to features and elements consistently
+- **Avoid Ambiguity**: Use precise language to prevent misinterpretation
+
+## Comprehensive Examples
+
+### Example 1: E-commerce Platform
+
+```markdown
+## Application Overview
+This is an e-commerce platform for selling electronics and gadgets. Users can browse products, add items to cart, and complete purchases.
+
+## User Types
+- **Shoppers**: Browse products, create accounts, make purchases
+- **Guest Users**: Browse and purchase without accounts
+- **Administrators**: Manage products, orders, and user accounts
+
+## Core Functionality
+- Product browsing and search
+- User registration and authentication
+- Shopping cart management
+- Checkout and payment processing
+- Order tracking and history
+
+## Business Rules
+- All prices are displayed in USD
+- Free shipping on orders over $50
+- Guest users can purchase but cannot track orders
+- Users must be 18+ to create accounts
+- All products have a 30-day return policy
+
+## Technical Specifications
+- Built with React frontend and Node.js backend
+- Uses Stripe for payment processing
+- Integrates with UPS for shipping calculations
+- Requires HTTPS for all transactions
+
+## Testing Guidelines
+- Always use realistic product names and descriptions
+- Test both guest and authenticated user flows
+- Verify all payment methods work correctly
+- Check that shipping calculations are accurate
+- Ensure order confirmation emails are sent
+- Test return process for eligible items
+```
+
+### Example 2: SaaS Dashboard
+
+```markdown
+## Application Overview
+This is a B2B SaaS dashboard for project management. Teams can create projects, assign tasks, track progress, and generate reports.
+
+## User Types
+- **Team Members**: Create and manage tasks, update progress
+- **Project Managers**: Create projects, assign tasks, view reports
+- **Administrators**: Manage users, billing, and system settings
+
+## Core Functionality
+- Project creation and management
+- Task assignment and tracking
+- Time tracking and reporting
+- Team collaboration features
+- Analytics and insights
+
+## Business Rules
+- Users can only access projects they're assigned to
+- All time entries require project and task selection
+- Reports are only available to project managers and admins
+- Free plan limited to 3 projects and 5 team members
+- Data retention is 2 years for paid plans
+
+## Technical Specifications
+- React frontend with TypeScript
+- RESTful API with JWT authentication
+- Real-time updates via WebSocket
+- File uploads limited to 10MB per file
+- Supports SSO integration
+
+## Testing Guidelines
+- Test role-based access controls thoroughly
+- Verify real-time updates work across browsers
+- Check file upload limits and restrictions
+- Test data export and reporting features
+- Ensure billing calculations are accurate
+```
+
+### Example 3: Healthcare Application
+
+```markdown
+## Application Overview
+This is a patient portal for healthcare providers. Patients can schedule appointments, view medical records, and communicate with healthcare providers.
+
+## User Types
+- **Patients**: Schedule appointments, view records, send messages
+- **Healthcare Providers**: View patient information, manage schedules
+- **Administrators**: Manage user accounts and system settings
+
+## Core Functionality
+- Appointment scheduling and management
+- Medical record viewing and sharing
+- Secure messaging between patients and providers
+- Prescription management
+- Insurance information handling
+
+## Business Rules
+- All data must comply with HIPAA regulations
+- Patients can only access their own information
+- Appointments require 24-hour advance notice
+- Emergency appointments handled by phone only
+- All communications are encrypted and logged
+
+## Technical Specifications
+- HIPAA-compliant data encryption
+- Multi-factor authentication required
+- Audit logging for all data access
+- Integration with electronic health records
+- Mobile-responsive design
+
+## Testing Guidelines
+- Verify all data access controls work correctly
+- Test encryption and security measures
+- Check that audit logs are properly maintained
+- Ensure HIPAA compliance in all features
+- Test emergency contact procedures
+```
+
+## Best Practices for Different Application Types
+
+### E-commerce Applications
+
+#### **Essential Context Elements**
+- **Product Categories**: How products are organized and filtered
+- **Pricing Rules**: Discounts, taxes, shipping calculations
+- **User Accounts**: Registration requirements and benefits
+- **Payment Methods**: Supported payment options and security
+- **Order Processing**: From cart to fulfillment workflow
+
+#### **Testing Considerations**
+- **Guest vs. Authenticated**: Test both user types
+- **Payment Processing**: Verify all payment methods
+- **Inventory Management**: Check stock levels and availability
+- **Shipping and Returns**: Test complete order lifecycle
+
+### SaaS Applications
+
+#### **Essential Context Elements**
+- **User Roles**: Different permission levels and access rights
+- **Subscription Plans**: Feature limitations and billing cycles
+- **Data Management**: Storage limits and retention policies
+- **Integration Points**: Third-party services and APIs
+- **Performance Expectations**: Response times and scalability
+
+#### **Testing Considerations**
+- **Multi-tenancy**: Test data isolation between customers
+- **Feature Flags**: Verify plan-based feature access
+- **Billing Integration**: Test subscription management
+- **API Limits**: Check rate limiting and usage quotas
+
+### Healthcare Applications
+
+#### **Essential Context Elements**
+- **Compliance Requirements**: HIPAA, GDPR, or other regulations
+- **Data Security**: Encryption and access control requirements
+- **User Authentication**: Multi-factor authentication and session management
+- **Audit Requirements**: Logging and reporting requirements
+- **Emergency Procedures**: Critical workflows and fallbacks
+
+#### **Testing Considerations**
+- **Data Privacy**: Verify all security measures
+- **Access Controls**: Test role-based permissions
+- **Audit Trails**: Ensure proper logging
+- **Emergency Scenarios**: Test critical workflows
+
+## Common Mistakes to Avoid
+
+### Vague or Ambiguous Language
+
+#### **Poor Examples**
+- "The app should work well" (too vague)
+- "Users can do stuff" (not specific)
+- "It should be fast" (no measurable criteria)
+
+#### **Better Alternatives**
+- "The application should load pages within 3 seconds"
+- "Users can create, edit, and delete projects"
+- "Search results should appear within 1 second"
+
+### Missing Critical Information
+
+#### **Common Omissions**
+- **Authentication Requirements**: How users log in and stay authenticated
+- **Data Requirements**: What test data should be used
+- **Error Handling**: How the application should respond to errors
+- **Performance Expectations**: Response time requirements
+
+### Inconsistent Information
+
+#### **Problems to Avoid**
+- **Conflicting Rules**: Different sections saying opposite things
+- **Outdated Information**: Context that doesn't match current application
+- **Incomplete Coverage**: Missing important features or workflows
+
+## Updating and Maintaining Context
+
+### Regular Review Schedule
+
+#### **Weekly Reviews**
+- Check for new features that need context
+- Update any changed requirements
+- Verify existing context is still accurate
+
+#### **Monthly Reviews**
+- Comprehensive review of all context sections
+- Update examples and scenarios
+- Add new best practices or guidelines
+
+#### **Quarterly Reviews**
+- Major application changes
+- New user types or roles
+- Significant feature additions
+
+### Version Control
+
+#### **Track Changes**
+- Maintain a changelog of context updates
+- Note the reason for each change
+- Keep previous versions for reference
+
+#### **Collaboration**
+- Involve team members in context reviews
+- Get feedback from different perspectives
+- Ensure all stakeholders agree on changes
+
+## Advanced Context Strategies
+
+### Conditional Context
+
+#### **Environment-Specific Information**
+```markdown
+## Environment Guidelines
+- **Development**: Use test data, ignore billing
+- **Staging**: Use production-like data, test billing
+- **Production**: Use real data, all features enabled
+```
+
+### Dynamic Context
+
+#### **Feature Flags and Toggles**
+```markdown
+## Feature Availability
+- **Beta Features**: Only available to beta users
+- **Premium Features**: Only for paid subscribers
+- **Experimental Features**: Can be enabled/disabled
+```
+
+### Performance Context
+
+#### **Load and Stress Testing**
+```markdown
+## Performance Requirements
+- **Page Load**: Under 3 seconds on 3G connection
+- **API Response**: Under 500ms for all endpoints
+- **Concurrent Users**: Support 1000 simultaneous users
+- **Database Queries**: Optimized for sub-second response
+```
+
+## Conclusion
+
+Well-written project context is essential for effective AI-powered testing. By providing clear, comprehensive, and up-to-date information, you enable AI agents to:
+
+- **Execute tests more accurately**
+- **Make better decisions during testing**
+- **Reduce false positives and errors**
+- **Cover more relevant scenarios**
+- **Provide more valuable results**
+
+Invest time in creating and maintaining good project context, and you'll see significant improvements in your testing outcomes.
+
+## Next Steps
+
+- **[Creating Tests](/best-practices/creating-tests)** - Learn how to write effective test descriptions
+- **[Running Tests](/best-practices/running-tests)** - Execute tests with proper context
+- **[Test Results](/best-practices/test-results)** - Analyze results and refine context
+- **[Knowledge Management](/core-concepts/knowledge)** - Understand how context integrates with knowledge features

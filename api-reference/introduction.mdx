@@ -1,8 +1,877 @@
 ---
-title: 'Introduction'
-description: 'Interact with QA.tech through our API'
+title: 'API Reference'
+description: 'Complete API documentation for QA.tech - interact with our platform programmatically'
+icon: code
 ---
+
+# QA.tech API Reference
+
+The QA.tech API allows you to programmatically interact with our platform, enabling you to create tests, run them, and retrieve results. This comprehensive reference covers all endpoints, authentication methods, error handling, and provides practical examples.
+
+## Base URL
+
+All API requests should be made to:
+
+```
+https://api.qa.tech/v1
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens, which you find under Project / Configuration in your dashboard.
+All API endpoints require authentication using Bearer tokens. You can find your API key in the QA.tech dashboard under **Project Settings → Configuration**.
+
+### API Key Authentication
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+     https://api.qa.tech/v1/projects
+```
+
+### JavaScript Example
+
+```javascript
+const response = await fetch('https://api.qa.tech/v1/projects', {
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  }
+});
+```
+
+### Python Example
+
+```python
+import requests
+
+headers = {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+}
+
+response = requests.get('https://api.qa.tech/v1/projects', headers=headers)
+```
+
+## Rate Limits
+
+The API implements rate limiting to ensure fair usage:
+
+- **Standard Plan**: 100 requests per minute
+- **Professional Plan**: 500 requests per minute
+- **Enterprise Plan**: 1000 requests per minute
+
+Rate limit headers are included in all responses:
+
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640995200
+```
+
+## Error Handling
+
+### HTTP Status Codes
+
+| Code | Description |
+|------|-------------|
+| 200 | Success |
+| 201 | Created |
+| 400 | Bad Request - Invalid parameters |
+| 401 | Unauthorized - Invalid API key |
+| 403 | Forbidden - Insufficient permissions |
+| 404 | Not Found - Resource doesn't exist |
+| 429 | Too Many Requests - Rate limit exceeded |
+| 500 | Internal Server Error |
+
+### Error Response Format
+
+```json
+{
+  "error": {
+    "code": "INVALID_PARAMETER",
+    "message": "The 'url' parameter is required",
+    "details": {
+      "parameter": "url",
+      "value": null
+    }
+  }
+}
+```
+
+### Common Error Codes
+
+| Code | Description |
+|------|-------------|
+| `INVALID_API_KEY` | API key is invalid or expired |
+| `RATE_LIMIT_EXCEEDED` | Too many requests in time period |
+| `RESOURCE_NOT_FOUND` | Requested resource doesn't exist |
+| `INVALID_PARAMETER` | Required parameter missing or invalid |
+| `INSUFFICIENT_PERMISSIONS` | User lacks required permissions |
+| `INTERNAL_ERROR` | Server-side error occurred |
+
+## Projects
+
+### List Projects
+
+Retrieve all projects for the authenticated user.
+
+**Endpoint:** `GET /projects`
+
+**Parameters:**
+- `page` (optional): Page number for pagination (default: 1)
+- `limit` (optional): Number of projects per page (default: 20, max: 100)
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": "proj_123456789",
+      "name": "E-commerce Website",
+      "url": "https://example.com",
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-01-15T10:30:00Z",
+      "status": "active",
+      "test_count": 15,
+      "last_test_run": "2024-01-15T09:00:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 45,
+    "pages": 3
+  }
+}
+```
+
+**Example:**
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+     "https://api.qa.tech/v1/projects?page=1&limit=10"
+```
+
+### Get Project
+
+Retrieve details for a specific project.
+
+**Endpoint:** `GET /projects/{project_id}`
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "proj_123456789",
+    "name": "E-commerce Website",
+    "url": "https://example.com",
+    "description": "Main e-commerce platform",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z",
+    "status": "active",
+    "settings": {
+      "timeout": 30,
+      "retry_count": 3,
+      "screenshot_on_failure": true,
+      "video_recording": true
+    },
+    "statistics": {
+      "total_tests": 15,
+      "active_tests": 12,
+      "total_runs": 150,
+      "success_rate": 0.95,
+      "average_duration": 120
+    }
+  }
+}
+```
+
+### Create Project
+
+Create a new project.
+
+**Endpoint:** `POST /projects`
+
+**Request Body:**
+
+```json
+{
+  "name": "New Project",
+  "url": "https://example.com",
+  "description": "Project description (optional)"
+}
+```
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "proj_123456789",
+    "name": "New Project",
+    "url": "https://example.com",
+    "description": "Project description",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z",
+    "status": "active"
+  }
+}
+```
+
+### Update Project
+
+Update project details.
+
+**Endpoint:** `PUT /projects/{project_id}`
+
+**Request Body:**
+
+```json
+{
+  "name": "Updated Project Name",
+  "description": "Updated description"
+}
+```
+
+### Delete Project
+
+Delete a project and all associated tests.
+
+**Endpoint:** `DELETE /projects/{project_id}`
+
+**Response:** `204 No Content`
+
+## Tests
+
+### List Tests
+
+Retrieve all tests for a project.
+
+**Endpoint:** `GET /projects/{project_id}/tests`
+
+**Parameters:**
+- `page` (optional): Page number for pagination
+- `limit` (optional): Number of tests per page
+- `status` (optional): Filter by test status (`active`, `inactive`, `draft`)
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": "test_123456789",
+      "name": "User Login Test",
+      "description": "Test user login functionality",
+      "status": "active",
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-01-15T10:30:00Z",
+      "last_run": "2024-01-15T09:00:00Z",
+      "success_rate": 0.98,
+      "average_duration": 45
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 15,
+    "pages": 1
+  }
+}
+```
+
+### Get Test
+
+Retrieve details for a specific test.
+
+**Endpoint:** `GET /projects/{project_id}/tests/{test_id}`
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "test_123456789",
+    "name": "User Login Test",
+    "description": "Test user login functionality",
+    "instructions": "Navigate to login page, enter credentials, and verify successful login",
+    "status": "active",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z",
+    "settings": {
+      "timeout": 30,
+      "retry_count": 3,
+      "screenshot_on_failure": true,
+      "video_recording": true
+    },
+    "statistics": {
+      "total_runs": 50,
+      "successful_runs": 49,
+      "failed_runs": 1,
+      "success_rate": 0.98,
+      "average_duration": 45,
+      "last_run": "2024-01-15T09:00:00Z"
+    }
+  }
+}
+```
+
+### Create Test
+
+Create a new test.
+
+**Endpoint:** `POST /projects/{project_id}/tests`
+
+**Request Body:**
+
+```json
+{
+  "name": "New Test",
+  "description": "Test description",
+  "instructions": "Natural language instructions for the test",
+  "settings": {
+    "timeout": 30,
+    "retry_count": 3,
+    "screenshot_on_failure": true,
+    "video_recording": true
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "test_123456789",
+    "name": "New Test",
+    "description": "Test description",
+    "instructions": "Natural language instructions for the test",
+    "status": "draft",
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Update Test
+
+Update test details.
+
+**Endpoint:** `PUT /projects/{project_id}/tests/{test_id}`
+
+**Request Body:**
+
+```json
+{
+  "name": "Updated Test Name",
+  "description": "Updated description",
+  "instructions": "Updated instructions"
+}
+```
+
+### Delete Test
+
+Delete a test.
+
+**Endpoint:** `DELETE /projects/{project_id}/tests/{test_id}`
+
+**Response:** `204 No Content`
+
+## Test Runs
+
+### List Test Runs
+
+Retrieve all runs for a test.
+
+**Endpoint:** `GET /projects/{project_id}/tests/{test_id}/runs`
+
+**Parameters:**
+- `page` (optional): Page number for pagination
+- `limit` (optional): Number of runs per page
+- `status` (optional): Filter by run status (`completed`, `failed`, `running`, `cancelled`)
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": "run_123456789",
+      "status": "completed",
+      "result": "passed",
+      "started_at": "2024-01-15T09:00:00Z",
+      "completed_at": "2024-01-15T09:01:30Z",
+      "duration": 90,
+      "screenshot_url": "https://api.qa.tech/v1/runs/run_123456789/screenshot",
+      "video_url": "https://api.qa.tech/v1/runs/run_123456789/video"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 50,
+    "pages": 3
+  }
+}
+```
+
+### Get Test Run
+
+Retrieve details for a specific test run.
+
+**Endpoint:** `GET /projects/{project_id}/tests/{test_id}/runs/{run_id}`
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "run_123456789",
+    "status": "completed",
+    "result": "passed",
+    "started_at": "2024-01-15T09:00:00Z",
+    "completed_at": "2024-01-15T09:01:30Z",
+    "duration": 90,
+    "steps": [
+      {
+        "step": 1,
+        "action": "Navigate to login page",
+        "status": "completed",
+        "duration": 5
+      },
+      {
+        "step": 2,
+        "action": "Enter username",
+        "status": "completed",
+        "duration": 3
+      },
+      {
+        "step": 3,
+        "action": "Enter password",
+        "status": "completed",
+        "duration": 2
+      },
+      {
+        "step": 4,
+        "action": "Click login button",
+        "status": "completed",
+        "duration": 2
+      },
+      {
+        "step": 5,
+        "action": "Verify successful login",
+        "status": "completed",
+        "duration": 3
+      }
+    ],
+    "screenshot_url": "https://api.qa.tech/v1/runs/run_123456789/screenshot",
+    "video_url": "https://api.qa.tech/v1/runs/run_123456789/video",
+    "logs": [
+      {
+        "timestamp": "2024-01-15T09:00:05Z",
+        "level": "info",
+        "message": "Navigated to login page successfully"
+      }
+    ]
+  }
+}
+```
+
+### Run Test
+
+Execute a test immediately.
+
+**Endpoint:** `POST /projects/{project_id}/tests/{test_id}/runs`
+
+**Request Body:**
+
+```json
+{
+  "environment": "staging",
+  "settings": {
+    "timeout": 60,
+    "retry_count": 2
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "run_123456789",
+    "status": "running",
+    "started_at": "2024-01-15T09:00:00Z"
+  }
+}
+```
+
+### Cancel Test Run
+
+Cancel a running test.
+
+**Endpoint:** `POST /projects/{project_id}/tests/{test_id}/runs/{run_id}/cancel`
+
+**Response:**
+
+```json
+{
+  "data": {
+    "id": "run_123456789",
+    "status": "cancelled",
+    "cancelled_at": "2024-01-15T09:00:30Z"
+  }
+}
+```
+
+## Environments
+
+### List Environments
+
+Retrieve all environments for a project.
+
+**Endpoint:** `GET /projects/{project_id}/environments`
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": "env_123456789",
+      "name": "Production",
+      "url": "https://example.com",
+      "status": "active",
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-01-15T10:30:00Z"
+    },
+    {
+      "id": "env_123456790",
+      "name": "Staging",
+      "url": "https://staging.example.com",
+      "status": "active",
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+### Create Environment
+
+Create a new environment.
+
+**Endpoint:** `POST /projects/{project_id}/environments`
+
+**Request Body:**
+
+```json
+{
+  "name": "Development",
+  "url": "https://dev.example.com"
+}
+```
+
+## Integrations
+
+### List Integrations
+
+Retrieve all integrations for a project.
+
+**Endpoint:** `GET /projects/{project_id}/integrations`
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": "int_123456789",
+      "type": "jira",
+      "name": "Jira Integration",
+      "status": "active",
+      "config": {
+        "project_key": "PROJ",
+        "issue_type": "Bug"
+      },
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+### Create Integration
+
+Create a new integration.
+
+**Endpoint:** `POST /projects/{project_id}/integrations`
+
+**Request Body:**
+
+```json
+{
+  "type": "jira",
+  "name": "Jira Integration",
+  "config": {
+    "project_key": "PROJ",
+    "issue_type": "Bug",
+    "api_token": "your_jira_api_token",
+    "base_url": "https://your-domain.atlassian.net"
+  }
+}
+```
+
+## Webhooks
+
+### List Webhooks
+
+Retrieve all webhooks for a project.
+
+**Endpoint:** `GET /projects/{project_id}/webhooks`
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": "webhook_123456789",
+      "name": "Test Results Webhook",
+      "url": "https://your-app.com/webhook",
+      "events": ["test.completed", "test.failed"],
+      "status": "active",
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+### Create Webhook
+
+Create a new webhook.
+
+**Endpoint:** `POST /projects/{project_id}/webhooks`
+
+**Request Body:**
+
+```json
+{
+  "name": "Test Results Webhook",
+  "url": "https://your-app.com/webhook",
+  "events": ["test.completed", "test.failed"],
+  "secret": "your_webhook_secret"
+}
+```
+
+## SDKs and Libraries
+
+### JavaScript/Node.js SDK
+
+Install the official JavaScript SDK:
+
+```bash
+npm install @qa-tech/sdk
+```
+
+**Usage:**
+
+```javascript
+import { QATech } from '@qa-tech/sdk';
+
+const client = new QATech('YOUR_API_KEY');
+
+// List projects
+const projects = await client.projects.list();
+
+// Create a test
+const test = await client.tests.create('proj_123456789', {
+  name: 'Login Test',
+  description: 'Test user login functionality',
+  instructions: 'Navigate to login page, enter credentials, and verify successful login'
+});
+
+// Run a test
+const run = await client.runs.create('proj_123456789', 'test_123456789');
+
+// Get test results
+const results = await client.runs.get('proj_123456789', 'test_123456789', 'run_123456789');
+```
+
+### Python SDK
+
+Install the official Python SDK:
+
+```bash
+pip install qa-tech-sdk
+```
+
+**Usage:**
+
+```python
+from qa_tech import QATech
+
+client = QATech('YOUR_API_KEY')
+
+# List projects
+projects = client.projects.list()
+
+# Create a test
+test = client.tests.create('proj_123456789', {
+    'name': 'Login Test',
+    'description': 'Test user login functionality',
+    'instructions': 'Navigate to login page, enter credentials, and verify successful login'
+})
+
+# Run a test
+run = client.runs.create('proj_123456789', 'test_123456789')
+
+# Get test results
+results = client.runs.get('proj_123456789', 'test_123456789', 'run_123456789')
+```
+
+## Interactive Examples
+
+### Complete Test Workflow
+
+This example demonstrates a complete workflow for creating and running tests:
+
+```javascript
+import { QATech } from '@qa-tech/sdk';
+
+const client = new QATech('YOUR_API_KEY');
+
+async function completeTestWorkflow() {
+  try {
+    // 1. Get or create a project
+    const projects = await client.projects.list();
+    let project = projects.data[0];
+    
+    if (!project) {
+      project = await client.projects.create({
+        name: 'My Test Project',
+        url: 'https://example.com'
+      });
+    }
+
+    // 2. Create a test
+    const test = await client.tests.create(project.id, {
+      name: 'E-commerce Checkout Test',
+      description: 'Test the complete checkout process',
+      instructions: `
+        1. Navigate to the homepage
+        2. Search for a product
+        3. Add the first product to cart
+        4. Proceed to checkout
+        5. Fill in shipping information
+        6. Complete the purchase
+        7. Verify order confirmation
+      `
+    });
+
+    // 3. Run the test
+    const run = await client.runs.create(project.id, test.id);
+    console.log(`Test run started: ${run.id}`);
+
+    // 4. Poll for completion
+    let completed = false;
+    while (!completed) {
+      const status = await client.runs.get(project.id, test.id, run.id);
+      if (status.data.status === 'completed') {
+        completed = true;
+        console.log(`Test completed with result: ${status.data.result}`);
+        
+        if (status.data.result === 'failed') {
+          console.log('Screenshot URL:', status.data.screenshot_url);
+          console.log('Video URL:', status.data.video_url);
+        }
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+      }
+    }
+
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+completeTestWorkflow();
+```
+
+### Error Handling Example
+
+```javascript
+import { QATech } from '@qa-tech/sdk';
+
+const client = new QATech('YOUR_API_KEY');
+
+async function handleErrors() {
+  try {
+    const projects = await client.projects.list();
+  } catch (error) {
+    switch (error.code) {
+      case 'INVALID_API_KEY':
+        console.error('Please check your API key');
+        break;
+      case 'RATE_LIMIT_EXCEEDED':
+        console.error('Rate limit exceeded. Please wait before retrying.');
+        break;
+      case 'RESOURCE_NOT_FOUND':
+        console.error('The requested resource was not found');
+        break;
+      default:
+        console.error('An unexpected error occurred:', error.message);
+    }
+  }
+}
+```
+
+## Best Practices
+
+### API Key Security
+
+- Store API keys securely and never commit them to version control
+- Use environment variables for API keys in production
+- Rotate API keys regularly
+- Use different API keys for different environments
+
+### Rate Limiting
+
+- Implement exponential backoff for retries
+- Monitor rate limit headers in responses
+- Cache responses when appropriate
+- Batch requests when possible
+
+### Error Handling
+
+- Always check HTTP status codes
+- Implement proper error handling for all API calls
+- Log errors for debugging
+- Provide user-friendly error messages
+
+### Testing
+
+- Use the API to automate your testing workflows
+- Implement webhooks for real-time notifications
+- Set up monitoring for test results
+- Use the SDKs for easier integration
+
+## Support
+
+For API support and questions:
+
+- **Documentation**: This reference guide
+- **SDK Documentation**: Available in the respective SDK repositories
+- **Support Team**: Contact us for technical assistance
+- **Community**: Join our developer community for discussions
+
+## Next Steps
+
+- **[Creating Tests](/best-practices/creating-tests)** - Learn how to write effective test cases
+- **[Configuration](/configuration/github)** - Set up CI/CD integration
+- **[Integrations](/integrations/jira)** - Connect with your existing tools
+- **[Troubleshooting](/best-practices/troubleshooting)** - Resolve common issues

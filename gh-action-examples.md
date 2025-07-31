@@ -28,7 +28,7 @@ jobs:
 | --------------------- | ---------------------------------------------------------- | -------- | --------------------- |
 | `project_id`          | Your QA.tech project ID                                    | Yes      | -                     |
 | `api_token`           | QA.tech API token                                          | Yes      | -                     |
-| `api_url`             | Custom API URL if needed                                   | No       | <https://app.qa.tech> |
+| `api_url`             | Custom API URL if needed                                   | No       | https://app.qa.tech |
 | `test_plan_short_id`  | Test plan short ID to run                                  | No       | -                     |
 | `blocking`            | Enables blocking mode to wait for the test run to complete | No       | false                 |
 | `applications_config` | JSON string containing application environment overrides   | No       | -                     |

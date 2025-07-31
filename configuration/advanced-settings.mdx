@@ -1,0 +1,882 @@
+---
+title: Advanced Settings
+description: "Configure QA.tech for advanced use cases including environment variables, CLI options, CI/CD integration, and test optimization"
+icon: wrench
+---
+
+# Advanced Configuration
+
+QA.tech provides extensive configuration options for advanced users who need fine-grained control over testing behavior, integration with complex environments, and optimization for specific use cases.
+
+## Environment Variables
+
+QA.tech supports various environment variables for customizing behavior across different environments.
+
+### Core Environment Variables
+
+```bash
+# Authentication and API
+QA_TECH_API_KEY=your_api_key_here
+QA_TECH_PROJECT_ID=your_project_id
+
+# Test Execution
+QA_TECH_TIMEOUT=30000
+QA_TECH_RETRY_COUNT=3
+QA_TECH_SCREENSHOT_ON_FAILURE=true
+QA_TECH_VIDEO_RECORDING=true
+
+# Browser Configuration
+QA_TECH_BROWSER=chrome
+QA_TECH_HEADLESS=true
+QA_TECH_VIEWPORT_WIDTH=1920
+QA_TECH_VIEWPORT_HEIGHT=1080
+
+# Network Settings
+QA_TECH_NETWORK_TIMEOUT=60000
+QA_TECH_PROXY_URL=http://proxy.company.com:8080
+QA_TECH_PROXY_USERNAME=proxy_user
+QA_TECH_PROXY_PASSWORD=proxy_pass
+```
+
+### Environment-Specific Variables
+
+#### **Development Environment**
+```bash
+# Development settings
+QA_TECH_ENVIRONMENT=development
+QA_TECH_BASE_URL=https://dev.example.com
+QA_TECH_DEBUG_MODE=true
+QA_TECH_LOG_LEVEL=debug
+QA_TECH_TEST_DATA_PATH=./test-data/dev
+```
+
+#### **Staging Environment**
+```bash
+# Staging settings
+QA_TECH_ENVIRONMENT=staging
+QA_TECH_BASE_URL=https://staging.example.com
+QA_TECH_DEBUG_MODE=false
+QA_TECH_LOG_LEVEL=info
+QA_TECH_TEST_DATA_PATH=./test-data/staging
+```
+
+#### **Production Environment**
+```bash
+# Production settings
+QA_TECH_ENVIRONMENT=production
+QA_TECH_BASE_URL=https://example.com
+QA_TECH_DEBUG_MODE=false
+QA_TECH_LOG_LEVEL=warn
+QA_TECH_TEST_DATA_PATH=./test-data/prod
+```
+
+### Advanced Environment Variables
+
+```bash
+# Performance Optimization
+QA_TECH_PARALLEL_EXECUTION=true
+QA_TECH_MAX_CONCURRENT_TESTS=5
+QA_TECH_MEMORY_LIMIT=2048
+QA_TECH_CPU_LIMIT=2
+
+# Security Settings
+QA_TECH_SSL_VERIFY=true
+QA_TECH_CERT_PATH=/path/to/certificates
+QA_TECH_INSECURE_SSL=false
+
+# Custom Configuration
+QA_TECH_CUSTOM_HEADERS={"X-Test-Mode": "true"}
+QA_TECH_USER_AGENT="QA.tech Test Runner/1.0"
+QA_TECH_COOKIES_PATH=./cookies.json
+```
+
+## CLI Configuration
+
+QA.tech provides a command-line interface for advanced users and automation scenarios.
+
+### Basic CLI Usage
+
+```bash
+# Install QA.tech CLI
+npm install -g @qa-tech/cli
+
+# Authenticate with API key
+qa-tech login --api-key YOUR_API_KEY
+
+# List projects
+qa-tech projects list
+
+# Run a specific test
+qa-tech tests run --project-id proj_123 --test-id test_456
+
+# Run all tests in a project
+qa-tech tests run-all --project-id proj_123
+```
+
+### Advanced CLI Options
+
+```bash
+# Run tests with custom configuration
+qa-tech tests run \
+  --project-id proj_123 \
+  --test-id test_456 \
+  --environment staging \
+  --timeout 60000 \
+  --retry-count 3 \
+  --screenshot-on-failure \
+  --video-recording
+
+# Run tests in parallel
+qa-tech tests run-parallel \
+  --project-id proj_123 \
+  --max-concurrent 5 \
+  --test-pattern "login*"
+
+# Export test results
+qa-tech tests export \
+  --project-id proj_123 \
+  --format json \
+  --output results.json
+
+# Generate test report
+qa-tech reports generate \
+  --project-id proj_123 \
+  --start-date 2024-01-01 \
+  --end-date 2024-01-31 \
+  --format html
+```
+
+### Configuration File
+
+Create a `qa-tech.config.js` file for persistent configuration:
+
+```javascript
+module.exports = {
+  // API Configuration
+  apiKey: process.env.QA_TECH_API_KEY,
+  projectId: process.env.QA_TECH_PROJECT_ID,
+  
+  // Test Execution
+  timeout: 30000,
+  retryCount: 3,
+  screenshotOnFailure: true,
+  videoRecording: true,
+  
+  // Browser Settings
+  browser: 'chrome',
+  headless: true,
+  viewport: {
+    width: 1920,
+    height: 1080
+  },
+  
+  // Network Configuration
+  networkTimeout: 60000,
+  proxy: {
+    url: process.env.QA_TECH_PROXY_URL,
+    username: process.env.QA_TECH_PROXY_USERNAME,
+    password: process.env.QA_TECH_PROXY_PASSWORD
+  },
+  
+  // Performance Settings
+  parallelExecution: true,
+  maxConcurrentTests: 5,
+  
+  // Custom Headers
+  headers: {
+    'X-Test-Mode': 'true',
+    'User-Agent': 'QA.tech Test Runner/1.0'
+  },
+  
+  // Environment-specific settings
+  environments: {
+    development: {
+      baseUrl: 'https://dev.example.com',
+      debugMode: true,
+      logLevel: 'debug'
+    },
+    staging: {
+      baseUrl: 'https://staging.example.com',
+      debugMode: false,
+      logLevel: 'info'
+    },
+    production: {
+      baseUrl: 'https://example.com',
+      debugMode: false,
+      logLevel: 'warn'
+    }
+  }
+};
+```
+
+## CI/CD Integration
+
+### GitHub Actions
+
+#### **Basic GitHub Actions Workflow**
+
+```yaml
+name: QA.tech Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install QA.tech CLI
+      run: npm install -g @qa-tech/cli
+      
+    - name: Run QA.tech Tests
+      run: |
+        qa-tech login --api-key ${{ secrets.QA_TECH_API_KEY }}
+        qa-tech tests run-all --project-id ${{ secrets.QA_TECH_PROJECT_ID }}
+      env:
+        QA_TECH_ENVIRONMENT: staging
+        QA_TECH_TIMEOUT: 60000
+        QA_TECH_RETRY_COUNT: 3
+```
+
+#### **Advanced GitHub Actions Workflow**
+
+```yaml
+name: QA.tech Advanced Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        environment: [staging, production]
+        browser: [chrome, firefox]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install QA.tech CLI
+      run: npm install -g @qa-tech/cli
+      
+    - name: Run Tests
+      run: |
+        qa-tech login --api-key ${{ secrets.QA_TECH_API_KEY }}
+        qa-tech tests run-parallel \
+          --project-id ${{ secrets.QA_TECH_PROJECT_ID }} \
+          --environment ${{ matrix.environment }} \
+          --browser ${{ matrix.browser }} \
+          --max-concurrent 3
+      env:
+        QA_TECH_TIMEOUT: 60000
+        QA_TECH_RETRY_COUNT: 3
+        QA_TECH_SCREENSHOT_ON_FAILURE: true
+        QA_TECH_VIDEO_RECORDING: true
+        
+    - name: Generate Report
+      run: |
+        qa-tech reports generate \
+          --project-id ${{ secrets.QA_TECH_PROJECT_ID }} \
+          --format html \
+          --output test-report.html
+      if: always()
+      
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.environment }}-${{ matrix.browser }}
+        path: test-report.html
+      if: always()
+```
+
+### GitLab CI
+
+#### **Basic GitLab CI Configuration**
+
+```yaml
+stages:
+  - test
+
+qa-tech-tests:
+  stage: test
+  image: node:18
+  before_script:
+    - npm install -g @qa-tech/cli
+    - qa-tech login --api-key $QA_TECH_API_KEY
+  script:
+    - qa-tech tests run-all --project-id $QA_TECH_PROJECT_ID
+  environment:
+    name: staging
+  variables:
+    QA_TECH_ENVIRONMENT: staging
+    QA_TECH_TIMEOUT: 60000
+    QA_TECH_RETRY_COUNT: 3
+  artifacts:
+    reports:
+      junit: test-results.xml
+    paths:
+      - test-report.html
+    expire_in: 1 week
+```
+
+#### **Advanced GitLab CI Configuration**
+
+```yaml
+stages:
+  - test
+  - report
+
+variables:
+  QA_TECH_TIMEOUT: 60000
+  QA_TECH_RETRY_COUNT: 3
+  QA_TECH_SCREENSHOT_ON_FAILURE: "true"
+  QA_TECH_VIDEO_RECORDING: "true"
+
+.qa-tech-template: &qa-tech-template
+  image: node:18
+  before_script:
+    - npm install -g @qa-tech/cli
+    - qa-tech login --api-key $QA_TECH_API_KEY
+
+qa-tech-staging:
+  <<: *qa-tech-template
+  stage: test
+  script:
+    - qa-tech tests run-parallel --project-id $QA_TECH_PROJECT_ID --environment staging --max-concurrent 3
+  environment:
+    name: staging
+  artifacts:
+    paths:
+      - test-results-staging/
+    expire_in: 1 week
+
+qa-tech-production:
+  <<: *qa-tech-template
+  stage: test
+  script:
+    - qa-tech tests run-parallel --project-id $QA_TECH_PROJECT_ID --environment production --max-concurrent 3
+  environment:
+    name: production
+  when: manual
+  artifacts:
+    paths:
+      - test-results-production/
+    expire_in: 1 week
+
+generate-report:
+  <<: *qa-tech-template
+  stage: report
+  script:
+    - qa-tech reports generate --project-id $QA_TECH_PROJECT_ID --format html --output test-report.html
+  artifacts:
+    paths:
+      - test-report.html
+    expire_in: 1 month
+  dependencies:
+    - qa-tech-staging
+    - qa-tech-production
+```
+
+### Jenkins Pipeline
+
+#### **Basic Jenkins Pipeline**
+
+```groovy
+pipeline {
+    agent any
+    
+    environment {
+        QA_TECH_API_KEY = credentials('qa-tech-api-key')
+        QA_TECH_PROJECT_ID = 'proj_123'
+        QA_TECH_ENVIRONMENT = 'staging'
+    }
+    
+    stages {
+        stage('Setup') {
+            steps {
+                sh 'npm install -g @qa-tech/cli'
+                sh 'qa-tech login --api-key $QA_TECH_API_KEY'
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                sh '''
+                    qa-tech tests run-all \
+                        --project-id $QA_TECH_PROJECT_ID \
+                        --environment $QA_TECH_ENVIRONMENT \
+                        --timeout 60000 \
+                        --retry-count 3
+                '''
+            }
+        }
+        
+        stage('Generate Report') {
+            steps {
+                sh '''
+                    qa-tech reports generate \
+                        --project-id $QA_TECH_PROJECT_ID \
+                        --format html \
+                        --output test-report.html
+                '''
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: 'test-report.html',
+                    reportName: 'QA.tech Test Report'
+                ])
+            }
+        }
+    }
+    
+    post {
+        always {
+            archiveArtifacts artifacts: 'test-report.html', fingerprint: true
+        }
+    }
+}
+```
+
+#### **Advanced Jenkins Pipeline**
+
+```groovy
+pipeline {
+    agent any
+    
+    environment {
+        QA_TECH_API_KEY = credentials('qa-tech-api-key')
+        QA_TECH_PROJECT_ID = 'proj_123'
+    }
+    
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['staging', 'production'],
+            description: 'Select environment to test'
+        )
+        booleanParam(
+            name: 'PARALLEL_EXECUTION',
+            defaultValue: true,
+            description: 'Run tests in parallel'
+        )
+        string(
+            name: 'TEST_PATTERN',
+            defaultValue: '*',
+            description: 'Test pattern to run'
+        )
+    }
+    
+    stages {
+        stage('Setup') {
+            steps {
+                sh 'npm install -g @qa-tech/cli'
+                sh 'qa-tech login --api-key $QA_TECH_API_KEY'
+            }
+        }
+        
+        stage('Run Tests') {
+            parallel {
+                stage('Chrome Tests') {
+                    steps {
+                        sh '''
+                            qa-tech tests run-parallel \
+                                --project-id $QA_TECH_PROJECT_ID \
+                                --environment $ENVIRONMENT \
+                                --browser chrome \
+                                --test-pattern "$TEST_PATTERN" \
+                                --max-concurrent 3
+                        '''
+                    }
+                }
+                stage('Firefox Tests') {
+                    steps {
+                        sh '''
+                            qa-tech tests run-parallel \
+                                --project-id $QA_TECH_PROJECT_ID \
+                                --environment $ENVIRONMENT \
+                                --browser firefox \
+                                --test-pattern "$TEST_PATTERN" \
+                                --max-concurrent 3
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Generate Report') {
+            steps {
+                sh '''
+                    qa-tech reports generate \
+                        --project-id $QA_TECH_PROJECT_ID \
+                        --environment $ENVIRONMENT \
+                        --format html \
+                        --output test-report-$ENVIRONMENT.html
+                '''
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: "test-report-$ENVIRONMENT.html",
+                    reportName: "QA.tech Test Report - $ENVIRONMENT"
+                ])
+            }
+        }
+    }
+    
+    post {
+        always {
+            archiveArtifacts artifacts: "test-report-$ENVIRONMENT.html", fingerprint: true
+        }
+        success {
+            emailext (
+                subject: "QA.tech Tests Passed - $ENVIRONMENT",
+                body: "All tests passed successfully for environment: $ENVIRONMENT",
+                to: 'team@example.com'
+            )
+        }
+        failure {
+            emailext (
+                subject: "QA.tech Tests Failed - $ENVIRONMENT",
+                body: "Some tests failed for environment: $ENVIRONMENT. Check the Jenkins build for details.",
+                to: 'team@example.com'
+            )
+        }
+    }
+}
+```
+
+## Test Configuration Options
+
+### Browser Configuration
+
+```javascript
+// Browser settings
+const browserConfig = {
+  // Browser selection
+  browser: 'chrome', // 'chrome', 'firefox', 'safari', 'edge'
+  
+  // Headless mode
+  headless: true,
+  
+  // Viewport settings
+  viewport: {
+    width: 1920,
+    height: 1080
+  },
+  
+  // Browser arguments
+  args: [
+    '--no-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-web-security',
+    '--disable-features=VizDisplayCompositor'
+  ],
+  
+  // User agent
+  userAgent: 'QA.tech Test Runner/1.0',
+  
+  // Device emulation
+  device: {
+    name: 'iPhone 12',
+    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)',
+    viewport: {
+      width: 390,
+      height: 844
+    }
+  }
+};
+```
+
+### Network and Performance Configuration
+
+```javascript
+// Network settings
+const networkConfig = {
+  // Timeouts
+  timeout: 30000,
+  navigationTimeout: 30000,
+  waitTimeout: 10000,
+  
+  // Network conditions
+  networkConditions: {
+    offline: false,
+    downloadThroughput: 1024 * 1024, // 1MB/s
+    uploadThroughput: 1024 * 1024,   // 1MB/s
+    latency: 100 // 100ms
+  },
+  
+  // Request interception
+  interceptRequests: true,
+  blockPatterns: [
+    '*.google-analytics.com',
+    '*.facebook.com',
+    '*.doubleclick.net'
+  ],
+  
+  // Cache settings
+  cacheEnabled: false,
+  clearCacheOnNavigation: true
+};
+```
+
+### Test Data Management
+
+```javascript
+// Test data configuration
+const testDataConfig = {
+  // Data sources
+  dataSources: {
+    users: './test-data/users.json',
+    products: './test-data/products.json',
+    orders: './test-data/orders.json'
+  },
+  
+  // Data generation
+  generateData: {
+    enabled: true,
+    patterns: {
+      email: 'test-{random}@example.com',
+      phone: '+1-555-{random}-{random}',
+      name: 'Test User {random}'
+    }
+  },
+  
+  // Data cleanup
+  cleanup: {
+    enabled: true,
+    afterTest: true,
+    afterSuite: true,
+    methods: ['delete', 'reset', 'archive']
+  }
+};
+```
+
+## Flaky Test Handling
+
+### Retry Configuration
+
+```javascript
+// Retry settings
+const retryConfig = {
+  // Basic retry
+  retryCount: 3,
+  retryDelay: 2000,
+  
+  // Advanced retry
+  retryStrategy: 'exponential', // 'linear', 'exponential', 'custom'
+  maxRetryDelay: 10000,
+  
+  // Conditional retry
+  retryConditions: [
+    'element_not_found',
+    'timeout_error',
+    'network_error',
+    'stale_element_reference'
+  ],
+  
+  // Retry exclusions
+  excludeConditions: [
+    'authentication_failed',
+    'invalid_credentials',
+    'permission_denied'
+  ]
+};
+```
+
+### Stabilization Patterns
+
+```javascript
+// Wait strategies
+const waitStrategies = {
+  // Element waits
+  elementWait: {
+    timeout: 10000,
+    interval: 500,
+    condition: 'visible' // 'visible', 'clickable', 'present'
+  },
+  
+  // Page waits
+  pageWait: {
+    loadState: 'networkidle', // 'load', 'domcontentloaded', 'networkidle'
+    timeout: 30000
+  },
+  
+  // Custom waits
+  customWaits: {
+    'ajax-complete': () => {
+      return page.waitForFunction(() => {
+        return window.jQuery && !window.jQuery.active;
+      });
+    },
+    'animation-complete': () => {
+      return page.waitForFunction(() => {
+        return !document.querySelector('.animating');
+      });
+    }
+  }
+};
+```
+
+## Monitoring and Analytics
+
+### Test Metrics Collection
+
+```javascript
+// Metrics configuration
+const metricsConfig = {
+  // Performance metrics
+  performance: {
+    pageLoadTime: true,
+    firstContentfulPaint: true,
+    largestContentfulPaint: true,
+    cumulativeLayoutShift: true
+  },
+  
+  // Test metrics
+  testMetrics: {
+    executionTime: true,
+    successRate: true,
+    failureRate: true,
+    flakinessScore: true
+  },
+  
+  // Custom metrics
+  customMetrics: {
+    'api-response-time': true,
+    'database-query-time': true,
+    'third-party-load-time': true
+  }
+};
+```
+
+### Custom Reporting
+
+```javascript
+// Custom report configuration
+const reportConfig = {
+  // Report formats
+  formats: ['html', 'json', 'junit', 'allure'],
+  
+  // Report content
+  content: {
+    screenshots: true,
+    videos: true,
+    logs: true,
+    performance: true,
+    customData: true
+  },
+  
+  // Report customization
+  customization: {
+    title: 'QA.tech Test Report',
+    logo: './assets/logo.png',
+    theme: 'dark',
+    charts: true,
+    filters: true
+  }
+};
+```
+
+## Security and Access Control
+
+### API Key Management
+
+```javascript
+// API key configuration
+const apiKeyConfig = {
+  // Key rotation
+  rotation: {
+    enabled: true,
+    interval: '30d', // 30 days
+    gracePeriod: '7d' // 7 days
+  },
+  
+  // Key permissions
+  permissions: {
+    read: true,
+    write: true,
+    delete: false,
+    admin: false
+  },
+  
+  // Key scoping
+  scope: {
+    projects: ['proj_123', 'proj_456'],
+    environments: ['staging', 'production'],
+    features: ['tests', 'reports']
+  }
+};
+```
+
+### IP Access Control
+
+```javascript
+// IP access control
+const ipAccessControl = {
+  // Allowed IPs
+  allowedIPs: [
+    '192.168.1.0/24',
+    '10.0.0.0/8',
+    '172.16.0.0/12'
+  ],
+  
+  // Blocked IPs
+  blockedIPs: [
+    '192.168.1.100',
+    '10.0.0.50'
+  ],
+  
+  // Geolocation restrictions
+  geoRestrictions: {
+    allowedCountries: ['US', 'CA', 'GB'],
+    blockedCountries: ['CN', 'RU']
+  }
+};
+```
+
+## Conclusion
+
+Advanced configuration in QA.tech provides the flexibility and control needed for complex testing scenarios. By leveraging these features, you can:
+
+- **Optimize test execution for your specific environment**
+- **Integrate seamlessly with existing CI/CD pipelines**
+- **Handle complex enterprise requirements**
+- **Monitor and analyze test performance**
+- **Implement robust security measures**
+
+Start with basic configuration and gradually add advanced features as your needs evolve.
+
+## Next Steps
+
+- **[Environment Setup](/configuration/environment-setup)** - Set up different testing environments
+- **[CI/CD Integration](/configuration/github)** - Integrate with your development workflow
+- **[Troubleshooting](/best-practices/troubleshooting)** - Resolve configuration issues
+- **[Performance Optimization](/core-concepts/output-state-optimization)** - Optimize test execution 
