@@ -32,12 +32,7 @@
       "icon": "book-open-cover",
       "url": "introduction"
     },
-    {
-      "name": "API Reference",
-      "openapi": "/api-reference/start-run.json",
-      "url": "api-reference",
-      "icon": "square-terminal"
-    },
+
     {
       "name": "Discord",
       "icon": "discord",
@@ -55,18 +50,18 @@
       "pages": ["introduction"]
     },
     {
-      "group": "Best Practices",
+      "group": "Creating Tests",
+      "icon": "plus-circle",
       "pages": [
         "best-practices/creating-tests",
         "best-practices/project-context",
         "best-practices/running-tests",
-        "best-practices/test-results",
-        "best-practices/handle-auth",
-        "best-practices/troubleshooting"
+        "best-practices/test-results"
       ]
     },
     {
       "group": "Core Concepts",
+      "icon": "brain-circuit",
       "pages": [
         "core-concepts/overview",
         "core-concepts/ai-agent-testing",
@@ -86,6 +81,7 @@
     },
     {
       "group": "Test Features",
+      "icon": "puzzle-piece",
       "pages": [
         "test-features/email-inbox",
         "test-features/file-uploads",
@@ -96,17 +92,36 @@
     },
     {
       "group": "Configuration",
+      "icon": "settings",
       "pages": [
         "configuration/github",
         "configuration/gitlab",
         "configuration/envoyer",
         "configuration/authentication",
         "configuration/ip-access-control",
-        "configuration/auth-rate-limits"
+        "configuration/auth-rate-limits",
+        "configuration/advanced-settings",
+        "configuration/environment-setup"
+      ]
+    },
+    {
+      "group": "Best Practices",
+      "icon": "lightbulb",
+      "pages": [
+        "best-practices/handle-auth",
+        "best-practices/troubleshooting"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "icon": "square-terminal",
+      "pages": [
+        "api-reference/introduction"
       ]
     },
     {
       "group": "Integrations",
+      "icon": "link",
       "pages": [
         "integrations/trello",
         "integrations/linear",
@@ -116,6 +131,7 @@
     },
     {
       "group": "Applications",
+      "icon": "app-window",
       "pages": ["applications/se-bank-id"]
     }
   ],
