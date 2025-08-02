@@ -1,25 +1,358 @@
 ---
 title: Test Results
+description: "Interpret AI-generated test results and take action based on findings"
 icon: check-double
 ---
 
-## How to review test results
+# Understanding AI-Generated Test Results
 
-We recommend the following process:
+QA.tech's AI agents provide comprehensive test results that help you understand what happened during test execution and how to respond to findings. Learn how to interpret results, analyze AI decisions, and take appropriate action.
 
-1. Assign someone on your team to manage the results. This can be the **QA team** or the **developer** responsible for the PR/release that triggered the test run.
-2. If a test fails, triage it by:
-   - Navigating to the failing test.
-   - Reviewing the playback to see what went wrong.
-3. If the issue is related to your product:
-   - Handle it as you typically would for regressions in your product.
-4. If the failure is due to a bad test:
-   - Modify the failed step to better guide the agent for future runs. For example, you might choose to make the step more or less deterministic, depending on your needs.
+## Understanding Test Result Structure
 
-## Notifications
+### Basic Result Information
 
-The best way to get notified of a failing test is to set up [Notifications](/core-concepts/notifications)
+Every test result includes:
 
-## Export the Issues
+```
+✅ Test: "User Login Flow"
+   Status: PASSED
+   Steps: 8 completed / 0 failed
+   Duration: 45 seconds
+   Environment: Staging
+   AI Agent: Latest
+   Screenshots: 3 captured
+   Video: Available
+```
 
-When we find an Issue it's tracked and saved - and you can always export them to your own project management tool - we have multiple integrations. See the Integrations section in the bottom left.
+### Detailed Result Components
+
+**Execution Summary:**
+- Test name and description
+- Overall status (PASSED/FAILED/PARTIAL)
+- Number of steps completed vs. failed
+- Total execution time
+- Environment and AI agent used
+
+**Step-by-Step Details:**
+- Each action the AI performed
+- Time taken for each step
+- Screenshots at key points
+- Any issues encountered
+- AI decision-making process
+
+**Visual Evidence:**
+- Screenshots of each interaction
+- Video recording of full execution
+- Highlighted areas of interaction
+- Error screenshots if failures occur
+
+## Interpreting Different Result Types
+
+### Successful Test Results
+
+**What You'll See:**
+```
+✅ Test completed successfully
+📸 Screenshots captured at key points
+🎥 Video recording available
+⏱️ Total execution time: 30-60 seconds
+🧠 AI learned from this execution
+```
+
+**What This Means:**
+- All test steps completed as expected
+- AI agent successfully navigated your application
+- No issues found in the tested functionality
+- AI improved its understanding for future tests
+
+**Recommended Actions:**
+- Review screenshots to verify expected behavior
+- Check video recording for any unexpected interactions
+- Consider expanding test coverage if needed
+- Monitor for any edge cases not covered
+
+### Failed Test Results
+
+**What You'll See:**
+```
+❌ Test failed at step 5
+⚠️ Issue: "Element not found: login button"
+📸 Screenshot captured at failure point
+💡 AI suggestion: "Try describing the button more specifically"
+```
+
+**What This Means:**
+- AI agent encountered an issue during execution
+- Test stopped at the point of failure
+- Screenshot shows the exact state when failure occurred
+- AI provides suggestions for improvement
+
+**Recommended Actions:**
+- Review the failure screenshot
+- Check if the application changed
+- Improve test description if needed
+- Verify element accessibility
+
+### Partial Success Results
+
+**What You'll See:**
+```
+⚠️ Test completed with issues
+✅ 7 steps passed / 1 step failed
+📸 Screenshots available for all steps
+💡 AI suggestions for improvement
+```
+
+**What This Means:**
+- Most of the test completed successfully
+- One or more steps encountered issues
+- AI provides insights on what went wrong
+- Test may need refinement
+
+**Recommended Actions:**
+- Review which steps failed and why
+- Check if failures are due to application changes
+- Consider if test description needs improvement
+- Decide if failures are critical or acceptable
+
+## Analyzing AI Decision Making
+
+### Understanding AI Actions
+
+**Element Selection:**
+- How AI chose which elements to interact with
+- Why AI selected specific buttons, links, or forms
+- Alternative elements AI considered
+
+**Wait Strategies:**
+- How AI handled dynamic content
+- Wait times used for different elements
+- Adaptive waiting based on page behavior
+
+**Error Recovery:**
+- How AI responded to unexpected situations
+- Alternative approaches AI tried
+- Learning from failed attempts
+
+### AI Learning Insights
+
+**Pattern Recognition:**
+- How AI learned from this execution
+- Improved element recognition
+- Better wait strategies identified
+
+**Knowledge Updates:**
+- New patterns added to AI knowledge
+- Improved understanding of your application
+- Enhanced future test capabilities
+
+## Taking Action Based on Results
+
+### For Successful Tests
+
+<Steps>
+  <Step title="Verify Expected Behavior">
+    Review screenshots and video to ensure the test behaved as expected
+  </Step>
+  <Step title="Check for Edge Cases">
+    Consider if the test covers all important scenarios
+  </Step>
+  <Step title="Expand Coverage">
+    Create additional tests for related functionality
+  </Step>
+  <Step title="Document Learnings">
+    Note any insights about your application's behavior
+  </Step>
+</Steps>
+
+### For Failed Tests
+
+<Steps>
+  <Step title="Review Failure Point">
+    Examine the screenshot and video at the failure point
+  </Step>
+  <Step title="Identify Root Cause">
+    Determine if it's an application issue or test description problem
+  </Step>
+  <Step title="Take Appropriate Action">
+    Fix application issue or improve test description
+  </Step>
+  <Step title="Re-run Test">
+    Execute the test again to verify the fix
+  </Step>
+</Steps>
+
+### For Application Issues
+
+**When AI finds a bug:**
+1. **Reproduce the issue** - Use the AI's steps to manually reproduce
+2. **Document the problem** - Create a bug report with AI's evidence
+3. **Fix the issue** - Address the problem in your application
+4. **Re-run the test** - Verify the fix resolves the issue
+
+**When AI finds a regression:**
+1. **Compare with previous results** - Check if this worked before
+2. **Identify the change** - Determine what caused the regression
+3. **Rollback or fix** - Either revert the change or fix the issue
+4. **Update tests** - Modify tests if the change was intentional
+
+### For Test Description Issues
+
+**When AI can't understand your test:**
+1. **Review the test description** - Make it more specific and clear
+2. **Add more context** - Include additional details about what to test
+3. **Use AI chat** - Ask the AI for suggestions on improving the description
+4. **Test the improved description** - Run the updated test
+
+**When AI makes wrong assumptions:**
+1. **Provide more context** - Add business logic and requirements
+2. **Specify validation points** - Tell AI exactly what to verify
+3. **Include edge cases** - Mention important scenarios to test
+4. **Use global context** - Add project-specific guidelines
+
+## Result Management and Reporting
+
+### Setting Up Result Monitoring
+
+<Steps>
+  <Step title="Configure Notifications">
+    Set up alerts for test failures and important results
+  </Step>
+  <Step title="Define Review Process">
+    Establish who reviews results and how often
+  </Step>
+  <Step title="Create Reporting Schedule">
+    Set up regular result summaries and trend analysis
+  </Step>
+  <Step title="Integrate with Tools">
+    Connect results to your project management tools
+  </Step>
+</Steps>
+
+### Result Export and Integration
+
+**Export Options:**
+- Download test results as PDF or HTML
+- Export issue reports to project management tools
+- Integrate with Slack, email, or webhook notifications
+- Connect to Jira, Linear, or Trello for issue tracking
+
+**Integration Examples:**
+
+**Jira Integration:**
+```
+Issue Type: Bug
+Summary: Login button not found during AI test
+Description: AI agent failed to locate login button
+Evidence: Screenshot and video attached
+Steps to Reproduce: Follow AI test execution
+```
+
+**Slack Notification:**
+```
+🚨 Test Failure Alert
+Test: User Login Flow
+Environment: Staging
+Issue: Element not found
+Screenshot: [Link to evidence]
+```
+
+## Performance Analysis
+
+### Tracking Test Performance
+
+**Execution Metrics:**
+- Average test duration
+- Success rate trends
+- Environment-specific performance
+- AI learning improvements
+
+**Quality Metrics:**
+- Bug detection rate
+- False positive rate
+- Test coverage improvements
+- AI decision accuracy
+
+### Trend Analysis
+
+**Weekly Reviews:**
+- Compare results across time periods
+- Identify patterns in failures
+- Track AI learning improvements
+- Monitor application stability
+
+**Monthly Reports:**
+- Overall test suite health
+- Coverage improvements
+- Performance optimizations
+- ROI analysis
+
+## Best Practices
+
+### Result Review Process
+
+<Card title="✅ Do" icon="check">
+  - Review all test results regularly
+  - Act quickly on critical failures
+  - Learn from AI suggestions
+  - Document patterns and trends
+  - Share insights with your team
+</Card>
+
+<Card title="❌ Don't" icon="x">
+  - Ignore test failures
+  - Skip result analysis
+  - Ignore AI learning insights
+  - Fail to act on application issues
+  - Overlook performance trends
+</Card>
+
+### Continuous Improvement
+
+**Regular Analysis:**
+- Review test results weekly
+- Analyze failure patterns monthly
+- Update test descriptions based on AI feedback
+- Optimize AI agent configuration
+
+**Team Collaboration:**
+- Share insights across development and QA teams
+- Use AI findings to improve application quality
+- Leverage AI learning for better test coverage
+- Integrate results into your development workflow
+
+## Troubleshooting Result Issues
+
+### Common Result Problems
+
+**Problem:** Results are inconsistent
+
+**Solutions:**
+- Check application stability
+- Review test descriptions for clarity
+- Verify environment consistency
+- Monitor AI agent configuration
+
+**Problem:** AI keeps making the same mistakes
+
+**Solutions:**
+- Improve test descriptions
+- Add more context to global settings
+- Use AI chat for debugging
+- Review application accessibility
+
+**Problem:** Results take too long to generate
+
+**Solutions:**
+- Optimize test descriptions
+- Check application performance
+- Review AI agent settings
+- Consider parallel execution
+
+## Next Steps
+
+- **[Running Tests](/best-practices/running-tests)** - Learn how to execute AI-powered tests
+- **[Troubleshooting](/best-practices/troubleshooting)** - Resolve common result issues
+- **[Creating Tests](/best-practices/creating-tests)** - Write effective test descriptions
+- **[Notifications](/core-concepts/notifications)** - Set up result alerts and reporting

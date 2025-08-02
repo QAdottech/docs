@@ -1,42 +1,339 @@
 ---
-title: Auth
-icon: key
+title: Handle Authentication
+description: "Configure authentication for AI-powered testing in QA.tech's cloud platform"
+icon: shield-check
 ---
 
-# Authentication Support for QA.tech
+# Authentication for AI-Powered Testing
 
-QA.tech supports most common authentication setups. If your preferred authentication method isn’t listed below, let us know, and we’ll consider adding it to our roadmap.
+QA.tech's AI agents can handle various authentication methods to test your applications securely. Learn how to configure authentication for different scenarios and ensure your AI agents can access protected areas of your application.
 
-## Supported Authentication Methods
+## Understanding AI Authentication
 
-- Username and password
-- Email and password
-- OTP (One-Time Password) via email
-- Two-Factor Authentication (2FA) with authenticator codes
+### How AI Agents Handle Authentication
 
-## Unsupported Authentication Methods
+AI agents in QA.tech can:
 
-### BankID
+- **Automatically log in** using provided credentials
+- **Maintain session state** across multiple test steps
+- **Handle different auth methods** (username/password, OAuth, SSO)
+- **Securely store credentials** in the cloud platform
+- **Adapt to authentication flows** like humans would
 
-Unfortunately, BankID does not offer straightforward methods for testing authentication logic in a controlled environment. This limitation often requires implementing custom exceptions or workarounds to enable effective testing.
+### Authentication Methods Supported
 
-One approach is to adjust the BankID sign-in flow in your testing environment. For example:
+<Card title="Username/Password" icon="user">
+  Standard login forms with username and password fields
+</Card>
 
-```
-// When displaying the BankID sign-in form
-if (process.env.IS_TESTING === '1') {
-  // Show a form where the user can manually enter their personal number
-  renderTestSignInForm();
+<Card title="OAuth/SSO" icon="key">
+  Single sign-on and OAuth provider authentication
+</Card>
+
+<Card title="Multi-Factor Authentication" icon="shield">
+  MFA flows with SMS, email, or authenticator apps
+</Card>
+
+<Card title="API Key Authentication" icon="code">
+  Bearer tokens and API key-based authentication
+</Card>
+
+## Configuring Authentication
+
+### Setting Up Basic Authentication
+
+<Steps>
+  <Step title="Navigate to Application Settings">
+    Go to [Settings → Applications](https://app.qa.tech/dashboard/current-project/settings/applications)
+  </Step>
+  <Step title="Select Your Application">
+    Choose the application that requires authentication
+  </Step>
+  <Step title="Configure Authentication">
+    Click "Authentication" and select your auth method
+  </Step>
+  <Step title="Enter Credentials">
+    Provide username/password or other required credentials
+  </Step>
+  <Step title="Test Authentication">
+    Verify the AI agent can successfully log in
+  </Step>
+</Steps>
+
+### Authentication Configuration Example
+
+```json
+{
+  "authentication": {
+    "method": "username_password",
+    "credentials": {
+      "username": "test@example.com",
+      "password": "secure_password"
+    },
+    "login_url": "https://your-app.com/login",
+    "success_indicators": [
+      "dashboard",
+      "welcome message",
+      "user menu"
+    ]
+  }
 }
 ```
 
+## Advanced Authentication Scenarios
+
+### Multi-Environment Authentication
+
+Configure different credentials for different environments:
+
+<Steps>
+  <Step title="Environment-Specific Settings">
+    Set up different auth configurations per environment
+  </Step>
+  <Step title="Development Environment">
+    Use test credentials for development testing
+  </Step>
+  <Step title="Staging Environment">
+    Use staging credentials for pre-production testing
+  </Step>
+  <Step title="Production Environment">
+    Use production credentials for live testing
+  </Step>
+</Steps>
+
+### OAuth and SSO Configuration
+
+For applications using OAuth or SSO:
+
+<Steps>
+  <Step title="Configure OAuth Provider">
+    Set up OAuth application in your provider
+  </Step>
+  <Step title="Add OAuth Settings">
+    Configure client ID, client secret, and redirect URIs
+  </Step>
+  <Step title="Test OAuth Flow">
+    Verify AI agent can complete OAuth authentication
+  </Step>
+  <Step title="Handle Token Refresh">
+    Configure automatic token refresh if needed
+  </Step>
+</Steps>
+
+### Multi-Factor Authentication
+
+Configure MFA for applications that require it:
+
+<Steps>
+  <Step title="Enable MFA Support">
+    Configure MFA settings in your application
+  </Step>
+  <Step title="Set Up Backup Codes">
+    Generate backup codes for AI agent use
+  </Step>
+  <Step title="Configure Authenticator App">
+    Set up authenticator app for MFA codes
+  </Step>
+  <Step title="Test MFA Flow">
+    Verify AI agent can handle MFA challenges
+  </Step>
+</Steps>
+
+## Security Best Practices
+
+### Credential Management
+
+<Card title="✅ Do" icon="check">
+  - Use dedicated test accounts
+  - Use strong, unique passwords
+  - Regularly rotate test credentials
+  - Use environment-specific accounts
+  - Monitor authentication logs
+</Card>
+
+<Card title="❌ Don't" icon="x">
+  - Use production user accounts
+  - Share credentials across teams
+  - Use weak or common passwords
+  - Store credentials in plain text
+  - Ignore authentication failures
+</Card>
+
+### Test Account Setup
+
+**Create Dedicated Test Accounts:**
+- Separate accounts for each environment
+- Minimal permissions for testing
+- Clear naming convention (e.g., `qa-test-dev@company.com`)
+- Regular credential rotation
+
+**Environment-Specific Accounts:**
 ```
-// When handling the form submission
-if (process.env.IS_TESTING === '1') {
-  // Do not send the request to BankID
-  // Instead, return a mocked successful response
-  return { status: 'success', userId: 'mock-user-id' };
+Development: qa-test-dev@company.com
+Staging: qa-test-staging@company.com
+Production: qa-test-prod@company.com
+```
+
+## Troubleshooting Authentication Issues
+
+### Common Authentication Problems
+
+**Problem:** AI agent can't log in
+
+**Solutions:**
+- Verify credentials are correct
+- Check if account is locked or disabled
+- Ensure application is accessible
+- Review authentication flow requirements
+
+**Problem:** Session expires during testing
+
+**Solutions:**
+- Configure longer session timeouts
+- Set up automatic session refresh
+- Use persistent login methods
+- Monitor session state
+
+**Problem:** MFA blocking AI agent
+
+**Solutions:**
+- Use backup codes for MFA
+- Configure authenticator app
+- Set up MFA bypass for test accounts
+- Use dedicated test authentication
+
+### Authentication Debugging
+
+<Steps>
+  <Step title="Check Credentials">
+    Verify username and password are correct
+  </Step>
+  <Step title="Test Manual Login">
+    Try logging in manually with the same credentials
+  </Step>
+  <Step title="Review Error Messages">
+    Check authentication error details
+  </Step>
+  <Step title="Verify Application State">
+    Ensure application is running and accessible
+  </Step>
+</Steps>
+
+## Integration with Test Plans
+
+### Authentication in Test Plans
+
+Configure authentication at the test plan level:
+
+<Steps>
+  <Step title="Select Test Plan">
+    Choose the test plan that needs authentication
+  </Step>
+  <Step title="Configure Authentication">
+    Set up authentication settings for the test plan
+  </Step>
+  <Step title="Apply to All Tests">
+    Authentication applies to all tests in the plan
+  </Step>
+  <Step title="Test Authentication">
+    Run a simple test to verify authentication works
+  </Step>
+</Steps>
+
+### Environment-Specific Authentication
+
+```json
+{
+  "test_plans": {
+    "development": {
+      "authentication": {
+        "method": "username_password",
+        "credentials": {
+          "username": "dev-test@company.com",
+          "password": "dev_password"
+        }
+      }
+    },
+    "staging": {
+      "authentication": {
+        "method": "username_password",
+        "credentials": {
+          "username": "staging-test@company.com",
+          "password": "staging_password"
+        }
+      }
+    }
+  }
 }
 ```
 
-This setup allows you to simulate the BankID login process during tests by bypassing the actual authentication request while maintaining realistic interaction with the UI.
+## Advanced Authentication Features
+
+### Session Management
+
+**Persistent Sessions:**
+- AI agents maintain login state across tests
+- Sessions persist for configurable time periods
+- Automatic session refresh when needed
+- Secure session storage in cloud platform
+
+**Session Sharing:**
+- Share authenticated sessions between tests
+- Reduce login overhead for dependent tests
+- Maintain user state across test scenarios
+- Handle session expiration gracefully
+
+### Dynamic Authentication
+
+**Conditional Authentication:**
+- Apply authentication based on test requirements
+- Different auth methods for different test types
+- Environment-specific authentication rules
+- Dynamic credential selection
+
+**Authentication Testing:**
+- Test authentication flows themselves
+- Verify login/logout functionality
+- Test password reset flows
+- Validate security features
+
+## Best Practices Summary
+
+### Authentication Configuration
+
+**Essential Settings:**
+- Use dedicated test accounts
+- Configure environment-specific credentials
+- Set up proper session management
+- Monitor authentication logs
+- Regular credential rotation
+
+**Security Considerations:**
+- Never use production user accounts
+- Use strong, unique passwords
+- Implement proper access controls
+- Monitor for suspicious activity
+- Regular security audits
+
+### Testing with Authentication
+
+**Test Coverage:**
+- Login and logout flows
+- Password reset functionality
+- Session management
+- Multi-factor authentication
+- OAuth and SSO flows
+
+**Quality Assurance:**
+- Verify authentication works consistently
+- Test edge cases and error scenarios
+- Monitor authentication performance
+- Validate security measures
+- Regular authentication testing
+
+## Next Steps
+
+- **[Running Tests](/best-practices/running-tests)** - Execute tests with authentication
+- **[Troubleshooting](/best-practices/troubleshooting)** - Resolve authentication issues
+- **[Configuration](/configuration/advanced-settings)** - Advanced authentication settings
+- **[Environment Setup](/configuration/environment-setup)** - Set up authentication per environment

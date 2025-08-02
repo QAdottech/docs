@@ -1,12 +1,12 @@
 ---
 title: Troubleshooting
-description: 'Comprehensive guide to resolving common QA.tech issues, test failures, and configuration problems'
+description: 'Comprehensive guide to resolving common QA.tech issues, AI test failures, and configuration problems'
 icon: triangle-exclamation
 ---
 
 # Troubleshooting Guide
 
-This comprehensive troubleshooting guide helps you resolve common issues with QA.tech, from basic configuration problems to complex enterprise scenarios. Follow the structured approach to identify and resolve issues quickly.
+This comprehensive troubleshooting guide helps you resolve common issues with QA.tech's AI-powered testing platform. Learn how to interpret AI-generated results, optimize prompts, and handle test failures effectively.
 
 ## Quick Diagnosis
 
@@ -14,435 +14,346 @@ This comprehensive troubleshooting guide helps you resolve common issues with QA
 
 Before diving into specific problems, check these common causes:
 
-- [ ] **API Key**: Valid and properly configured
-- [ ] **Network**: Internet connection and firewall settings
-- [ ] **Application**: Target application is accessible
-- [ ] **Authentication**: Login credentials are correct
-- [ ] **Environment**: Test environment is stable
-- [ ] **Browser**: Compatible browser version
-- [ ] **Permissions**: Proper access rights configured
+- [ ] **API Token**: Valid and properly configured in app.qa.tech
+- [ ] **Project Access**: You have access to the project
+- [ ] **Application URL**: Target application is accessible and working
+- [ ] **Test Plan**: Test plan exists and is properly configured
+- [ ] **AI Agent**: AI agent can access your application
+- [ ] **Network**: Internet connection to app.qa.tech
+- [ ] **Permissions**: Proper access rights to run tests
 
-## Common Test Execution Issues
+## Understanding AI Test Results
 
-### The Agent Doesn't Understand What to Click
+### Interpreting "7 Passed / 1 Failed"
 
-**Problem:** AI agent can't find or interact with elements on your page.
+**Problem:** You see results like "7 Passed / 1 Failed" and don't understand what this means.
+
+**Explanation:**
+- **Passed Steps**: AI successfully completed 7 individual actions
+- **Failed Steps**: AI encountered 1 issue during test execution
+- **Total Steps**: The AI agent broke down your test into 8 total steps
 
 **Solutions:**
 
 <Steps>
-  <Step title="Improve Accessibility">
-    Ensure all elements have proper accessibility attributes:
-    - Add `aria-label` attributes to interactive elements
-    - Use semantic HTML elements (button, link, input)
-    - Provide clear, descriptive text for buttons and links
-    - Avoid generic text like "Click here" or "Submit"
+  <Step title="Review the Detailed Results">
+    Click on the test result to see:
+    - Which specific step failed
+    - What the AI was trying to do
+    - Screenshots of the failure point
+    - Console logs and error messages
   </Step>
-  <Step title="Check Element Visibility">
-    Verify elements are visible and not hidden:
-    - Check CSS display and visibility properties
-    - Ensure elements are not covered by overlays
-    - Verify elements are in the viewport
-    - Test with different screen sizes
+  <Step title="Understand AI Decision Making">
+    The AI agent makes decisions based on:
+    - Page content and structure
+    - Available interactive elements
+    - Your test description
+    - Previous successful patterns
   </Step>
-  <Step title="Add Unique Identifiers">
-    Provide unique, stable identifiers:
-    - Add `id` attributes to important elements
-    - Use descriptive class names
-    - Avoid dynamically generated IDs
-    - Test element stability across page loads
+  <Step title="Check Application State">
+    Verify your application:
+    - Is the page loading correctly?
+    - Are all elements visible and accessible?
+    - Is the application behaving as expected?
+    - Are there any popups or overlays?
   </Step>
-  <Step title="Improve Test Instructions">
+</Steps>
+
+### AI Agent Can't Find Elements
+
+**Problem:** AI agent reports "element not found" or "cannot interact with element."
+
+**Solutions:**
+
+<Steps>
+  <Step title="Improve Your Test Description">
     Write clearer, more specific instructions:
     - Use specific element names and descriptions
     - Include context about where to find elements
     - Specify the exact action to perform
     - Add step-by-step navigation guidance
   </Step>
+  <Step title="Check Application Accessibility">
+    Ensure your application is AI-friendly:
+    - Add descriptive text to buttons and links
+    - Use semantic HTML elements
+    - Provide clear labels for form fields
+    - Avoid generic text like "Click here"
+  </Step>
+  <Step title="Verify Element Visibility">
+    Check that elements are:
+    - Visible on the page
+    - Not hidden by CSS
+    - Not covered by overlays
+    - In the viewport
+  </Step>
+  <Step title="Use the AI Chat Feature">
+    Ask the AI directly:
+    - "Why can't you find the login button?"
+    - "What elements do you see on this page?"
+    - "How should I describe this element better?"
+  </Step>
 </Steps>
 
-**Example Fix:**
-```html
-<!-- Before -->
-<div class="btn">Click</div>
-
-<!-- After -->
-<button id="login-submit" aria-label="Sign in to account" class="btn-primary">
-  Sign In
-</button>
+**Example Better Test Description:**
+```
+Instead of: "Test the login form"
+Use: "Test the login form by entering email 'test@example.com' in the email field, entering password 'password123' in the password field, and clicking the 'Sign In' button"
 ```
 
-### Timing Issues
+## Prompt Optimization Issues
 
-**Problem:** Tests fail due to elements not loading or being ready for interaction.
+### AI Generates Wrong Tests
+
+**Problem:** The AI creates tests that don't match your requirements.
 
 **Solutions:**
 
 <Steps>
-  <Step title="Add Wait Conditions">
-    Implement proper wait strategies:
-    - Wait for elements to be visible and clickable
-    - Use explicit waits for dynamic content
-    - Add timeouts for slow-loading elements
-    - Implement retry logic for flaky elements
+  <Step title="Be More Specific in Prompts">
+    Provide detailed context:
+    - Describe the exact user journey
+    - Specify the business logic to test
+    - Include expected outcomes
+    - Mention important validation points
   </Step>
-  <Step title="Optimize Page Performance">
-    Improve page load times:
-    - Optimize images and assets
-    - Minimize JavaScript execution time
-    - Use lazy loading for non-critical content
-    - Implement proper caching strategies
+  <Step title="Use the Chat Interface">
+    Have a conversation with the AI:
+    - "I want to test the checkout process"
+    - "Focus on the payment validation"
+    - "Make sure to verify the order confirmation"
   </Step>
-  <Step title="Handle Dynamic Content">
-    Account for content that loads asynchronously:
-    - Wait for AJAX requests to complete
-    - Handle infinite scroll and pagination
-    - Manage modal dialogs and overlays
-    - Test with different data scenarios
+  <Step title="Review and Edit Generated Tests">
+    After AI generates a test:
+    - Review the test steps
+    - Edit any incorrect assumptions
+    - Add missing validations
+    - Adjust the test flow
   </Step>
-  <Step title="Use Stable Selectors">
-    Choose reliable element selectors:
-    - Prefer IDs over classes when possible
-    - Avoid selectors that depend on position
-    - Use data attributes for test-specific elements
-    - Test selectors across different environments
+  <Step title="Provide Better Context">
+    Help the AI understand your application:
+    - Describe the user personas
+    - Explain the business workflow
+    - Mention critical paths
+    - Specify edge cases to test
   </Step>
 </Steps>
 
-**Example Implementation:**
-```javascript
-// Wait for element to be ready
-await page.waitForSelector('#login-form', { visible: true, timeout: 10000 });
+### Tests Are Too Generic
 
-// Wait for network requests to complete
-await page.waitForLoadState('networkidle');
-
-// Wait for specific element state
-await page.waitForFunction(() => {
-  return document.querySelector('#submit-btn').disabled === false;
-});
-```
-
-### Authentication and Session Issues
-
-**Problem:** Tests fail due to login problems or session management issues.
+**Problem:** AI generates basic tests that don't cover your specific business logic.
 
 **Solutions:**
 
 <Steps>
-  <Step title="Verify Credentials">
-    Check authentication setup:
-    - Confirm username and password are correct
-    - Test credentials manually in the browser
-    - Check for account restrictions or locks
-    - Verify multi-factor authentication settings
+  <Step title="Include Business Requirements">
+    Add specific business context:
+    - "Test that only valid email formats are accepted"
+    - "Verify that users cannot checkout without a shipping address"
+    - "Ensure that discount codes are properly applied"
   </Step>
-  <Step title="Handle Session Management">
-    Manage user sessions properly:
-    - Clear cookies and cache between tests
-    - Use separate test accounts for different scenarios
-    - Implement proper logout procedures
-    - Handle session timeouts gracefully
+  <Step title="Specify Validation Points">
+    Tell the AI what to verify:
+    - "Check that the total price is calculated correctly"
+    - "Verify that error messages appear for invalid inputs"
+    - "Ensure that successful actions show confirmation messages"
   </Step>
-  <Step title="Configure Authentication">
-    Set up proper authentication in QA.tech:
-    - Use the authentication configuration section
-    - Test authentication flow manually first
-    - Configure session persistence if needed
-    - Set up proper error handling for auth failures
-  </Step>
-  <Step title="Handle Multi-Factor Authentication">
-    Configure MFA for testing:
-    - Use test accounts without MFA when possible
-    - Configure MFA bypass for test environments
-    - Implement proper MFA handling in test flows
-    - Document MFA requirements clearly
+  <Step title="Use Bug Reproduction Prompts">
+    For specific issues:
+    - "Reproduce the bug where users can't reset their password"
+    - "Test the scenario where the cart becomes empty unexpectedly"
+    - "Verify the fix for the login timeout issue"
   </Step>
 </Steps>
-
-**Authentication Configuration Example:**
-```json
-{
-  "authentication": {
-    "type": "username_password",
-    "username": "test@example.com",
-    "password": "secure_password",
-    "login_url": "https://app.example.com/login",
-    "success_indicators": ["dashboard", "welcome-message"],
-    "failure_indicators": ["invalid-credentials", "error-message"]
-  }
-}
-```
 
 ## Configuration Problems
 
-### Environment Setup Issues
+### Project Setup Issues
 
-**Problem:** Tests fail due to incorrect environment configuration.
-
-**Solutions:**
-
-<Steps>
-  <Step title="Verify Environment URLs">
-    Check all environment configurations:
-    - Confirm URLs are correct and accessible
-    - Test URLs manually in browser
-    - Verify HTTPS certificates are valid
-    - Check for redirects or URL changes
-  </Step>
-  <Step title="Configure Test Data">
-    Set up proper test data:
-    - Use dedicated test accounts
-    - Create test data that won't conflict
-    - Implement data cleanup procedures
-    - Use environment-specific data sets
-  </Step>
-  <Step title="Check Network Configuration">
-    Verify network settings:
-    - Test connectivity to target application
-    - Check firewall and proxy settings
-    - Verify DNS resolution
-    - Test with different network conditions
-  </Step>
-  <Step title="Validate Browser Settings">
-    Configure browser properly:
-    - Use supported browser versions
-    - Disable browser extensions that interfere
-    - Configure proper viewport sizes
-    - Set appropriate timeouts and limits
-  </Step>
-</Steps>
-
-### Network and Connectivity Issues
-
-**Problem:** Tests fail due to network problems or connectivity issues.
+**Problem:** Can't create or access projects in app.qa.tech.
 
 **Solutions:**
 
 <Steps>
-  <Step title="Test Network Connectivity">
-    Verify basic connectivity:
-    - Ping target application servers
-    - Test DNS resolution
-    - Check for firewall blocks
-    - Verify VPN requirements
+  <Step title="Check Account Access">
+    Verify your account:
+    - Log in to app.qa.tech
+    - Check your subscription plan
+    - Verify project permissions
+    - Contact support if access is denied
   </Step>
-  <Step title="Configure Proxy Settings">
-    Set up proxy if required:
-    - Configure HTTP/HTTPS proxy settings
-    - Add proxy authentication if needed
-    - Test proxy connectivity
-    - Handle proxy timeouts
+  <Step title="Create Project Properly">
+    Set up a new project:
+    - Click "Create a project"
+    - Enter a descriptive project name
+    - Add your application URL
+    - Configure initial settings
   </Step>
-  <Step title="Handle SSL/TLS Issues">
-    Resolve certificate problems:
-    - Check SSL certificate validity
-    - Configure trusted certificates
-    - Handle self-signed certificates
-    - Test with different SSL configurations
-  </Step>
-  <Step title="Optimize Network Performance">
-    Improve connection stability:
-    - Use stable network connections
-    - Implement retry logic for network failures
-    - Configure appropriate timeouts
-    - Monitor network performance
+  <Step title="Configure Applications">
+    Set up your applications:
+    - Add your application URL
+    - Configure environment settings
+    - Set up authentication if needed
+    - Test the connection
   </Step>
 </Steps>
+
+### API Integration Issues
+
+**Problem:** GitHub Actions or other integrations aren't working.
+
+**Solutions:**
+
+<Steps>
+  <Step title="Verify API Token">
+    Check your API configuration:
+    - Generate a new API token in app.qa.tech
+    - Add token to GitHub Secrets
+    - Verify token has correct permissions
+    - Test token with API calls
+  </Step>
+  <Step title="Check Project ID">
+    Verify project configuration:
+    - Get correct project ID from app.qa.tech
+    - Update GitHub Action configuration
+    - Test project ID with API
+    - Verify project is accessible
+  </Step>
+  <Step title="Configure Test Plan">
+    Set up test plan integration:
+    - Create test plan in app.qa.tech
+    - Get test plan short ID
+    - Add to GitHub Action configuration
+    - Test the integration
+  </Step>
+</Steps>
+
+**GitHub Action Configuration Example:**
+```yaml
+- uses: QAdottech/run-action@v2
+  with:
+    project_id: 'your-project-id'
+    api_token: ${{ secrets.QATECH_API_TOKEN }}
+    test_plan_short_id: 'jgbinp'
+```
 
 ## Performance and Reliability Issues
 
-### Flaky Tests
+### Slow Test Execution
 
-**Problem:** Tests pass and fail inconsistently without code changes.
+**Problem:** Tests take too long to complete.
 
 **Solutions:**
 
 <Steps>
-  <Step title="Implement Retry Logic">
-    Add automatic retry mechanisms:
-    - Configure retry attempts for failed tests
-    - Use exponential backoff for retries
-    - Set appropriate retry intervals
-    - Log retry attempts for analysis
+  <Step title="Optimize Test Descriptions">
+    Write more efficient prompts:
+    - Focus on critical user paths
+    - Remove unnecessary steps
+    - Be specific about what to test
+    - Avoid redundant validations
   </Step>
-  <Step title="Stabilize Test Environment">
-    Create consistent test conditions:
-    - Use dedicated test environments
-    - Implement proper data isolation
-    - Control external dependencies
-    - Monitor environment stability
+  <Step title="Check Application Performance">
+    Verify your application:
+    - Test page load times manually
+    - Optimize slow-loading elements
+    - Check for performance bottlenecks
+    - Monitor application response times
   </Step>
-  <Step title="Add Wait Strategies">
-    Implement robust waiting mechanisms:
-    - Wait for elements to be ready
-    - Use explicit waits instead of implicit
-    - Handle dynamic content loading
-    - Implement custom wait conditions
-  </Step>
-  <Step title="Monitor Test Stability">
-    Track and analyze flaky tests:
-    - Log detailed test execution data
-    - Analyze failure patterns
-    - Implement test health monitoring
-    - Regular test maintenance
+  <Step title="Use Parallel Execution">
+    Configure concurrent testing:
+    - Set up multiple test plans
+    - Use different test scenarios
+    - Configure parallel execution
+    - Monitor resource usage
   </Step>
 </Steps>
 
-**Retry Configuration Example:**
-```json
-{
-  "retry": {
-    "attempts": 3,
-    "delay": 2000,
-    "backoff": "exponential",
-    "max_delay": 10000,
-    "conditions": ["element_not_found", "timeout", "network_error"]
-  }
-}
-```
+### Flaky Test Results
 
-### Slow Test Execution
-
-**Problem:** Tests take too long to execute, impacting development velocity.
+**Problem:** Tests pass and fail inconsistently.
 
 **Solutions:**
 
 <Steps>
-  <Step title="Optimize Test Design">
-    Improve test efficiency:
-    - Focus on critical user paths
-    - Remove unnecessary test steps
-    - Use efficient element selectors
-    - Minimize page navigation
+  <Step title="Improve Test Stability">
+    Write more reliable tests:
+    - Be specific about element identification
+    - Include proper wait conditions
+    - Handle dynamic content
+    - Account for application state
   </Step>
-  <Step title="Implement Parallel Execution">
-    Run tests concurrently:
-    - Configure parallel test execution
-    - Use separate test environments
-    - Distribute tests across resources
-    - Monitor resource utilization
+  <Step title="Check Application Consistency">
+    Ensure stable application:
+    - Test application manually
+    - Check for random elements
+    - Verify consistent behavior
+    - Monitor application changes
   </Step>
-  <Step title="Optimize Application Performance">
-    Improve target application speed:
-    - Optimize page load times
-    - Reduce server response times
-    - Implement proper caching
-    - Monitor application performance
-  </Step>
-  <Step title="Use Efficient Test Data">
-    Optimize test data management:
-    - Use lightweight test data
-    - Implement data cleanup
-    - Cache frequently used data
-    - Minimize database operations
+  <Step title="Use Retry Logic">
+    Configure automatic retries:
+    - Set up retry attempts
+    - Configure retry intervals
+    - Handle transient failures
+    - Monitor retry patterns
   </Step>
 </Steps>
 
 ## Debugging Techniques
 
-### Detailed Logging
+### Understanding AI Test Execution
 
-**Enable comprehensive logging to diagnose issues:**
-
-<Steps>
-  <Step title="Configure Log Levels">
-    Set appropriate logging detail:
-    - Enable debug logging for troubleshooting
-    - Log element interactions and decisions
-    - Capture network requests and responses
-    - Record timing information
-  </Step>
-  <Step title="Analyze Execution Logs">
-    Review detailed execution data:
-    - Check element selection decisions
-    - Analyze timing and performance data
-    - Review error messages and stack traces
-    - Identify patterns in failures
-  </Step>
-  <Step title="Use Custom Logging">
-    Add application-specific logging:
-    - Log custom events and states
-    - Track user journey progress
-    - Monitor application-specific metrics
-    - Debug business logic issues
-  </Step>
-</Steps>
-
-**Logging Configuration:**
-```json
-{
-  "logging": {
-    "level": "debug",
-    "include_screenshots": true,
-    "include_videos": true,
-    "log_network": true,
-    "log_console": true,
-    "custom_events": ["user_action", "page_transition", "error_occurred"]
-  }
-}
-```
-
-### Screenshots and Videos
-
-**Use visual debugging to understand test failures:**
+**Learn how the AI agent works:**
 
 <Steps>
-  <Step title="Enable Visual Recording">
-    Configure screenshot and video capture:
-    - Enable screenshots on failure
-    - Record video of test execution
-    - Capture screenshots at key points
-    - Save visual evidence for analysis
+  <Step title="Review Test Execution Logs">
+    Analyze detailed execution:
+    - Check what the AI was trying to do
+    - Review element selection decisions
+    - Understand failure points
+    - Analyze timing information
   </Step>
-  <Step title="Analyze Visual Evidence">
-    Review captured media:
-    - Compare screenshots with expected state
-    - Analyze video for timing issues
-    - Check for visual regressions
-    - Identify UI element problems
+  <Step title="Use Screenshots and Videos">
+    Visual debugging:
+    - Review screenshots at failure points
+    - Watch test execution videos
+    - Compare with expected behavior
+    - Identify visual issues
   </Step>
-  <Step title="Use Visual Comparison">
-    Implement visual testing:
-    - Compare screenshots with baselines
-    - Detect visual changes and regressions
-    - Validate UI consistency
-    - Test responsive design
-  </Step>
-</Steps>
-
-### Browser DevTools
-
-**Use browser developer tools for advanced debugging:**
-
-<Steps>
-  <Step title="Enable DevTools Integration">
-    Configure browser debugging:
-    - Enable DevTools protocol
-    - Set up remote debugging
-    - Configure console logging
-    - Enable network monitoring
-  </Step>
-  <Step title="Analyze Network Traffic">
-    Monitor network activity:
-    - Check API calls and responses
-    - Analyze request/response timing
-    - Identify slow network requests
-    - Debug authentication issues
-  </Step>
-  <Step title="Inspect DOM Elements">
-    Examine page structure:
-    - Verify element selectors
-    - Check element properties
-    - Analyze CSS and styling
-    - Debug JavaScript issues
-  </Step>
-  <Step title="Monitor Console Output">
-    Review browser console:
+  <Step title="Check Console Logs">
+    Review application logs:
     - Check for JavaScript errors
-    - Monitor application logs
-    - Debug client-side issues
+    - Monitor network requests
     - Verify data flow
+    - Debug client-side issues
+  </Step>
+</Steps>
+
+### Chat with AI for Debugging
+
+**Use the AI chat feature for troubleshooting:**
+
+<Steps>
+  <Step title="Ask AI About Failures">
+    Get AI insights:
+    - "Why did this test fail?"
+    - "What was the AI trying to do?"
+    - "How can I fix this issue?"
+    - "What should I check?"
+  </Step>
+  <Step title="Get Debugging Suggestions">
+    Ask for help:
+    - "What elements do you see on this page?"
+    - "How should I describe this better?"
+    - "What might be causing this issue?"
+    - "Can you suggest a different approach?"
+  </Step>
+  <Step title="Improve Test Descriptions">
+    Refine your prompts:
+    - "How can I make this test more reliable?"
+    - "What additional context should I provide?"
+    - "How can I be more specific?"
+    - "What am I missing?"
   </Step>
 </Steps>
 
@@ -450,36 +361,29 @@ await page.waitForFunction(() => {
 
 ### Before Contacting Support
 
-**Gather necessary information before reaching out:**
+**Gather necessary information:**
 
 <Steps>
-  <Step title="Collect Error Details">
-    Document the issue thoroughly:
-    - Screenshot of error message
-    - Complete error logs and stack traces
-    - Test configuration details
+  <Step title="Collect Test Details">
+    Document the issue:
+    - Screenshot of test results
+    - Test description and prompt used
+    - Application URL and state
     - Steps to reproduce the issue
   </Step>
-  <Step title="Check Documentation">
-    Review relevant documentation:
-    - Search existing troubleshooting guides
-    - Check configuration examples
-    - Review best practices
-    - Consult API documentation
-  </Step>
-  <Step title="Test in Isolation">
-    Reproduce the issue consistently:
-    - Create minimal test case
-    - Test in different environments
-    - Verify issue is reproducible
-    - Document exact steps
-  </Step>
-  <Step title="Check System Status">
-    Verify system health:
-    - Check QA.tech status page
-    - Verify your account status
+  <Step title="Check Application Status">
+    Verify your application:
+    - Test manually in browser
+    - Check for recent changes
+    - Verify application is working
     - Test with different browsers
-    - Check network connectivity
+  </Step>
+  <Step title="Review AI Suggestions">
+    Check AI recommendations:
+    - Look at AI-generated suggestions
+    - Review chat conversations
+    - Check for improvement tips
+    - Follow AI guidance
   </Step>
 </Steps>
 
@@ -492,51 +396,43 @@ await page.waitForFunction(() => {
 - **Community**: [Discord Server](https://discord.com/invite/SuMAkMpwYv)
 - **Status Page**: Check system status for known issues
 
-### Common Error Codes
+### Common Error Messages
 
-| Error Code | Description | Solution |
-|------------|-------------|----------|
-| `AUTH_FAILED` | Authentication failed | Check credentials and login flow |
-| `ELEMENT_NOT_FOUND` | Element not found on page | Verify element exists and is visible |
-| `TIMEOUT_ERROR` | Operation timed out | Increase timeout or check page performance |
-| `NETWORK_ERROR` | Network connectivity issue | Check internet connection and firewall |
-| `BROWSER_ERROR` | Browser-related issue | Update browser or try different browser |
-| `CONFIG_ERROR` | Configuration problem | Verify settings and environment setup |
+| Error Message | Description | Solution |
+|---------------|-------------|----------|
+| `Element not found` | AI can't locate an element | Improve element description or check visibility |
+| `Test execution failed` | General test failure | Check application state and test description |
+| `Authentication failed` | Login issues | Verify credentials and login flow |
+| `Network timeout` | Connection problems | Check internet connection and application accessibility |
+| `Invalid test plan` | Test plan configuration issue | Verify test plan exists and is properly configured |
 
 ## Prevention Best Practices
 
 ### Regular Maintenance
 
-**Implement ongoing maintenance to prevent issues:**
+**Implement ongoing maintenance:**
 
 <Steps>
-  <Step title="Update Test Data">
-    Maintain current test data:
-    - Regularly update test accounts
-    - Refresh test data sets
-    - Clean up old test data
-    - Validate data integrity
+  <Step title="Update Test Descriptions">
+    Keep tests current:
+    - Review and update test prompts
+    - Remove obsolete tests
+    - Improve test descriptions
+    - Add new test scenarios
   </Step>
-  <Step title="Monitor Test Health">
-    Track test performance:
+  <Step title="Monitor Test Performance">
+    Track test health:
     - Monitor success rates
     - Track execution times
     - Analyze failure patterns
-    - Identify flaky tests
+    - Identify improvement opportunities
   </Step>
-  <Step title="Update Dependencies">
-    Keep systems current:
-    - Update browser versions
-    - Maintain current QA.tech version
-    - Update test frameworks
-    - Monitor security updates
-  </Step>
-  <Step title="Review and Refactor">
-    Continuously improve tests:
-    - Remove obsolete tests
-    - Optimize slow tests
-    - Update test descriptions
-    - Improve test coverage
+  <Step title="Stay Updated">
+    Keep current:
+    - Check for QA.tech updates
+    - Review new features
+    - Update test strategies
+    - Learn new capabilities
   </Step>
 </Steps>
 
@@ -545,26 +441,19 @@ await page.waitForFunction(() => {
 **Maintain comprehensive documentation:**
 
 <Steps>
-  <Step title="Document Test Environment">
-    Keep environment details current:
-    - Update configuration documentation
-    - Document environment-specific settings
+  <Step title="Document Test Strategies">
+    Keep test documentation current:
+    - Document test creation approaches
+    - Record successful prompt patterns
     - Maintain troubleshooting guides
-    - Record known issues and solutions
+    - Share lessons learned
   </Step>
-  <Step title="Create Runbooks">
-    Develop operational procedures:
-    - Document common troubleshooting steps
-    - Create escalation procedures
-    - Maintain contact information
-    - Update procedures regularly
-  </Step>
-  <Step title="Share Knowledge">
-    Collaborate with team members:
-    - Share solutions and workarounds
-    - Document lessons learned
-    - Create team troubleshooting guides
-    - Conduct regular knowledge sharing sessions
+  <Step title="Create Team Guidelines">
+    Develop team procedures:
+    - Standardize test creation process
+    - Create prompt templates
+    - Document best practices
+    - Share knowledge with team
   </Step>
 </Steps>
 
@@ -575,51 +464,45 @@ await page.waitForFunction(() => {
 **Handle complex enterprise environments:**
 
 #### **Multi-Environment Testing**
-- Configure different settings for dev/staging/prod
-- Handle environment-specific authentication
-- Manage different data sets per environment
+- Configure different applications for dev/staging/prod
+- Set up environment-specific test plans
+- Manage different authentication methods
 - Implement environment validation
 
 #### **Corporate Network Issues**
-- Configure proxy settings for corporate networks
+- Configure proxy settings if required
 - Handle VPN requirements
 - Manage firewall and security policies
-- Test with corporate browser policies
+- Test with corporate network restrictions
 
 #### **Large-Scale Test Execution**
-- Implement test parallelization strategies
-- Manage resource allocation and limits
-- Handle test data isolation
-- Monitor system performance under load
+- Implement test plan organization strategies
+- Manage test execution scheduling
+- Monitor resource usage
+- Optimize for enterprise needs
 
 ### Performance Optimization
 
 **Optimize for high-performance testing:**
 
 #### **Test Execution Optimization**
-- Implement efficient test design patterns
-- Use appropriate wait strategies
-- Optimize element selectors
-- Minimize unnecessary operations
+- Write efficient test descriptions
+- Focus on critical user paths
+- Remove unnecessary test steps
+- Optimize test plan organization
 
-#### **Resource Management**
-- Monitor memory and CPU usage
-- Implement proper cleanup procedures
-- Optimize browser instance management
-- Handle concurrent test execution
-
-#### **Network Optimization**
-- Use CDN for static assets
-- Implement proper caching strategies
-- Optimize API response times
-- Handle network latency issues
+#### **Application Performance**
+- Monitor application response times
+- Optimize slow-loading pages
+- Implement proper caching
+- Monitor application performance
 
 ## Conclusion
 
-Effective troubleshooting requires a systematic approach and good documentation. By following this guide and implementing the best practices, you can:
+Effective troubleshooting with QA.tech requires understanding how the AI agent works and how to communicate effectively with it. By following this guide and implementing the best practices, you can:
 
 - **Resolve issues quickly and efficiently**
-- **Prevent common problems through proper setup**
+- **Optimize AI test generation**
 - **Maintain stable and reliable test execution**
 - **Continuously improve your testing processes**
 
@@ -627,7 +510,7 @@ Remember to document solutions and share knowledge with your team to build colle
 
 ## Next Steps
 
-- **[Creating Tests](/best-practices/creating-tests)** - Learn how to write robust test cases
-- **[Running Tests](/best-practices/running-tests)** - Execute tests with proper monitoring
-- **[Configuration](/configuration/github)** - Set up optimal testing environments
-- **[Test Results](/best-practices/test-results)** - Analyze results and identify issues
+- **[Creating Tests](/best-practices/creating-tests)** - Learn how to write effective AI prompts
+- **[Project Context](/best-practices/project-context)** - Help AI understand your application
+- **[Configuration](/configuration/github)** - Set up integrations and environments
+- **[Test Results](/best-practices/test-results)** - Analyze AI-generated results

@@ -1,173 +1,397 @@
 ---
 title: Environment Setup
-description: "Set up QA.tech for local development, CI/CD pipelines, and different testing environments"
+description: "Set up QA.tech applications and environments for AI-powered testing"
 icon: server
 ---
 
 # Environment Setup Guide
 
-This comprehensive guide helps you set up QA.tech across different environments, from local development to production CI/CD pipelines. Follow the structured approach to ensure consistent and reliable testing across all environments.
+This comprehensive guide helps you set up QA.tech applications and environments for AI-powered testing. Learn how to configure your applications, set up different environments, and manage testing across development, staging, and production.
 
-## Local Development Setup
+## Getting Started with QA.tech
 
 ### Prerequisites
 
-Before setting up QA.tech locally, ensure you have:
+Before setting up QA.tech, ensure you have:
 
-- **Node.js** (version 18 or higher)
-- **npm** or **yarn** package manager
-- **Git** for version control
-- **Modern web browser** (Chrome, Firefox, Safari, Edge)
-- **Text editor** (VS Code, Sublime Text, etc.)
+- **Web application** to test (publicly accessible or with proper authentication)
+- **QA.tech account** at [app.qa.tech](https://app.qa.tech)
+- **Application URLs** for different environments
+- **Authentication credentials** if your application requires login
 
 ### Initial Setup
 
 <Steps>
-  <Step title="Install QA.tech CLI">
-    Install the QA.tech command-line interface:
-    ```bash
-    npm install -g @qa-tech/cli
-    ```
+  <Step title="Create QA.tech Account">
+    Sign up at [app.qa.tech](https://app.qa.tech):
+    - Create your account
+    - Verify your email address
+    - Complete your profile setup
   </Step>
-  <Step title="Authenticate with QA.tech">
-    Log in with your API key:
-    ```bash
-    qa-tech login --api-key YOUR_API_KEY
-    ```
+  <Step title="Create Your First Project">
+    Set up a new project:
+    - Click "Create a project"
+    - Enter a descriptive project name
+    - Add your application URL
+    - Configure initial settings
   </Step>
-  <Step title="Verify Installation">
-    Test the installation:
-    ```bash
-    qa-tech --version
-    qa-tech projects list
-    ```
-  </Step>
-  <Step title="Create Configuration File">
-    Create a local configuration file:
-    ```bash
-    qa-tech init
-    ```
+  <Step title="Add Your Applications">
+    Configure your applications:
+    - Add application URLs for different environments
+    - Set up authentication if needed
+    - Test application connectivity
+    - Configure environment-specific settings
   </Step>
 </Steps>
 
-### Local Configuration
+## Application Configuration
 
-Create a `qa-tech.config.js` file in your project root:
+### Adding Applications
 
-```javascript
-module.exports = {
-  // API Configuration
-  apiKey: process.env.QA_TECH_API_KEY,
-  projectId: process.env.QA_TECH_PROJECT_ID,
-  
-  // Local Development Settings
-  environment: 'development',
-  baseUrl: 'http://localhost:3000',
-  
-  // Test Execution
-  timeout: 30000,
-  retryCount: 2,
-  screenshotOnFailure: true,
-  videoRecording: false,
-  
-  // Browser Settings
-  browser: 'chrome',
-  headless: false, // Show browser for debugging
-  viewport: {
-    width: 1920,
-    height: 1080
+Configure your applications in the QA.tech web interface:
+
+<Steps>
+  <Step title="Navigate to Applications">
+    Go to your project settings:
+    - Click on "Settings" in the left sidebar
+    - Select "Applications" (Beta)
+    - Click "Add Application"
+  </Step>
+  <Step title="Configure Application Details">
+    Set up your application:
+    - Enter application name (e.g., "Main App", "Admin Panel")
+    - Add application URL
+    - Select environment (Development, Staging, Production)
+    - Configure authentication if required
+  </Step>
+  <Step title="Test Application Connection">
+    Verify your application:
+    - Test the connection to your application
+    - Verify the AI agent can access your app
+    - Check authentication if configured
+    - Save the application configuration
+  </Step>
+</Steps>
+
+### Application Configuration Example
+
+```json
+{
+  "applications": {
+    "main-app": {
+      "name": "Main Application",
+      "url": "https://your-app.com",
+      "environment": "production",
+      "authentication": {
+        "type": "username_password",
+        "username": "test@example.com",
+        "password": "secure_password"
+      }
+    },
+    "staging-app": {
+      "name": "Staging Application",
+      "url": "https://staging.your-app.com",
+      "environment": "staging",
+      "authentication": {
+        "type": "username_password",
+        "username": "test@staging.com",
+        "password": "staging_password"
+      }
+    },
+    "dev-app": {
+      "name": "Development Application",
+      "url": "https://dev.your-app.com",
+      "environment": "development",
+      "authentication": {
+        "type": "username_password",
+        "username": "test@dev.com",
+        "password": "dev_password"
+      }
+    }
+  }
+}
+```
+
+## Environment Management
+
+### Setting Up Different Environments
+
+Configure multiple environments for comprehensive testing:
+
+<Steps>
+  <Step title="Development Environment">
+    Set up development testing:
+    - Add your development application URL
+    - Configure development-specific settings
+    - Set up test data for development
+    - Configure authentication for dev environment
+  </Step>
+  <Step title="Staging Environment">
+    Set up staging testing:
+    - Add your staging application URL
+    - Configure staging-specific settings
+    - Set up test data for staging
+    - Configure authentication for staging environment
+  </Step>
+  <Step title="Production Environment">
+    Set up production testing:
+    - Add your production application URL
+    - Configure production-specific settings
+    - Set up test data for production
+    - Configure authentication for production environment
+  </Step>
+</Steps>
+
+### Environment-Specific Configuration
+
+#### **Development Environment**
+```json
+{
+  "environment": "development",
+  "url": "https://dev.your-app.com",
+  "settings": {
+    "timeout": 30000,
+    "retry_count": 2,
+    "debug_mode": true,
+    "log_level": "debug"
   },
-  
-  // Debug Settings
-  debugMode: true,
-  logLevel: 'debug',
-  
-  // Local Test Data
-  testDataPath: './test-data/local',
-  
-  // Network Settings
-  networkTimeout: 30000,
-  ignoreHTTPSErrors: true
-};
+  "authentication": {
+    "username": "dev@example.com",
+    "password": "dev_password"
+  },
+  "test_data": {
+    "users": "dev_users",
+    "products": "dev_products"
+  }
+}
 ```
 
-### Local Database Setup
-
-For applications that require a local database:
-
-#### **PostgreSQL Setup**
-```bash
-# Install PostgreSQL
-brew install postgresql  # macOS
-sudo apt-get install postgresql  # Ubuntu
-
-# Start PostgreSQL service
-brew services start postgresql  # macOS
-sudo systemctl start postgresql  # Ubuntu
-
-# Create test database
-createdb qa_tech_test
-
-# Configure connection
-export DATABASE_URL="postgresql://localhost/qa_tech_test"
+#### **Staging Environment**
+```json
+{
+  "environment": "staging",
+  "url": "https://staging.your-app.com",
+  "settings": {
+    "timeout": 60000,
+    "retry_count": 3,
+    "debug_mode": false,
+    "log_level": "info"
+  },
+  "authentication": {
+    "username": "staging@example.com",
+    "password": "staging_password"
+  },
+  "test_data": {
+    "users": "staging_users",
+    "products": "staging_products"
+  }
+}
 ```
 
-#### **MySQL Setup**
-```bash
-# Install MySQL
-brew install mysql  # macOS
-sudo apt-get install mysql-server  # Ubuntu
-
-# Start MySQL service
-brew services start mysql  # macOS
-sudo systemctl start mysql  # Ubuntu
-
-# Create test database
-mysql -u root -p -e "CREATE DATABASE qa_tech_test;"
-
-# Configure connection
-export DATABASE_URL="mysql://root:password@localhost/qa_tech_test"
+#### **Production Environment**
+```json
+{
+  "environment": "production",
+  "url": "https://your-app.com",
+  "settings": {
+    "timeout": 90000,
+    "retry_count": 3,
+    "debug_mode": false,
+    "log_level": "warn"
+  },
+  "authentication": {
+    "username": "prod@example.com",
+    "password": "prod_password"
+  },
+  "test_data": {
+    "users": "prod_users",
+    "products": "prod_products"
+  }
+}
 ```
 
-### Running Tests Locally
+## Authentication Setup
 
-#### **Basic Test Execution**
-```bash
-# Run a specific test
-qa-tech tests run --project-id proj_123 --test-id test_456
+### Configuring Application Authentication
 
-# Run all tests in a project
-qa-tech tests run-all --project-id proj_123
+Set up authentication for your applications:
 
-# Run tests with custom configuration
-qa-tech tests run \
-  --project-id proj_123 \
-  --environment development \
-  --timeout 60000 \
-  --screenshot-on-failure
+<Steps>
+  <Step title="Choose Authentication Type">
+    Select the appropriate authentication method:
+    - Username/Password authentication
+    - API key authentication
+    - OAuth authentication
+    - Custom authentication
+  </Step>
+  <Step title="Configure Credentials">
+    Set up authentication details:
+    - Enter username and password
+    - Configure API keys if needed
+    - Set up OAuth tokens if required
+    - Test authentication manually
+  </Step>
+  <Step title="Test Authentication">
+    Verify authentication works:
+    - Test login flow manually
+    - Verify AI agent can authenticate
+    - Check access to protected areas
+    - Validate session management
+  </Step>
+</Steps>
+
+### Authentication Configuration Examples
+
+#### **Username/Password Authentication**
+```json
+{
+  "authentication": {
+    "type": "username_password",
+    "username": "test@example.com",
+    "password": "secure_password",
+    "login_url": "https://your-app.com/login",
+    "success_indicators": ["dashboard", "welcome-message"],
+    "failure_indicators": ["invalid-credentials", "error-message"]
+  }
+}
 ```
 
-#### **Debug Mode**
-```bash
-# Run tests in debug mode
-qa-tech tests run \
-  --project-id proj_123 \
-  --debug \
-  --headless false \
-  --log-level debug
-
-# Run with step-by-step execution
-qa-tech tests run \
-  --project-id proj_123 \
-  --step-by-step \
-  --pause-on-failure
+#### **API Key Authentication**
+```json
+{
+  "authentication": {
+    "type": "api_key",
+    "api_key": "your_api_key_here",
+    "header_name": "X-API-Key",
+    "login_url": "https://your-app.com/api/auth"
+  }
+}
 ```
 
-## CI/CD Environment Setup
+#### **OAuth Authentication**
+```json
+{
+  "authentication": {
+    "type": "oauth",
+    "client_id": "your_client_id",
+    "client_secret": "your_client_secret",
+    "authorization_url": "https://your-app.com/oauth/authorize",
+    "token_url": "https://your-app.com/oauth/token"
+  }
+}
+```
 
-### GitHub Actions
+## Test Data Management
 
-#### **Basic GitHub Actions Setup**
+### Setting Up Test Data
+
+Configure test data for different environments:
+
+<Steps>
+  <Step title="Define Test Data Requirements">
+    Identify what test data you need:
+    - User accounts for testing
+    - Product data for e-commerce
+    - Configuration data
+    - Sample content for testing
+  </Step>
+  <Step title="Create Test Data Sets">
+    Set up environment-specific data:
+    - Development test data
+    - Staging test data
+    - Production test data
+    - Backup and restore procedures
+  </Step>
+  <Step title="Configure Data Access">
+    Set up data access for AI agents:
+    - Configure data access permissions
+    - Set up data refresh procedures
+    - Implement data cleanup
+    - Monitor data usage
+  </Step>
+</Steps>
+
+### Test Data Configuration
+
+```json
+{
+  "test_data": {
+    "development": {
+      "users": {
+        "admin": {
+          "username": "admin@dev.com",
+          "password": "dev_password",
+          "role": "admin"
+        },
+        "user": {
+          "username": "user@dev.com",
+          "password": "dev_password",
+          "role": "user"
+        }
+      },
+      "products": {
+        "sample_product": {
+          "name": "Test Product",
+          "price": "99.99",
+          "category": "electronics"
+        }
+      }
+    },
+    "staging": {
+      "users": {
+        "admin": {
+          "username": "admin@staging.com",
+          "password": "staging_password",
+          "role": "admin"
+        },
+        "user": {
+          "username": "user@staging.com",
+          "password": "staging_password",
+          "role": "user"
+        }
+      },
+      "products": {
+        "sample_product": {
+          "name": "Staging Product",
+          "price": "149.99",
+          "category": "electronics"
+        }
+      }
+    }
+  }
+}
+```
+
+## CI/CD Integration Setup
+
+### GitHub Actions Integration
+
+Set up automated testing with GitHub Actions:
+
+<Steps>
+  <Step title="Configure GitHub Secrets">
+    Add required secrets to your GitHub repository:
+    - QA_TECH_API_TOKEN
+    - QA_TECH_PROJECT_ID
+    - Environment-specific credentials
+  </Step>
+  <Step title="Create GitHub Action Workflow">
+    Set up the QA.tech GitHub Action:
+    - Add the QA.tech action to your workflow
+    - Configure test plan triggers
+    - Set up result reporting
+    - Configure notifications
+  </Step>
+  <Step title="Test the Integration">
+    Verify the integration works:
+    - Trigger a test run manually
+    - Check test execution in QA.tech
+    - Verify results are reported back
+    - Test failure scenarios
+  </Step>
+</Steps>
+
+### GitHub Action Configuration
 
 ```yaml
 name: QA.tech Tests
@@ -181,807 +405,221 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
-    env:
-      QA_TECH_API_KEY: ${{ secrets.QA_TECH_API_KEY }}
-      QA_TECH_PROJECT_ID: ${{ secrets.QA_TECH_PROJECT_ID }}
-      QA_TECH_ENVIRONMENT: staging
-      QA_TECH_TIMEOUT: 60000
-      QA_TECH_RETRY_COUNT: 3
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Install QA.tech CLI
-      run: npm install -g @qa-tech/cli
-      
     - name: Run QA.tech Tests
-      run: |
-        qa-tech login --api-key $QA_TECH_API_KEY
-        qa-tech tests run-all --project-id $QA_TECH_PROJECT_ID
-      env:
-        QA_TECH_ENVIRONMENT: staging
-        QA_TECH_TIMEOUT: 60000
-        QA_TECH_RETRY_COUNT: 3
-        
-    - name: Generate Test Report
-      run: |
-        qa-tech reports generate \
-          --project-id $QA_TECH_PROJECT_ID \
-          --format html \
-          --output test-report.html
-      if: always()
-      
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v3
+      uses: QAdottech/run-action@v2
       with:
-        name: test-results
-        path: test-report.html
-      if: always()
+        project_id: ${{ secrets.QATECH_PROJECT_ID }}
+        api_token: ${{ secrets.QATECH_API_TOKEN }}
+        test_plan_short_id: 'jgbinp'
+        blocking: true
 ```
 
-#### **Advanced GitHub Actions Setup**
+### GitLab CI Integration
 
-```yaml
-name: QA.tech Advanced Testing
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-  schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM
-
-env:
-  QA_TECH_API_KEY: ${{ secrets.QA_TECH_API_KEY }}
-  QA_TECH_PROJECT_ID: ${{ secrets.QA_TECH_PROJECT_ID }}
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        environment: [staging, production]
-        browser: [chrome, firefox]
-        node-version: [16, 18]
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Install QA.tech CLI
-      run: npm install -g @qa-tech/cli
-      
-    - name: Setup test environment
-      run: |
-        # Setup test database
-        npm run db:setup:${{ matrix.environment }}
-        
-        # Setup test data
-        npm run data:seed:${{ matrix.environment }}
-        
-    - name: Run Tests
-      run: |
-        qa-tech login --api-key $QA_TECH_API_KEY
-        qa-tech tests run-parallel \
-          --project-id $QA_TECH_PROJECT_ID \
-          --environment ${{ matrix.environment }} \
-          --browser ${{ matrix.browser }} \
-          --max-concurrent 3 \
-          --timeout 60000 \
-          --retry-count 3
-      env:
-        QA_TECH_ENVIRONMENT: ${{ matrix.environment }}
-        QA_TECH_BROWSER: ${{ matrix.browser }}
-        QA_TECH_TIMEOUT: 60000
-        QA_TECH_RETRY_COUNT: 3
-        
-    - name: Generate Report
-      run: |
-        qa-tech reports generate \
-          --project-id $QA_TECH_PROJECT_ID \
-          --environment ${{ matrix.environment }} \
-          --browser ${{ matrix.browser }} \
-          --format html \
-          --output test-report-${{ matrix.environment }}-${{ matrix.browser }}.html
-      if: always()
-      
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results-${{ matrix.environment }}-${{ matrix.browser }}
-        path: test-report-${{ matrix.environment }}-${{ matrix.browser }}.html
-      if: always()
-      
-    - name: Notify on Failure
-      if: failure()
-      run: |
-        echo "Tests failed for ${{ matrix.environment }} - ${{ matrix.browser }}"
-        # Add notification logic here
-```
-
-### GitLab CI
-
-#### **Basic GitLab CI Setup**
+Set up automated testing with GitLab CI:
 
 ```yaml
 stages:
-  - setup
   - test
-  - report
 
-variables:
-  QA_TECH_API_KEY: $QA_TECH_API_KEY
-  QA_TECH_PROJECT_ID: $QA_TECH_PROJECT_ID
-  QA_TECH_ENVIRONMENT: staging
-  QA_TECH_TIMEOUT: 60000
-  QA_TECH_RETRY_COUNT: 3
-
-setup:
-  stage: setup
-  image: node:18
-  script:
-    - npm install -g @qa-tech/cli
-    - qa-tech login --api-key $QA_TECH_API_KEY
-  artifacts:
-    paths:
-      - .qa-tech/
-    expire_in: 1 hour
-
-test:
+qa-tech-tests:
   stage: test
-  image: node:18
-  dependencies:
-    - setup
-  script:
-    - qa-tech tests run-all --project-id $QA_TECH_PROJECT_ID
-  environment:
-    name: staging
-  artifacts:
-    paths:
-      - test-results/
-    expire_in: 1 week
-
-report:
-  stage: report
-  image: node:18
-  dependencies:
-    - test
-  script:
-    - qa-tech reports generate --project-id $QA_TECH_PROJECT_ID --format html --output test-report.html
-  artifacts:
-    paths:
-      - test-report.html
-    expire_in: 1 month
-```
-
-#### **Advanced GitLab CI Setup**
-
-```yaml
-stages:
-  - setup
-  - test
-  - report
-
-variables:
-  QA_TECH_API_KEY: $QA_TECH_API_KEY
-  QA_TECH_PROJECT_ID: $QA_TECH_PROJECT_ID
-
-.qa-tech-template: &qa-tech-template
   image: node:18
   before_script:
-    - npm install -g @qa-tech/cli
-    - qa-tech login --api-key $QA_TECH_API_KEY
-
-setup:
-  stage: setup
-  <<: *qa-tech-template
+    - echo "QA.tech tests will be executed via GitHub Actions"
   script:
-    - qa-tech projects list
-  artifacts:
-    paths:
-      - .qa-tech/
-    expire_in: 1 hour
-
-test-staging:
-  stage: test
-  <<: *qa-tech-template
-  script:
-    - qa-tech tests run-parallel --project-id $QA_TECH_PROJECT_ID --environment staging --max-concurrent 3
+    - echo "Using QA.tech cloud-based testing platform"
   environment:
     name: staging
   variables:
     QA_TECH_ENVIRONMENT: staging
     QA_TECH_TIMEOUT: 60000
     QA_TECH_RETRY_COUNT: 3
-  artifacts:
-    paths:
-      - test-results-staging/
-    expire_in: 1 week
-
-test-production:
-  stage: test
-  <<: *qa-tech-template
-  script:
-    - qa-tech tests run-parallel --project-id $QA_TECH_PROJECT_ID --environment production --max-concurrent 3
-  environment:
-    name: production
-  variables:
-    QA_TECH_ENVIRONMENT: production
-    QA_TECH_TIMEOUT: 60000
-    QA_TECH_RETRY_COUNT: 3
-  when: manual
-  artifacts:
-    paths:
-      - test-results-production/
-    expire_in: 1 week
-
-generate-report:
-  stage: report
-  <<: *qa-tech-template
-  script:
-    - qa-tech reports generate --project-id $QA_TECH_PROJECT_ID --format html --output test-report.html
-  dependencies:
-    - test-staging
-    - test-production
-  artifacts:
-    paths:
-      - test-report.html
-    expire_in: 1 month
 ```
 
-### Jenkins Pipeline
+## Environment Monitoring
 
-#### **Basic Jenkins Pipeline Setup**
+### Health Checks
 
-```groovy
-pipeline {
-    agent any
-    
-    environment {
-        QA_TECH_API_KEY = credentials('qa-tech-api-key')
-        QA_TECH_PROJECT_ID = 'proj_123'
-        QA_TECH_ENVIRONMENT = 'staging'
-        QA_TECH_TIMEOUT = '60000'
-        QA_TECH_RETRY_COUNT = '3'
+Monitor your application environments:
+
+<Steps>
+  <Step title="Set Up Health Monitoring">
+    Configure application health checks:
+    - Monitor application availability
+    - Check authentication status
+    - Verify test data accessibility
+    - Monitor performance metrics
+  </Step>
+  <Step title="Configure Alerts">
+    Set up monitoring alerts:
+    - Application downtime alerts
+    - Authentication failure alerts
+    - Test execution alerts
+    - Performance degradation alerts
+  </Step>
+  <Step title="Review Monitoring Data">
+    Analyze monitoring information:
+    - Review application health metrics
+    - Monitor test execution patterns
+    - Analyze performance trends
+    - Identify improvement opportunities
+  </Step>
+</Steps>
+
+### Health Check Configuration
+
+```json
+{
+  "monitoring": {
+    "health_checks": {
+      "application_availability": {
+        "url": "https://your-app.com/health",
+        "timeout": 10000,
+        "frequency": "5m"
+      },
+      "authentication_status": {
+        "url": "https://your-app.com/auth/status",
+        "timeout": 5000,
+        "frequency": "10m"
+      },
+      "test_data_accessibility": {
+        "url": "https://your-app.com/api/test-data",
+        "timeout": 8000,
+        "frequency": "15m"
+      }
+    },
+    "alerts": {
+      "downtime": {
+        "enabled": true,
+        "threshold": "2m"
+      },
+      "auth_failures": {
+        "enabled": true,
+        "threshold": "3"
+      },
+      "performance": {
+        "enabled": true,
+        "threshold": "5s"
+      }
     }
-    
-    stages {
-        stage('Setup') {
-            steps {
-                sh 'npm install -g @qa-tech/cli'
-                sh 'qa-tech login --api-key $QA_TECH_API_KEY'
-            }
-        }
-        
-        stage('Run Tests') {
-            steps {
-                sh '''
-                    qa-tech tests run-all \
-                        --project-id $QA_TECH_PROJECT_ID \
-                        --environment $QA_TECH_ENVIRONMENT \
-                        --timeout $QA_TECH_TIMEOUT \
-                        --retry-count $QA_TECH_RETRY_COUNT
-                '''
-            }
-        }
-        
-        stage('Generate Report') {
-            steps {
-                sh '''
-                    qa-tech reports generate \
-                        --project-id $QA_TECH_PROJECT_ID \
-                        --format html \
-                        --output test-report.html
-                '''
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: '.',
-                    reportFiles: 'test-report.html',
-                    reportName: 'QA.tech Test Report'
-                ])
-            }
-        }
-    }
-    
-    post {
-        always {
-            archiveArtifacts artifacts: 'test-report.html', fingerprint: true
-        }
-    }
-}
-```
-
-## Environment-Specific Configuration
-
-### Development Environment
-
-```javascript
-// development.config.js
-module.exports = {
-  environment: 'development',
-  baseUrl: 'http://localhost:3000',
-  
-  // Development-specific settings
-  debugMode: true,
-  logLevel: 'debug',
-  headless: false,
-  
-  // Test data
-  testData: {
-    users: './test-data/dev/users.json',
-    products: './test-data/dev/products.json'
-  },
-  
-  // Database
-  database: {
-    url: 'postgresql://localhost/qa_tech_dev',
-    resetBeforeTest: true
-  },
-  
-  // Network
-  network: {
-    timeout: 30000,
-    ignoreHTTPSErrors: true
-  }
-};
-```
-
-### Staging Environment
-
-```javascript
-// staging.config.js
-module.exports = {
-  environment: 'staging',
-  baseUrl: 'https://staging.example.com',
-  
-  // Staging-specific settings
-  debugMode: false,
-  logLevel: 'info',
-  headless: true,
-  
-  // Test data
-  testData: {
-    users: './test-data/staging/users.json',
-    products: './test-data/staging/products.json'
-  },
-  
-  // Database
-  database: {
-    url: process.env.STAGING_DATABASE_URL,
-    resetBeforeTest: false
-  },
-  
-  // Network
-  network: {
-    timeout: 60000,
-    ignoreHTTPSErrors: false
-  },
-  
-  // Performance
-  performance: {
-    parallelExecution: true,
-    maxConcurrentTests: 3
-  }
-};
-```
-
-### Production Environment
-
-```javascript
-// production.config.js
-module.exports = {
-  environment: 'production',
-  baseUrl: 'https://example.com',
-  
-  // Production-specific settings
-  debugMode: false,
-  logLevel: 'warn',
-  headless: true,
-  
-  // Test data
-  testData: {
-    users: './test-data/prod/users.json',
-    products: './test-data/prod/products.json'
-  },
-  
-  // Database
-  database: {
-    url: process.env.PRODUCTION_DATABASE_URL,
-    resetBeforeTest: false,
-    readOnly: true
-  },
-  
-  // Network
-  network: {
-    timeout: 90000,
-    ignoreHTTPSErrors: false
-  },
-  
-  // Performance
-  performance: {
-    parallelExecution: true,
-    maxConcurrentTests: 5
-  },
-  
-  // Security
-  security: {
-    sslVerify: true,
-    certPath: '/path/to/certificates'
-  }
-};
-```
-
-## Environment Variables Management
-
-### Using .env Files
-
-Create environment-specific `.env` files:
-
-#### **Development (.env.development)**
-```bash
-# Development environment
-QA_TECH_ENVIRONMENT=development
-QA_TECH_BASE_URL=http://localhost:3000
-QA_TECH_DEBUG_MODE=true
-QA_TECH_LOG_LEVEL=debug
-
-# Database
-DATABASE_URL=postgresql://localhost/qa_tech_dev
-
-# Test data
-TEST_DATA_PATH=./test-data/dev
-
-# Network
-QA_TECH_TIMEOUT=30000
-QA_TECH_RETRY_COUNT=2
-```
-
-#### **Staging (.env.staging)**
-```bash
-# Staging environment
-QA_TECH_ENVIRONMENT=staging
-QA_TECH_BASE_URL=https://staging.example.com
-QA_TECH_DEBUG_MODE=false
-QA_TECH_LOG_LEVEL=info
-
-# Database
-DATABASE_URL=postgresql://staging-db.example.com/qa_tech_staging
-
-# Test data
-TEST_DATA_PATH=./test-data/staging
-
-# Network
-QA_TECH_TIMEOUT=60000
-QA_TECH_RETRY_COUNT=3
-```
-
-#### **Production (.env.production)**
-```bash
-# Production environment
-QA_TECH_ENVIRONMENT=production
-QA_TECH_BASE_URL=https://example.com
-QA_TECH_DEBUG_MODE=false
-QA_TECH_LOG_LEVEL=warn
-
-# Database
-DATABASE_URL=postgresql://prod-db.example.com/qa_tech_prod
-
-# Test data
-TEST_DATA_PATH=./test-data/prod
-
-# Network
-QA_TECH_TIMEOUT=90000
-QA_TECH_RETRY_COUNT=3
-```
-
-### Secrets Management
-
-#### **GitHub Secrets**
-```bash
-# Add secrets to GitHub repository
-QA_TECH_API_KEY=your_api_key_here
-QA_TECH_PROJECT_ID=your_project_id_here
-STAGING_DATABASE_URL=postgresql://staging-db.example.com/qa_tech_staging
-PRODUCTION_DATABASE_URL=postgresql://prod-db.example.com/qa_tech_prod
-```
-
-#### **GitLab Variables**
-```bash
-# Add variables to GitLab project
-QA_TECH_API_KEY=your_api_key_here
-QA_TECH_PROJECT_ID=your_project_id_here
-STAGING_DATABASE_URL=postgresql://staging-db.example.com/qa_tech_staging
-PRODUCTION_DATABASE_URL=postgresql://prod-db.example.com/qa_tech_prod
-```
-
-#### **Jenkins Credentials**
-```groovy
-// Add credentials to Jenkins
-credentials {
-    string(credentialsId: 'qa-tech-api-key', variable: 'QA_TECH_API_KEY')
-    string(credentialsId: 'qa-tech-project-id', variable: 'QA_TECH_PROJECT_ID')
-    string(credentialsId: 'staging-database-url', variable: 'STAGING_DATABASE_URL')
-    string(credentialsId: 'production-database-url', variable: 'PRODUCTION_DATABASE_URL')
-}
-```
-
-## Database Setup for Different Environments
-
-### Local Development Database
-
-#### **PostgreSQL Setup**
-```bash
-# Create development database
-createdb qa_tech_dev
-
-# Run migrations
-npm run db:migrate:dev
-
-# Seed test data
-npm run db:seed:dev
-```
-
-#### **MySQL Setup**
-```bash
-# Create development database
-mysql -u root -p -e "CREATE DATABASE qa_tech_dev;"
-
-# Run migrations
-npm run db:migrate:dev
-
-# Seed test data
-npm run db:seed:dev
-```
-
-### Staging Database
-
-#### **PostgreSQL Setup**
-```bash
-# Create staging database
-createdb qa_tech_staging
-
-# Run migrations
-npm run db:migrate:staging
-
-# Seed test data
-npm run db:seed:staging
-```
-
-#### **MySQL Setup**
-```bash
-# Create staging database
-mysql -u root -p -e "CREATE DATABASE qa_tech_staging;"
-
-# Run migrations
-npm run db:migrate:staging
-
-# Seed test data
-npm run db:seed:staging
-```
-
-### Production Database
-
-#### **PostgreSQL Setup**
-```bash
-# Create production database
-createdb qa_tech_prod
-
-# Run migrations
-npm run db:migrate:prod
-
-# Seed production data
-npm run db:seed:prod
-```
-
-#### **MySQL Setup**
-```bash
-# Create production database
-mysql -u root -p -e "CREATE DATABASE qa_tech_prod;"
-
-# Run migrations
-npm run db:migrate:prod
-
-# Seed production data
-npm run db:seed:prod
-```
-
-## Monitoring and Health Checks
-
-### Application Health Checks
-
-```javascript
-// health-check.js
-const axios = require('axios');
-
-async function checkApplicationHealth(baseUrl) {
-  try {
-    const response = await axios.get(`${baseUrl}/health`, {
-      timeout: 10000
-    });
-    
-    if (response.status === 200) {
-      console.log('Application is healthy');
-      return true;
-    } else {
-      console.log('Application health check failed');
-      return false;
-    }
-  } catch (error) {
-    console.error('Health check error:', error.message);
-    return false;
   }
 }
-
-module.exports = { checkApplicationHealth };
-```
-
-### Database Health Checks
-
-```javascript
-// db-health-check.js
-const { Pool } = require('pg');
-
-async function checkDatabaseHealth(databaseUrl) {
-  const pool = new Pool({
-    connectionString: databaseUrl
-  });
-  
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT 1');
-    client.release();
-    
-    console.log('Database is healthy');
-    return true;
-  } catch (error) {
-    console.error('Database health check failed:', error.message);
-    return false;
-  } finally {
-    await pool.end();
-  }
-}
-
-module.exports = { checkDatabaseHealth };
 ```
 
 ## Troubleshooting Environment Issues
 
-### Common Local Issues
+### Common Environment Problems
 
-#### **Port Conflicts**
-```bash
-# Check for port conflicts
-lsof -i :3000
+**Problem:** AI agent can't access your application.
 
-# Kill process using port
-kill -9 $(lsof -t -i:3000)
-```
+**Solutions:**
 
-#### **Database Connection Issues**
-```bash
-# Test database connection
-psql -h localhost -U postgres -d qa_tech_dev
+<Steps>
+  <Step title="Check Application Accessibility">
+    Verify your application:
+    - Test URL accessibility manually
+    - Check for firewall restrictions
+    - Verify SSL certificate validity
+    - Test with different browsers
+  </Step>
+  <Step title="Verify Authentication">
+    Check authentication setup:
+    - Test login manually
+    - Verify credentials are correct
+    - Check for account restrictions
+    - Test authentication flow
+  </Step>
+  <Step title="Check Network Configuration">
+    Verify network settings:
+    - Test connectivity to your app
+    - Check for proxy requirements
+    - Verify DNS resolution
+    - Test with different networks
+  </Step>
+</Steps>
 
-# Check database status
-sudo systemctl status postgresql
-```
+### Performance Optimization
 
-#### **Network Issues**
-```bash
-# Test network connectivity
-ping staging.example.com
+**Problem:** Tests are taking too long to execute.
 
-# Check DNS resolution
-nslookup staging.example.com
+**Solutions:**
 
-# Test HTTPS connectivity
-curl -I https://staging.example.com
-```
-
-### Common CI/CD Issues
-
-#### **Authentication Problems**
-```bash
-# Verify API key
-qa-tech projects list
-
-# Check environment variables
-echo $QA_TECH_API_KEY
-```
-
-#### **Network Timeouts**
-```bash
-# Increase timeout values
-export QA_TECH_TIMEOUT=120000
-export QA_TECH_NETWORK_TIMEOUT=120000
-```
-
-#### **Resource Limitations**
-```bash
-# Check available memory
-free -h
-
-# Check disk space
-df -h
-
-# Monitor CPU usage
-top
-```
+<Steps>
+  <Step title="Optimize Application Performance">
+    Improve your application:
+    - Optimize page load times
+    - Reduce server response times
+    - Implement proper caching
+    - Monitor application performance
+  </Step>
+  <Step title="Configure Test Settings">
+    Optimize test configuration:
+    - Adjust timeout settings
+    - Configure retry policies
+    - Optimize test descriptions
+    - Use parallel execution
+  </Step>
+  <Step title="Monitor Resource Usage">
+    Track performance metrics:
+    - Monitor application response times
+    - Track test execution times
+    - Analyze performance patterns
+    - Identify bottlenecks
+  </Step>
+</Steps>
 
 ## Best Practices
 
 ### Environment Management
 
 #### **Consistent Configuration**
-- Use environment-specific configuration files
-- Validate configuration on startup
+- Use environment-specific settings
+- Validate configuration on setup
 - Implement configuration validation
-- Use environment variables for secrets
+- Use secure credential management
 
 #### **Data Management**
-- Use separate test data for each environment
+- Use separate test data per environment
 - Implement data cleanup procedures
 - Backup important test data
 - Version control test data schemas
 
 #### **Security Considerations**
-- Use different API keys per environment
+- Use different credentials per environment
 - Implement proper access controls
-- Secure database connections
+- Secure authentication credentials
 - Monitor access logs
 
 ### Performance Optimization
 
-#### **Resource Management**
-- Monitor memory and CPU usage
-- Implement proper cleanup procedures
-- Use connection pooling for databases
-- Optimize test execution times
+#### **Application Optimization**
+- Optimize page load times
+- Reduce server response times
+- Implement proper caching
+- Monitor application performance
 
-#### **Parallel Execution**
-- Configure appropriate concurrency levels
-- Monitor resource utilization
-- Implement proper error handling
-- Use distributed testing when needed
+#### **Test Optimization**
+- Write efficient test descriptions
+- Focus on critical user paths
+- Remove unnecessary test steps
+- Use parallel execution when possible
 
 ## Conclusion
 
-Proper environment setup is crucial for reliable and efficient testing. By following this guide, you can:
+Proper environment setup is crucial for reliable AI-powered testing. By following this guide, you can:
 
 - **Set up consistent environments across development, staging, and production**
-- **Integrate QA.tech seamlessly with your CI/CD pipelines**
-- **Manage configuration and secrets securely**
-- **Monitor and troubleshoot environment issues effectively**
+- **Configure applications for AI agent testing**
+- **Manage authentication and test data securely**
+- **Integrate with CI/CD pipelines effectively**
 
 Start with the basic setup and gradually add advanced features as your needs evolve.
 
 ## Next Steps
 
 - **[Advanced Settings](/configuration/advanced-settings)** - Configure advanced features and optimizations
-- **[CI/CD Integration](/configuration/github)** - Set up automated testing workflows
+- **[GitHub Integration](/configuration/github)** - Set up CI/CD integration
 - **[Troubleshooting](/best-practices/troubleshooting)** - Resolve environment and configuration issues
-- **[Running Tests](/best-practices/running-tests)** - Execute tests in your configured environments 
+- **[Creating Tests](/best-practices/creating-tests)** - Learn how to create effective AI-powered tests 

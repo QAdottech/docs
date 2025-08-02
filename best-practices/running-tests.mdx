@@ -1,29 +1,375 @@
 ---
 title: Running Tests
+description: "Execute AI-generated tests and interpret results in QA.tech's cloud-based platform"
 icon: play
 ---
 
-Tests in QA.tech can be run in several ways.
+# Running AI-Powered Tests
 
-## Trigger a Run from the UI
+QA.tech's AI agents can execute tests automatically based on your natural language descriptions. Learn how to run tests, interpret AI-generated results, and manage test execution across different environments.
 
-The simplest way to get started is to use the "Run Tests" button found on the [Dashboard](https://app.qa.tech/dashboard/current-project) or the [Test Cases](https://app.qa.tech/dashboard/current-project/scenarios) page.
+## Understanding AI Test Execution
 
-You can also run individual tests by navigating to the test and clicking **Run Test**.
+### How AI Agents Run Tests
 
-## Trigger a Run as Part of a Pipeline
+When you run a test in QA.tech, the AI agent:
 
-You can also integrate test runs as part of your **CI pipeline**.
+1. **Analyzes your test description** - Understands what you want to test
+2. **Navigates your application** - Uses visual understanding to interact with UI elements
+3. **Executes the test flow** - Performs actions step-by-step like a human would
+4. **Captures results** - Records screenshots, videos, and detailed logs
+5. **Reports findings** - Provides comprehensive results with any issues found
 
-You can use any system that supports sending an HTTPS POST request when you want to trigger the tests.
+### Test Execution Process
 
-For a great example, check out our [GitHub Actions documentation](/configuration/github).
+<Steps>
+  <Step title="AI Agent Initialization">
+    The AI agent starts with your test description and application context
+  </Step>
+  <Step title="Visual Analysis">
+    AI scans the page to understand available elements and interactions
+  </Step>
+  <Step title="Step-by-Step Execution">
+    AI performs each action, waiting for responses and adapting to changes
+  </Step>
+  <Step title="Result Capture">
+    AI records screenshots, videos, and detailed execution logs
+  </Step>
+  <Step title="Analysis and Reporting">
+    AI analyzes results and provides comprehensive test reports
+  </Step>
+</Steps>
 
-## Trigger a Run on a Schedule
+## Running Tests from the Web Interface
 
-If you want your tests to run at a specific time, such as on a recurring weekly schedule (cron-style), we offer that functionality as well.
+### Individual Test Execution
 
-1. Go to [Results](https://app.qa.tech/dashboard/current-project/results) and press the **Schedule** button.
-2. Follow the instructions provided to set up the schedule.
+<Steps>
+  <Step title="Navigate to Test Cases">
+    Go to [Test Cases](https://app.qa.tech/dashboard/current-project/scenarios) in your project
+  </Step>
+  <Step title="Select Test to Run">
+    Find the test you want to run and click the **"Run Test"** button
+  </Step>
+  <Step title="Monitor Execution">
+    Watch the AI agent execute your test in real-time
+  </Step>
+  <Step title="Review Results">
+    Examine detailed results, screenshots, and any issues found
+  </Step>
+</Steps>
 
-If you're unsure how to write the cron format, you can use a tool like [crontab.guru](https://crontab.guru/) or reach out to us, and we'll be happy to help you get set up.
+### Batch Test Execution
+
+<Steps>
+  <Step title="Select Multiple Tests">
+    Choose multiple tests from your test cases list
+  </Step>
+  <Step title="Run Test Plan">
+    Click **"Run Tests"** to execute all selected tests
+  </Step>
+  <Step title="Monitor Progress">
+    Track execution progress across all tests
+  </Step>
+  <Step title="Review Batch Results">
+    Analyze results for all tests in the batch
+  </Step>
+</Steps>
+
+## Understanding Test Results
+
+### Interpreting AI-Generated Results
+
+When tests complete, you'll see results like:
+
+```
+✅ Test: "User Login Flow"
+   Status: PASSED
+   Steps: 8 completed / 0 failed
+   Duration: 45 seconds
+   Screenshots: 3 captured
+   Video: Available
+```
+
+### Result Components
+
+**Step-by-Step Execution:**
+- Each action the AI performed
+- Time taken for each step
+- Any issues encountered
+- Screenshots at key points
+
+**Visual Evidence:**
+- Screenshots of each step
+- Video recording of full execution
+- Highlighted areas of interaction
+- Error screenshots if failures occur
+
+**Detailed Logs:**
+- AI decision-making process
+- Element selection reasoning
+- Wait strategies used
+- Error handling details
+
+### Common Result Patterns
+
+#### **Successful Test Execution**
+```
+✅ All steps completed successfully
+📸 Screenshots captured at key points
+🎥 Video recording available
+⏱️ Total execution time: 30-60 seconds
+```
+
+#### **Test with Issues**
+```
+⚠️ Test completed with issues
+❌ Step 5 failed: "Element not found"
+📸 Screenshot captured at failure point
+💡 AI suggestions for improvement
+```
+
+#### **AI Learning Results**
+```
+🧠 AI learned from this execution
+📈 Improved element recognition
+🔄 Better wait strategies identified
+📝 Updated knowledge for future tests
+```
+
+## CI/CD Integration
+
+### GitHub Actions Integration
+
+Set up automated test execution with GitHub Actions:
+
+```yaml
+name: QA.tech AI Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run AI-Powered Tests
+      uses: QAdottech/run-action@v2
+      with:
+        project_id: ${{ secrets.QATECH_PROJECT_ID }}
+        api_token: ${{ secrets.QATECH_API_TOKEN }}
+        test_plan_short_id: 'jgbinp'
+        blocking: true
+```
+
+### GitLab CI Integration
+
+Configure GitLab CI for automated testing:
+
+```yaml
+stages:
+  - test
+
+qa-tech-tests:
+  stage: test
+  image: node:18
+  before_script:
+    - echo "QA.tech tests will be executed via GitHub Actions"
+  script:
+    - echo "Using QA.tech cloud-based testing platform"
+  environment:
+    name: staging
+  variables:
+    QA_TECH_ENVIRONMENT: staging
+    QA_TECH_TIMEOUT: 60000
+    QA_TECH_RETRY_COUNT: 3
+```
+
+## Scheduled Test Execution
+
+### Setting Up Automated Schedules
+
+<Steps>
+  <Step title="Navigate to Results">
+    Go to [Results](https://app.qa.tech/dashboard/current-project/results)
+  </Step>
+  <Step title="Configure Schedule">
+    Click the **"Schedule"** button to set up automated runs
+  </Step>
+  <Step title="Define Schedule">
+    Choose frequency: daily, weekly, or custom cron schedule
+  </Step>
+  <Step title="Select Tests">
+    Choose which tests to include in the scheduled run
+  </Step>
+  <Step title="Set Notifications">
+    Configure email or webhook notifications for results
+  </Step>
+</Steps>
+
+### Schedule Examples
+
+**Daily Regression Testing:**
+```
+Schedule: Daily at 2:00 AM
+Tests: All critical user flows
+Environment: Staging
+Notifications: Email on failures
+```
+
+**Weekly Full Test Suite:**
+```
+Schedule: Every Sunday at 1:00 AM
+Tests: Complete test suite
+Environment: Production
+Notifications: Slack webhook
+```
+
+## Environment-Specific Execution
+
+### Running Tests Across Environments
+
+<Steps>
+  <Step title="Select Environment">
+    Choose the environment for your test execution
+  </Step>
+  <Step title="Configure Environment Settings">
+    Set up environment-specific configurations
+  </Step>
+  <Step title="Execute Tests">
+    Run tests with environment-specific settings
+  </Step>
+  <Step title="Compare Results">
+    Analyze results across different environments
+  </Step>
+</Steps>
+
+### Environment Configuration
+
+```json
+{
+  "environments": {
+    "development": {
+      "url": "https://dev.your-app.com",
+      "timeout": 30000,
+      "debug_mode": true
+    },
+    "staging": {
+      "url": "https://staging.your-app.com",
+      "timeout": 60000,
+      "debug_mode": false
+    },
+    "production": {
+      "url": "https://your-app.com",
+      "timeout": 90000,
+      "debug_mode": false
+    }
+  }
+}
+```
+
+## Monitoring Test Execution
+
+### Real-Time Monitoring
+
+<Steps>
+  <Step title="Track Execution Progress">
+    Monitor test execution in real-time
+  </Step>
+  <Step title="Review AI Decisions">
+    Understand how AI agents make decisions
+  </Step>
+  <Step title="Analyze Performance">
+    Track execution times and success rates
+  </Step>
+  <Step title="Identify Patterns">
+    Spot trends in test results and AI behavior
+  </Step>
+</Steps>
+
+### Performance Metrics
+
+**Execution Speed:**
+- Average test duration: 30-60 seconds
+- Parallel execution capabilities
+- Environment-specific performance
+
+**Success Rates:**
+- Track pass/fail ratios
+- Monitor flaky test patterns
+- Analyze failure root causes
+
+**AI Learning:**
+- Element recognition improvements
+- Wait strategy optimizations
+- Context understanding enhancements
+
+## Troubleshooting Test Execution
+
+### Common Execution Issues
+
+**Problem:** Tests taking too long to execute
+
+**Solutions:**
+- Optimize test descriptions for clarity
+- Check application performance
+- Review AI agent configuration
+- Consider parallel execution
+
+**Problem:** AI agent can't find elements
+
+**Solutions:**
+- Improve element descriptions in test prompts
+- Check application accessibility
+- Verify element visibility
+- Use AI chat for debugging
+
+**Problem:** Inconsistent test results
+
+**Solutions:**
+- Review application stability
+- Check for dynamic content
+- Optimize wait strategies
+- Improve test descriptions
+
+## Best Practices
+
+### Test Execution Optimization
+
+<Card title="✅ Do" icon="check">
+  - Write clear, specific test descriptions
+  - Use environment-specific configurations
+  - Monitor execution performance
+  - Review and learn from AI decisions
+</Card>
+
+<Card title="❌ Don't" icon="x">
+  - Write overly complex test descriptions
+  - Ignore execution performance metrics
+  - Skip result analysis and learning
+  - Run tests without proper environment setup
+</Card>
+
+### Continuous Improvement
+
+**Regular Review:**
+- Analyze test execution patterns
+- Learn from AI agent decisions
+- Optimize test descriptions
+- Update environment configurations
+
+**Performance Monitoring:**
+- Track execution times
+- Monitor success rates
+- Identify bottlenecks
+- Optimize for efficiency
+
+## Next Steps
+
+- **[Test Results Analysis](/best-practices/test-results)** - Learn how to interpret AI-generated results
+- **[Troubleshooting](/best-practices/troubleshooting)** - Resolve common execution issues
+- **[Configuration](/configuration/advanced-settings)** - Optimize AI agent settings
+- **[Creating Tests](/best-practices/creating-tests)** - Write effective test descriptions
