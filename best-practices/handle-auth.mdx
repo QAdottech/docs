@@ -43,42 +43,46 @@ AI agents in QA.tech can:
 ### Setting Up Basic Authentication
 
 <Steps>
-  <Step title="Navigate to Application Settings">
-    Go to [Settings → Applications](https://app.qa.tech/dashboard/current-project/settings/applications)
+  <Step title="Navigate to Authentication Settings">
+    Go to **Settings** in the left sidebar, then select **Profile** in the settings sub-navigation
   </Step>
-  <Step title="Select Your Application">
-    Choose the application that requires authentication
+  <Step title="Access Authentication">
+    Click **Authentication** from the Profile settings
   </Step>
-  <Step title="Configure Authentication">
-    Click "Authentication" and select your auth method
+  <Step title="Configure Multi-Factor Authentication">
+    Click "Setup a new Factor" to configure MFA for your account
   </Step>
-  <Step title="Enter Credentials">
-    Provide username/password or other required credentials
+  <Step title="Complete MFA Setup">
+    Follow the SMS-based verification process to secure your account
   </Step>
-  <Step title="Test Authentication">
-    Verify the AI agent can successfully log in
+  <Step title="Verify Configuration">
+    Test the authentication setup to ensure it works correctly
   </Step>
 </Steps>
 
-### Authentication Configuration Example
+### Authentication Configuration
 
-```json
-{
-  "authentication": {
-    "method": "username_password",
-    "credentials": {
-      "username": "test@example.com",
-      "password": "secure_password"
-    },
-    "login_url": "https://your-app.com/login",
-    "success_indicators": [
-      "dashboard",
-      "welcome message",
-      "user menu"
-    ]
-  }
-}
-```
+**Navigation Path:**
+1. Navigate to **Settings** in the left sidebar
+2. Select **Profile** in the settings sub-navigation
+3. Click **Authentication** from the Profile settings
+
+**Configuration Interface:**
+The authentication configuration is managed through a form-based interface that includes:
+
+- **Multi-Factor Authentication (MFA)**: Set up a MFA method to secure your account
+- **Account Security**: SMS-based identity verification setup
+- **Setup Process**: Click "Setup a new Factor" to begin MFA configuration
+
+**MFA Setup Process:**
+1. **Access MFA Settings**: Navigate to Settings → Profile → Authentication
+2. **Initiate Setup**: Click the "Setup a new Factor" button
+3. **Configure Factor**: In the modal that appears:
+   - **Factor Name**: Enter a memorable name (e.g., "iPhone 14", "a-new-factor")
+   - **Helper Text**: "Use an easy-to-remember name to easily identify this factor in the future"
+4. **Complete Setup**: Click "Set factor name" to proceed with SMS verification
+
+**Note:** Authentication settings are configured through the Profile section, not through Applications or JSON configuration files. The current interface focuses on Multi-Factor Authentication setup for account security.
 
 ## Advanced Authentication Scenarios
 
@@ -335,5 +339,5 @@ Configure authentication at the test plan level:
 
 - **[Running Tests](/best-practices/running-tests)** - Execute tests with authentication
 - **[Troubleshooting](/best-practices/troubleshooting)** - Resolve authentication issues
-- **[Configuration](/configuration/advanced-settings)** - Advanced authentication settings
+  - **[Authentication](/configuration/authentication)** - Multi-factor authentication and account security
 - **[Environment Setup](/configuration/environment-setup)** - Set up authentication per environment

@@ -26,6 +26,45 @@ Project context is information that AI agents use to understand your application
 - **Enhanced Coverage**: Agents can identify relevant test scenarios based on context
 - **Consistent Behavior**: Standardized understanding across all test executions
 
+## Configuring Project Context
+
+### Location and Access
+
+**Navigation Path:**
+1. Navigate to **Settings** in the left sidebar
+2. Click on **Knowledge** in the Project settings section
+3. Use the **Project Global Context** text area
+
+**What You Can Configure:**
+
+#### **Project Global Context**
+- **Purpose:** Text area for entering project-specific information that the AI agent should know
+- **Example:** "If you run into typos, the test should fail."
+- **Function:** These are things that you want the QA agent to know about your project, and will be included in the AI's prompt for all tests
+- **Interface:** Large text area with placeholder text for guidance
+
+#### **Knowledge Items**
+- **Purpose:** Add documentation, links, and text content that AI assistants can reference
+- **Function:** Searchable knowledge that helps provide accurate, project-specific context for better assistance
+- **Status:** Shows "No knowledge items found" when empty, with "+ Add Knowledge" button
+- **Interface:** List view with add functionality
+
+#### **Project Summary**
+- **Purpose:** AI-generated summary of your website's functionality and structure
+- **Function:** Provides context to help AI assistants understand your project better
+- **Status:** Shows "We still don't have any information about your project" when no analysis has been completed
+- **Action:** "Analyze Site" button to trigger manual analysis
+- **Interface:** Summary section with analysis trigger button
+
+**Supported Information for Project Global Context:**
+- Application purpose and domain
+- User types and roles
+- Business rules and constraints
+- Technology stack (basic information)
+- UI/UX guidelines and patterns
+
+**Note:** Focus on practical, actionable context that helps the AI agent perform better during testing.
+
 ## What Should You Add to Project Context?
 
 ### Essential Information Categories
@@ -38,21 +77,12 @@ Project context is information that AI agents use to understand your application
 
 #### **2. Technical Specifications**
 - **Technology Stack**: Frameworks, libraries, and platforms used
-- **Architecture Patterns**: How the application is structured
-- **Integration Points**: External services and APIs
-- **Performance Requirements**: Expected response times and load handling
 
 #### **3. User Experience Guidelines**
 - **Design Patterns**: UI/UX conventions and standards
 - **Navigation Flow**: Expected user journey patterns
 - **Accessibility Requirements**: Standards for inclusive design
 - **Responsive Behavior**: How the application adapts to different devices
-
-#### **4. Testing Requirements**
-- **Critical Paths**: Most important user workflows
-- **Edge Cases**: Unusual scenarios that should be tested
-- **Error Handling**: How the application should respond to errors
-- **Data Requirements**: Test data specifications and constraints
 
 ## Writing Effective Project Context
 
@@ -72,11 +102,13 @@ Organize your context into logical sections:
 [Main features and workflows]
 
 ## Technical Specifications
-[Technology stack and architecture details]
+[Technology stack and basic architecture details]
 
-## Testing Guidelines
-[Specific requirements for test execution]
+## User Experience Guidelines
+[UI/UX patterns and navigation flows]
 ```
+
+**Note:** Testing requirements and specific test scenarios should be discussed through the AI Chat interface when creating tests, not configured in project context.
 
 #### **Concise and Specific**
 - **Be Specific**: Avoid vague descriptions that could be interpreted differently

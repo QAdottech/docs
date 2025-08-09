@@ -95,12 +95,11 @@
       "icon": "settings",
       "pages": [
         "configuration/github",
-        "configuration/gitlab",
+        "configuration/gitlab", 
         "configuration/envoyer",
         "configuration/authentication",
         "configuration/ip-access-control",
         "configuration/auth-rate-limits",
-        "configuration/advanced-settings",
         "configuration/environment-setup"
       ]
     },

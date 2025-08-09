@@ -1,625 +1,69 @@
 ---
-title: Advanced Settings
-description: "Configure QA.tech for advanced use cases including AI agent settings, project configuration, and integration options"
-icon: wrench
+title: Configuration Settings
+description: "Configure QA.tech settings organized by specific features and functionality"
+icon: settings
 ---
 
-# Advanced Configuration
+# Configuration Settings
 
-QA.tech provides extensive configuration options for advanced users who need fine-grained control over AI agent behavior, project settings, and integration capabilities. Learn how to optimize your AI-powered testing setup.
+QA.tech provides comprehensive configuration options organized by specific features and functionality. Each setting is designed to help you optimize your AI-powered testing setup for your specific needs.
 
-## Project Settings
+## Settings Organization
 
-### Core Project Configuration
+**Feature-Based Structure:**
+Configuration options are organized by specific functionality rather than generic "advanced" categories:
 
-Access your project settings in the QA.tech web interface:
+### Authentication & Security
+- **[Authentication](/configuration/authentication)** - Multi-factor authentication and account security
+- **[IP Access Control](/configuration/ip-access-control)** - Network security and access management
+- **[Auth Rate Limits](/configuration/auth-rate-limits)** - API rate limiting and protection
 
-<Steps>
-  <Step title="Navigate to Settings">
-    Go to app.qa.tech and select your project
-    Click on the "Settings" icon in the left sidebar
-    Select "General" under Project settings
-  </Step>
-  <Step title="Configure Project Details">
-    Update your project name and description
-    Set project visibility and access controls
-    Configure project-specific settings
-    Save your changes
-  </Step>
-  <Step title="Manage Applications">
-    Add your application URLs
-    Configure environment settings
-    Set up authentication if needed
-    Test application connectivity
-  </Step>
-</Steps>
+### Development & Deployment
+- **[GitHub Integration](/configuration/github)** - GitHub Actions and repository integration
+- **[GitLab Integration](/configuration/gitlab)** - GitLab CI/CD pipeline integration
+- **[Envoyer Integration](/configuration/envoyer)** - Deployment automation and monitoring
 
-### Application Configuration
+### Environment Management
+- **[Environment Setup](/configuration/environment-setup)** - Multi-environment configuration and management
 
-Configure your applications for AI testing:
+## Why Feature-Based Organization?
 
-```json
-{
-  "applications": {
-    "main-app": {
-      "url": "https://your-app.com",
-      "environment": "production",
-      "authentication": {
-        "type": "username_password",
-        "username": "test@example.com",
-        "password": "secure_password"
-      }
-    },
-    "staging-app": {
-      "url": "https://staging.your-app.com",
-      "environment": "staging",
-      "authentication": {
-        "type": "username_password",
-        "username": "test@staging.com",
-        "password": "staging_password"
-      }
-    }
-  }
-}
-```
+**Better User Experience:**
+- **Discoverable**: Users can find what they need by looking for specific features
+- **Clear Value**: Each menu item tells users exactly what they'll configure
+- **No Hidden Features**: Important settings aren't buried under generic categories
+- **User-Focused**: Organized around what users want to accomplish
 
-## AI Agent Configuration
+**Examples of Feature-Specific Settings:**
 
-### Optimizing AI Agent Behavior
+### Authentication Features
+- Multi-factor authentication setup
+- SMS verification configuration
+- Account security settings
+- Session management
 
-Configure how the AI agent interacts with your application:
+### Security Features
+- IP whitelisting and blacklisting
+- Rate limiting configuration
+- Access control policies
+- Network security settings
 
-<Steps>
-  <Step title="Set AI Agent Preferences">
-    Configure AI behavior settings:
-    - Set interaction timeouts
-    - Configure retry attempts
-    - Define wait strategies
-    - Set element selection preferences
-  </Step>
-  <Step title="Customize AI Decision Making">
-    Help the AI understand your application:
-    - Provide application context
-    - Define business logic rules
-    - Specify validation requirements
-    - Set up custom workflows
-  </Step>
-  <Step title="Configure AI Learning">
-    Enable AI learning features:
-    - Allow AI to learn from successful tests
-    - Configure pattern recognition
-    - Set up adaptive behavior
-    - Enable continuous improvement
-  </Step>
-</Steps>
+### Integration Features
+- GitHub Actions workflow setup
+- GitLab CI/CD pipeline configuration
+- Deployment automation
+- Repository access management
 
-### AI Agent Settings
+## Accessing Settings
 
-```json
-{
-  "ai_agent": {
-    "timeout": 30000,
-    "retry_attempts": 3,
-    "wait_strategy": "intelligent",
-    "element_selection": "semantic",
-    "learning_enabled": true,
-    "adaptive_behavior": true,
-    "context_awareness": true
-  }
-}
-```
+**Navigation Path:**
+1. Click **Settings** in the left sidebar navigation
+2. Select the specific feature you want to configure
+3. Follow the configuration steps for that feature
 
-## Test Plan Management
+**Visual Navigation:**
+- **Active Selection**: The currently selected setting is highlighted with a light gray background
+- **Feature Icons**: Each setting has a relevant icon for easy identification
+- **Logical Grouping**: Related features are grouped together for easy discovery
 
-### Advanced Test Plan Configuration
-
-Configure test plans for different scenarios:
-
-<Steps>
-  <Step title="Create Test Plans">
-    Organize your tests:
-    - Create test plan categories
-    - Set up test priorities
-    - Configure execution schedules
-    - Define test dependencies
-  </Step>
-  <Step title="Configure Test Execution">
-    Set execution parameters:
-    - Define parallel execution limits
-    - Set up retry policies
-    - Configure timeout settings
-    - Enable performance monitoring
-  </Step>
-  <Step title="Manage Test Data">
-    Configure test data:
-    - Set up test accounts
-    - Define test scenarios
-    - Configure data isolation
-    - Enable data cleanup
-  </Step>
-</Steps>
-
-### Test Plan Configuration
-
-```json
-{
-  "test_plans": {
-    "critical_paths": {
-      "description": "Critical user journey tests",
-      "priority": "high",
-      "execution": {
-        "parallel": true,
-        "max_concurrent": 3,
-        "retry_failed": true,
-        "timeout": 60000
-      },
-      "data": {
-        "accounts": ["test_user_1", "test_user_2"],
-        "scenarios": ["happy_path", "error_cases"],
-        "cleanup": "automatic"
-      }
-    }
-  }
-}
-```
-
-## Integration Settings
-
-### GitHub Actions Integration
-
-Configure automated test execution:
-
-<Steps>
-  <Step title="Set Up GitHub Actions">
-    Configure CI/CD integration:
-    - Add QA.tech action to workflows
-    - Configure API tokens
-    - Set up test plan triggers
-    - Enable result reporting
-  </Step>
-  <Step title="Configure Triggers">
-    Set up automated triggers:
-    - Push to main branch
-    - Pull request creation
-    - Scheduled runs
-    - Manual triggers
-  </Step>
-  <Step title="Handle Results">
-    Configure result handling:
-    - Set up notifications
-    - Configure status checks
-    - Enable detailed reporting
-    - Handle test failures
-  </Step>
-</Steps>
-
-### GitHub Action Configuration
-
-```yaml
-name: QA.tech Tests
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Run QA.tech Tests
-      uses: QAdottech/run-action@v2
-      with:
-        project_id: ${{ secrets.QATECH_PROJECT_ID }}
-        api_token: ${{ secrets.QATECH_API_TOKEN }}
-        test_plan_short_id: 'jgbinp'
-        blocking: true
-```
-
-### GitLab CI Integration
-
-Configure GitLab CI/CD integration:
-
-```yaml
-stages:
-  - test
-
-qa-tech-tests:
-  stage: test
-  image: node:18
-  before_script:
-    - echo "QA.tech tests will be executed via GitHub Actions"
-  script:
-    - echo "Using QA.tech cloud-based testing platform"
-  environment:
-    name: staging
-  variables:
-    QA_TECH_ENVIRONMENT: staging
-    QA_TECH_TIMEOUT: 60000
-    QA_TECH_RETRY_COUNT: 3
-```
-
-## Environment Management
-
-### Multi-Environment Configuration
-
-Set up different environments for testing:
-
-<Steps>
-  <Step title="Configure Environments">
-    Set up environment-specific settings:
-    - Development environment
-    - Staging environment
-    - Production environment
-    - Test environment
-  </Step>
-  <Step title="Environment-Specific Settings">
-    Configure per-environment:
-    - Application URLs
-    - Authentication credentials
-    - Test data sets
-    - Performance settings
-  </Step>
-  <Step title="Environment Validation">
-    Validate environment setup:
-    - Test connectivity
-    - Verify authentication
-    - Check application state
-    - Validate test data
-  </Step>
-</Steps>
-
-### Environment Configuration
-
-```json
-{
-  "environments": {
-    "development": {
-      "url": "https://dev.your-app.com",
-      "authentication": {
-        "username": "dev@example.com",
-        "password": "dev_password"
-      },
-      "test_data": "dev_data_set",
-      "performance": "fast"
-    },
-    "staging": {
-      "url": "https://staging.your-app.com",
-      "authentication": {
-        "username": "staging@example.com",
-        "password": "staging_password"
-      },
-      "test_data": "staging_data_set",
-      "performance": "balanced"
-    },
-    "production": {
-      "url": "https://your-app.com",
-      "authentication": {
-        "username": "prod@example.com",
-        "password": "prod_password"
-      },
-      "test_data": "prod_data_set",
-      "performance": "conservative"
-    }
-  }
-}
-```
-
-## Performance Optimization
-
-### Test Execution Optimization
-
-Optimize your test execution for better performance:
-
-<Steps>
-  <Step title="Configure Parallel Execution">
-    Enable parallel test execution:
-    - Set maximum concurrent tests
-    - Configure resource limits
-    - Monitor execution performance
-    - Optimize for your needs
-  </Step>
-  <Step title="Optimize Test Descriptions">
-    Write efficient test prompts:
-    - Focus on critical paths
-    - Remove unnecessary steps
-    - Be specific about requirements
-    - Avoid redundant validations
-  </Step>
-  <Step title="Monitor Performance">
-    Track execution metrics:
-    - Monitor execution times
-    - Track success rates
-    - Analyze failure patterns
-    - Optimize based on data
-  </Step>
-</Steps>
-
-### Performance Settings
-
-```json
-{
-  "performance": {
-    "parallel_execution": true,
-    "max_concurrent_tests": 5,
-    "execution_timeout": 300000,
-    "resource_limits": {
-      "memory": "2GB",
-      "cpu": "2 cores"
-    },
-    "optimization": {
-      "skip_unnecessary_steps": true,
-      "intelligent_waiting": true,
-      "adaptive_timeouts": true
-    }
-  }
-}
-```
-
-## Security Configuration
-
-### API Token Management
-
-Secure your API integration:
-
-<Steps>
-  <Step title="Generate API Tokens">
-    Create secure API tokens:
-    - Generate tokens in app.qa.tech
-    - Set appropriate permissions
-    - Configure token expiration
-    - Store tokens securely
-  </Step>
-  <Step title="Configure Access Control">
-    Set up access controls:
-    - Define user permissions
-    - Configure project access
-    - Set up team roles
-    - Enable audit logging
-  </Step>
-  <Step title="Monitor Security">
-    Track security metrics:
-    - Monitor API usage
-    - Track access patterns
-    - Review security logs
-    - Update security settings
-  </Step>
-</Steps>
-
-### Security Settings
-
-```json
-{
-  "security": {
-    "api_tokens": {
-      "rotation_enabled": true,
-      "rotation_interval": "30d",
-      "max_tokens_per_user": 5,
-      "permissions": ["read", "write", "execute"]
-    },
-    "access_control": {
-      "ip_whitelist": ["192.168.1.0/24"],
-      "session_timeout": 3600,
-      "mfa_required": false,
-      "audit_logging": true
-    }
-  }
-}
-```
-
-## Monitoring and Analytics
-
-### Test Execution Monitoring
-
-Monitor your test execution and performance:
-
-<Steps>
-  <Step title="Configure Monitoring">
-    Set up monitoring:
-    - Enable execution tracking
-    - Configure performance metrics
-    - Set up alerts
-    - Enable detailed logging
-  </Step>
-  <Step title="Track Key Metrics">
-    Monitor important metrics:
-    - Test execution times
-    - Success/failure rates
-    - AI agent performance
-    - Resource utilization
-  </Step>
-  <Step title="Set Up Alerts">
-    Configure notifications:
-    - Test failure alerts
-    - Performance degradation
-    - Security events
-    - System status updates
-  </Step>
-</Steps>
-
-### Monitoring Configuration
-
-```json
-{
-  "monitoring": {
-    "metrics": {
-      "execution_time": true,
-      "success_rate": true,
-      "ai_performance": true,
-      "resource_usage": true
-    },
-    "alerts": {
-      "test_failures": true,
-      "performance_degradation": true,
-      "security_events": true,
-      "system_status": true
-    },
-    "reporting": {
-      "daily_reports": true,
-      "weekly_summaries": true,
-      "monthly_analytics": true,
-      "custom_reports": true
-    }
-  }
-}
-```
-
-## Advanced Features
-
-### Custom AI Prompts
-
-Create custom prompts for specific testing scenarios:
-
-<Steps>
-  <Step title="Define Custom Prompts">
-    Create specialized prompts:
-    - Business logic testing
-    - Edge case scenarios
-    - Performance testing
-    - Security testing
-  </Step>
-  <Step title="Configure Prompt Templates">
-    Set up reusable templates:
-    - Standard test scenarios
-    - Common validation patterns
-    - Error handling tests
-    - User journey tests
-  </Step>
-  <Step title="Optimize Prompt Effectiveness">
-    Improve prompt quality:
-    - Test prompt variations
-    - Measure effectiveness
-    - Refine based on results
-    - Document best practices
-  </Step>
-</Steps>
-
-### Custom Prompt Configuration
-
-```json
-{
-  "custom_prompts": {
-    "login_test": {
-      "description": "Test user login functionality",
-      "prompt": "Test the login form by entering valid credentials and verifying successful authentication",
-      "validation": ["success_message", "dashboard_access", "session_established"],
-      "edge_cases": ["invalid_credentials", "empty_fields", "special_characters"]
-    },
-    "checkout_test": {
-      "description": "Test e-commerce checkout process",
-      "prompt": "Complete the checkout process by adding items to cart, entering shipping information, and processing payment",
-      "validation": ["order_confirmation", "email_receipt", "payment_processed"],
-      "edge_cases": ["invalid_payment", "missing_address", "out_of_stock"]
-    }
-  }
-}
-```
-
-### Integration with External Tools
-
-Connect QA.tech with your existing tools:
-
-<Steps>
-  <Step title="Configure Issue Tracking">
-    Set up issue integration:
-    - Connect to Jira, Linear, or Trello
-    - Configure issue creation
-    - Set up status updates
-    - Enable automatic reporting
-  </Step>
-  <Step title="Set Up Notifications">
-    Configure notifications:
-    - Email notifications
-    - Slack integration
-    - Webhook support
-    - Custom notifications
-  </Step>
-  <Step title="Enable Data Export">
-    Configure data export:
-    - Test result exports
-    - Performance reports
-    - Analytics data
-    - Custom exports
-  </Step>
-</Steps>
-
-## Troubleshooting Advanced Issues
-
-### Common Advanced Problems
-
-**Problem:** AI agent performance is inconsistent.
-
-**Solutions:**
-
-<Steps>
-  <Step title="Optimize AI Configuration">
-    Adjust AI settings:
-    - Increase timeout values
-    - Configure retry strategies
-    - Set up adaptive behavior
-    - Enable learning features
-  </Step>
-  <Step title="Improve Application Accessibility">
-    Make your app AI-friendly:
-    - Add descriptive element labels
-    - Use semantic HTML
-    - Provide clear navigation
-    - Ensure consistent UI patterns
-  </Step>
-  <Step title="Monitor and Adjust">
-    Track and optimize:
-    - Monitor AI performance
-    - Analyze failure patterns
-    - Adjust configuration
-    - Document improvements
-  </Step>
-</Steps>
-
-### Performance Tuning
-
-**Problem:** Tests are taking too long to execute.
-
-**Solutions:**
-
-<Steps>
-  <Step title="Optimize Test Descriptions">
-    Write more efficient prompts:
-    - Focus on critical paths
-    - Remove unnecessary steps
-    - Be specific about requirements
-    - Use efficient validation
-  </Step>
-  <Step title="Configure Parallel Execution">
-    Enable concurrent testing:
-    - Set up parallel execution
-    - Configure resource limits
-    - Monitor performance
-    - Optimize settings
-  </Step>
-  <Step title="Improve Application Performance">
-    Optimize your application:
-    - Reduce page load times
-    - Optimize server responses
-    - Implement caching
-    - Monitor performance
-  </Step>
-</Steps>
-
-## Conclusion
-
-Advanced configuration in QA.tech allows you to fine-tune the AI agent behavior, optimize performance, and integrate with your existing development workflow. By leveraging these features, you can:
-
-- **Optimize AI agent performance for your specific application**
-- **Integrate seamlessly with your CI/CD pipeline**
-- **Monitor and improve test execution**
-- **Implement enterprise-grade security and compliance**
-
-Start with basic configuration and gradually add advanced features as your needs evolve.
-
-## Next Steps
-
-- **[Environment Setup](/configuration/environment-setup)** - Set up different testing environments
-- **[GitHub Integration](/configuration/github)** - Configure CI/CD integration
-- **[Troubleshooting](/best-practices/troubleshooting)** - Resolve configuration issues
-- **[Test Results](/best-practices/test-results)** - Analyze AI-generated results 
+**Note:** Settings are organized by specific functionality to help you find exactly what you need to configure. 

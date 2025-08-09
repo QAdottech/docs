@@ -40,6 +40,53 @@ When you run a test in QA.tech, the AI agent:
   </Step>
 </Steps>
 
+## Application Navigation
+
+### Primary Navigation
+The left sidebar provides access to core application sections:
+- **Dashboard**: Project overview and recent activity
+- **Test Cases**: Individual test case management (with notification badge)
+- **Test Plans**: Test case grouping and execution planning
+- **Results**: Test execution results and history
+- **Issues**: Bug tracking and improvement management
+- **Insights**: Analytics and performance metrics
+- **Settings**: Configuration management
+
+### AI Chat Section
+- **Location**: Below main navigation in left sidebar
+- **Function**: "Test creation request" with timestamp
+- **Action**: "New" button to start new chat
+- **Purpose**: AI-powered test creation and assistance
+
+### Test Runs Counter
+- **Display**: "1 of 10" indicating current usage
+- **Warning**: Yellow banner "This is just a trial, upgrade for more tests! You have almost reached the limit for the trial."
+- **Action**: "Upgrade Now" button
+- **Location**: Below AI Chat section in left sidebar
+
+### Project Selector
+- **Location**: Bottom of left sidebar
+- **Function**: Dropdown to switch between projects
+- **Display**: Shows current project (e.g., "test Demo CRM")
+- **Action**: Collapse sidebar option available
+
+### Additional Navigation Elements
+- **Book a call with us**: Support link in left sidebar
+- **Documentation**: Help link in left sidebar
+- **Collapse Sidebar**: Option to minimize navigation
+
+### Settings Structure
+Settings are organized into logical categories:
+1. **Project Settings**: Application-specific configurations (General, Applications (Beta), Configs, Integrations, Network, Inbox, Device Presets, Knowledge)
+2. **Organization Settings**: Team and billing management (General, Members, Projects, Subscription, Connections)
+3. **Profile Settings**: Personal account settings (My Details, Authentication, Email, Password)
+
+### Quick Actions
+Dashboard provides quick access to:
+- **Create a Test**: Test case creation for existing functionality
+- **Reproduce a Bug**: Test case creation for bug verification
+- **Start a Chat**: AI-powered test creation and assistance
+
 ## Running Tests from the Web Interface
 
 ### Individual Test Execution
@@ -78,29 +125,50 @@ When you run a test in QA.tech, the AI agent:
 
 ## Understanding Test Results
 
-### Interpreting AI-Generated Results
+### Viewing Test Results
 
-When tests complete, you'll see results like:
+**Navigation:** Results → Left sidebar navigation
 
-```
-✅ Test: "User Login Flow"
-   Status: PASSED
-   Steps: 8 completed / 0 failed
-   Duration: 45 seconds
-   Screenshots: 3 captured
-   Video: Available
-```
+**Result Display Format:**
+Test results are presented in a table format with the following columns:
+- **ID**: Unique test run identifier (e.g., "hq76")
+- **Title**: Test run description (e.g., "Custom")
+- **Trigger**: How the test was initiated (e.g., "Manual by testuser@test.com")
+- **Result**: Overall test status displayed as "X Passed, Y Failed" with colored dots (e.g., "7 Passed, 1 Failed")
+- **Duration**: Total execution time (e.g., "3m 41s")
+- **Started**: Test run initiation timestamp (e.g., "6 days ago")
+
+**Detailed Results:**
+Clicking on a test run provides detailed results organized by test categories:
+- **Dashboard**: Dashboard-related tests (e.g., "Verify that Total Customers widget loads", "Go to Dashboard", "Test the loading of the Recent Customers widget")
+- **Companies**: Company management tests (e.g., "Navigate to Companies Page Test Case")
+- **Customers**: Customer management tests (e.g., "Navigate to Customers Page", "Validation of Mandatory Customer Name Field", "Ensure Email Required for Customer Creation", "Add a new customer")
+
+Each category shows individual test status, issues, started time, duration, and last 5 runs history with colored dots indicating pass/fail status.
+
+**Failed Tests Section:**
+- **Location**: Top of the detailed results page, below the progress bar
+- **Content**: Lists specific failed tests with descriptions
+- **Example**: "Test the loading of the Recent Customers widget" with description "The Recent Customers widget shows 'Can't connect to database' instead of customer data."
+- **Visual Indicators**: Red dots for failed tests, green dots for passed tests
+
+**Progress Visualization:**
+- **Progress Bar**: Visual representation of test results with green segments for passed tests and red segments for failed tests
+- **Summary Box**: Shows status (Failed/Passed), manual trigger information, start time, duration, and visual summary of passed/failed counts
+
+**Note:** The system reports test-level results, not individual step-level failures within tests.
 
 ### Result Components
 
-**Step-by-Step Execution:**
-- Each action the AI performed
-- Time taken for each step
-- Any issues encountered
-- Screenshots at key points
+**Execution Summary:**
+- Overall test status (PASSED/FAILED)
+- Number of tests passed vs failed
+- Total execution time
+- Test run duration
+- Screenshots and video evidence
 
 **Visual Evidence:**
-- Screenshots of each step
+- Screenshots of each interaction
 - Video recording of full execution
 - Highlighted areas of interaction
 - Error screenshots if failures occur
@@ -115,7 +183,7 @@ When tests complete, you'll see results like:
 
 #### **Successful Test Execution**
 ```
-✅ All steps completed successfully
+✅ All tests completed successfully
 📸 Screenshots captured at key points
 🎥 Video recording available
 ⏱️ Total execution time: 30-60 seconds
@@ -124,7 +192,6 @@ When tests complete, you'll see results like:
 #### **Test with Issues**
 ```
 ⚠️ Test completed with issues
-❌ Step 5 failed: "Element not found"
 📸 Screenshot captured at failure point
 💡 AI suggestions for improvement
 ```
@@ -371,5 +438,5 @@ Notifications: Slack webhook
 
 - **[Test Results Analysis](/best-practices/test-results)** - Learn how to interpret AI-generated results
 - **[Troubleshooting](/best-practices/troubleshooting)** - Resolve common execution issues
-- **[Configuration](/configuration/advanced-settings)** - Optimize AI agent settings
+- **[Authentication](/configuration/authentication)** - Multi-factor authentication and account security
 - **[Creating Tests](/best-practices/creating-tests)** - Write effective test descriptions
