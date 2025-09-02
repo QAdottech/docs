@@ -38,10 +38,14 @@ Perfect for these scenarios:
     Click **Generate SSH Key** to create a secure key pair. Copy the generated **public key** and add it to your server's `~/.ssh/authorized_keys` file:
 
     ```bash
-    # On your server, add the public key:
-    echo "ssh-rsa AAAAB3NzaC1yc2E... your-generated-key" >> ~/.ssh/authorized_keys
+    # On your server, add the public key with security restrictions:
+    echo 'restrict,port-forwarding,command="/bin/false" ssh-rsa AAAAB3NzaC1yc2E... your-generated-key' >> ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/authorized_keys
     ```
+
+    <Note>
+      The `restrict,port-forwarding,command="/bin/false"` prefix is **highly recommended** for security. This prevents QA.tech from getting shell access to your server while still allowing the necessary port forwarding for testing.
+    </Note>
 
   </Step>
   <Step title="Test and Save">
@@ -147,11 +151,32 @@ graph TB
 
 ## Security Features
 
+### SSH Key Security
+
+**Recommended SSH Key Restrictions:**
+
+When adding the QA.tech public key to your `~/.ssh/authorized_keys` file, always include these security restrictions:
+
+```bash
+restrict,port-forwarding,command="/bin/false" ssh-rsa AAAAB3NzaC1yc2E... your-qa-tech-key
+```
+
+**What these restrictions do:**
+
+- `restrict` - Disables all forwarding and other features by default
+- `port-forwarding` - Explicitly allows only port forwarding (required for SOCKS proxy)
+- `command="/bin/false"` - Prevents shell access, immediately exits if someone tries to get a shell
+
+**Why this matters:** Without these restrictions, the SSH key could potentially be used to gain shell access to your server. These restrictions ensure QA.tech can only create the tunnel connections needed for testing.
+
+### Additional Security Layers
+
 - **Encrypted Key Storage**: Private keys are encrypted and stored securely
 - **Isolated Workers**: Each browser session runs on a dedicated worker
 - **Per-Session SSH Connections**: A fresh SSH tunnel is created for each browser session
 - **No Cross-Customer Data**: Worker isolation prevents any data leakage between customers
 - **Automatic Cleanup**: SSH connections and workers are terminated after each test session
+- **Limited Scope**: SSH keys only allow port forwarding, no shell or file access
 
 ## Parallel Testing Configuration
 
