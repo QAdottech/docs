@@ -45,7 +45,7 @@ Our agents are continuously scanning your site for things to test. Things it fin
     - **Name**: Give your test a descriptive name (e.g., "Create a new user with admin permissions")
     - **Goal**: Describe what the test should accomplish (e.g., "Create an admin user and sign in with the new user")
     - **Expected Result** (optional): Define what success looks like (e.g., "A new admin user appears on the users page")
-    - **Run after**: Choose which test this should run after, if any
+     - **Dependencies**: Configure which tests this should wait for or resume from
     - **Configurations**: Add any required configuration values needed for the test
     - **Advanced**: Additional settings including agent selection (defaults to Latest)
 
@@ -122,23 +122,9 @@ Keep your expected results:
 
 Try to keep your test to 10 steps or less. If your test requires more steps consider creating a new test with a chained dependency instead. Tests with too many steps have the downside of taking longer to execute, and being harder to maintain. Dependencies works like if you were to refresh your browser so data in inputs will be lost.
 
-### Understanding Test Dependencies and State
+### Understanding Test Dependencies
 
-When working with test dependencies, it's important to understand that each test runs in isolation, similar to opening a fresh browser. This means that any state from previous tests (like login sessions, form data, or browser storage) is not automatically carried over.
-
-To maintain state between dependent tests, make sure to persist necessary data in:
-
-- Local Storage
-- Cookies
-- Database records
-- Any other permanent storage mechanism
-
-For example, if you have a test that depends on a logged-in user:
-
-1. The first test should save the login credentials or session token in a persistent storage
-2. The dependent test should retrieve and use this stored data to restore the required state
-
-This approach ensures that your test dependencies work reliably across different test runs and environments.
+Tests can depend on other tests to control execution order and reuse browser state. See [Test Dependencies](/core-concepts/dependencies) for detailed information on configuring "Wait For" and "Resume From" relationships.
 
 ## Using the Chat Agent for Test Generation
 
