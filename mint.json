@@ -102,6 +102,7 @@
         "configuration/envoyer",
         "configuration/authentication",
         "configuration/ip-access-control",
+        "configuration/ssh-tunnel",
         "configuration/auth-rate-limits"
       ]
     },
