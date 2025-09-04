@@ -1,0 +1,73 @@
+---
+title: 'Test Dependencies'
+description: 'Control test execution order and reuse browser state across tests'
+icon: 'link'
+---
+
+Test dependencies define relationships between your tests, controlling execution order and enabling browser state reuse.
+
+## Dependency Types
+
+### Wait For
+Test waits for dependency to complete before starting. Browser state is not transferred, but output data from the dependency test is passed to the dependent test session.
+
+### Resume From  
+Test reuses browser state (login sessions, cookies, etc.) from dependency if completed successfully within the last hour. If dependency is older or failed, test waits for dependency to run first.
+
+## Multiple Dependencies
+
+Configure multiple dependencies using both "Wait For" and "Resume From" relationships. If any dependency fails, all dependent tests are skipped in the current run.
+
+## Examples
+
+### Resume From Example
+**Tests:**
+1. **Login Test** (creates logged-in session)
+2. **Create Order Test** (resumes from Login Test)  
+3. **View Dashboard Test** (resumes from Login Test)
+
+**Execution:**
+- If Login Test completed successfully within 1 hour: Create Order and View Dashboard start immediately with saved login session
+- If Login Test is older or failed: Login Test runs first, then dependent tests start with fresh login session
+
+### Wait For Example
+**Tests:**
+1. **Create Team Test** (creates team, outputs team name)
+2. **Add User to Team Test** (waits for Create Team Test)
+
+**Execution:**
+- Create Team Test runs first and creates "Marketing Team"
+- Add User to Team Test receives "Marketing Team" as input data and uses it during execution
+
+## State Optimization
+
+Resume From dependencies automatically use state optimization when:
+
+✅ Dependency completed successfully within last hour  
+✅ Same environment  
+✅ Valid browser state
+
+State preserved includes:
+- Login sessions and cookies
+- Local storage data
+- Session storage data
+- All browser state from dependency test
+
+## Failure Behavior
+
+When any dependency fails:
+- All dependent tests are skipped
+- Test run continues with other independent tests
+- Failed dependency must be fixed and re-run
+
+## Best Practices
+
+**Use Resume From when:**
+- Tests need login sessions or browser state
+- Optimizing test execution time
+- Dependencies create persistent state
+
+**Use Wait For when:**
+- Tests need fresh browser state
+- Dependencies create data that subsequent tests need (team names, user IDs, etc.)
+- Sequential execution required without browser state transfer

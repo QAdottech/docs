@@ -4,7 +4,7 @@ description: 'Speed up test execution by reusing browser state from recently com
 icon: 'rocket'
 ---
 
-When you have tests that depend on other tests (like a "Login" test that other tests rely on), QA.tech can automatically:
+When you have tests with ["Resume From" dependencies](/core-concepts/dependencies#resume-from) (like a "Login" test that other tests rely on), QA.tech can automatically:
 
 - **Skip running dependency tests** that completed successfully in the last hour
 - **Reuse the browser state** (login session, cookies, etc.) from the previous run
@@ -19,14 +19,14 @@ This dramatically reduces test execution time while maintaining the same reliabi
 Let's say you have these tests:
 
 1. **Login Test** (creates a logged-in user session)
-2. **Create Order Test** (depends on Login Test)
-3. **View Dashboard Test** (depends on Login Test)
+2. **Create Order Test** (resumes from Login Test)
+3. **View Dashboard Test** (resumes from Login Test)
 
 **Without optimization:**
 
 - Login Test runs first
-- Create Order Test waits for Login Test, then runs
-- View Dashboard Test waits for Login Test, then runs
+- Create Order Test waits for Login Test to complete, then runs
+- View Dashboard Test waits for Login Test to complete, then runs
 
 **With dependency output states enabled:**
 
@@ -37,13 +37,15 @@ Let's say you have these tests:
 
 ## When Dependency Output States are Used
 
-QA.tech automatically uses dependency output states when:
+QA.tech automatically uses dependency output states for **"Resume From"** dependencies when:
 
 ✅ **Dependency test completed successfully** within the last hour  
 ✅ **Same environment** (dependencies must match the test environment)  
 ✅ **Browser state is valid** (login sessions haven't expired)
 
-If any condition isn't met, tests run normally with full dependency chain.
+If any condition isn't met, the dependency test runs first to generate fresh browser state.
+
+**Note**: "Wait For" dependencies always run fresh and do not use output state optimization.
 
 ## Benefits & Safety
 
@@ -71,7 +73,7 @@ No. Dependency output states only skip tests when we're certain the browser stat
 
 ### What if my dependency test fails?
 
-Dependency output states are only used for tests that completed successfully. Failed tests are always re-run.
+If any [dependency test](/core-concepts/dependencies) fails, all dependent tests will be skipped in the current test run. Dependency output states are only used for "Resume From" dependencies that completed successfully.
 
 ### What types of browser state are preserved?
 
