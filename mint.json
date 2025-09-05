@@ -34,7 +34,7 @@
     },
     {
       "name": "API Reference",
-      "openapi": "/api-reference/start-run.json",
+      "openapi": "/api-reference/api.json",
       "url": "api-reference",
       "icon": "square-terminal"
     },
@@ -121,6 +121,13 @@
     {
       "group": "Applications",
       "pages": ["applications/se-bank-id"]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/introduction",
+        "api-reference/test-case-creation"
+      ]
     }
   ],
   "footerSocials": {

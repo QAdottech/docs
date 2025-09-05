@@ -1,0 +1,325 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "QA.tech API",
+    "description": "API for managing project runs and test cases",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://app.qa.tech/api"
+    }
+  ],
+  "paths": {
+    "/projects/{projectId}/runs": {
+      "post": {
+        "summary": "Start the tests",
+        "description": "This endpoint triggers a new test run for the specified project.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the project"
+          },
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/json"
+            },
+            "description": "The media type of the request body. Should be set to application/json"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer your-api-token"
+            },
+            "description": "Bearer token for API authentication"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "integrationName": {
+                    "type": "string",
+                    "example": "CircleCI",
+                    "default": "API",
+                    "description": "Human readable name of what triggered this test, can be the name of the CI/CD tool. Defaults to 'API' if not provided."
+                  },
+                  "testPlanShortId": {
+                    "type": "string",
+                    "example": "abc123",
+                    "description": "The short ID of the test plan to run"
+                  },
+                  "applications": {
+                    "type": "object",
+                    "description": "Optional application environment overrides",
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "environment": {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string",
+                              "example": "https://preview-123.vercel.app",
+                              "description": "The URL of the environment to test against"
+                            },
+                            "name": {
+                              "type": "string",
+                              "example": "Preview Environment",
+                              "description": "Human readable name for the environment"
+                            }
+                          },
+                          "required": ["url"],
+                          "description": "Environment configuration for the application"
+                        }
+                      },
+                      "required": ["environment"]
+                    },
+                    "example": {
+                      "app-short-id-1": {
+                        "environment": {
+                          "url": "https://preview-123-frontend.vercel.app",
+                          "name": "PR-123-Frontend"
+                        }
+                      },
+                      "app-short-id-2": {
+                        "environment": {
+                          "url": "https://preview-123-backend.vercel.app",
+                          "name": "PR-123-Backend"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": ["testPlanShortId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created run",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "runId": {
+                      "type": "string",
+                      "example": "abc123"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "created"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Project not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/projects/{projectUuid}/test-cases": {
+      "post": {
+        "summary": "Create a new test case",
+        "description": "This endpoint creates a new test case for the specified project.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectUuid",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The UUID of the project"
+          },
+          {
+            "in": "header",
+            "name": "Content-Type",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "application/json"
+            },
+            "description": "The media type of the request body. Should be set to application/json"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer your-api-token"
+            },
+            "description": "Bearer token for API authentication"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "example": "Login Test",
+                    "description": "Test case name (1-80 characters)"
+                  },
+                  "goal": {
+                    "type": "string",
+                    "example": "Verify that users can log in successfully",
+                    "description": "The goal/objective of the test case"
+                  },
+                  "expectedResult": {
+                    "type": "string",
+                    "example": "User should be redirected to dashboard after successful login",
+                    "description": "Expected result description"
+                  },
+                  "resumeFromDependencyProjectTestCaseId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "550e8400-e29b-41d4-a716-446655440000",
+                    "description": "ID of test case to resume from"
+                  },
+                  "waitForDependenciesProjectTestCaseIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "example": [
+                      "550e8400-e29b-41d4-a716-446655440001",
+                      "550e8400-e29b-41d4-a716-446655440002"
+                    ],
+                    "description": "IDs of test cases to wait for"
+                  },
+                  "configIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "example": ["config-uuid-1", "config-uuid-2"],
+                    "description": "Configuration IDs"
+                  },
+                  "applicationId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "550e8400-e29b-41d4-a716-446655440000",
+                    "description": "Application ID"
+                  },
+                  "scenarioId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "scenario-uuid-123",
+                    "description": "Scenario ID"
+                  }
+                },
+                "required": ["name", "goal", "applicationId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created test case",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "testCase": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "example": "test-case-uuid"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "Test Case Name"
+                        },
+                        "url": {
+                          "type": "string",
+                          "example": "https://app.qatech.com/dashboard/p/project_slug/test-cases/test-case-uuid/edit"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid request data or validation errors"
+          },
+          "401": {
+            "description": "Unauthorized - User not authenticated"
+          },
+          "403": {
+            "description": "Forbidden - User doesn't have access to the project"
+          },
+          "404": {
+            "description": "Not Found - Project not found"
+          },
+          "500": {
+            "description": "Internal Server Error - Server error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
