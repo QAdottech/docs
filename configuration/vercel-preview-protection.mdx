@@ -41,36 +41,48 @@ Vercel's Protection Bypass for Automation allows automated tools like QA.tech to
   new value.
 </Note>
 
-### Step 2: Configure Device Preset in QA.tech
+### Step 2: Configure Project URL with Query Parameters
 
-Now you'll configure a device preset in QA.tech to include the bypass headers:
+Configure your project URL to include the bypass parameters directly:
 
 <Steps>
-  <Step title="Navigate to Device Presets">
-    Go to [**Settings → Device
-    Presets**](https://app.qa.tech/dashboard/current-project/settings/device-presets)
-    in your QA.tech project
+  <Step title="Navigate to Project Settings">
+    Go to [**Settings → Project
+    Settings**](https://app.qa.tech/dashboard/current-project/settings) in your
+    QA.tech project
   </Step>
-  <Step title="Create or Edit Preset">
-    Either create a new device preset or edit an existing one that you'll use
-    for Vercel testing
+  <Step title="Update Project URL">
+    Modify your project URL to include the bypass query parameters. For example,
+    if your Vercel preview URL is:
+    `https://example-vercel-protected-git-branch-qa-tech.vercel.app`
+
+    Update it to:
+    `https://example-vercel-protected-git-branch-qa-tech.vercel.app?x-vercel-protection-bypass=YOUR_SECRET&x-vercel-set-bypass-cookie=true`
+
+    Replace `YOUR_SECRET` with the secret you copied from Step 1.
+
   </Step>
-  <Step title="Add Custom Headers">
-    In the preset configuration: - Click **"Custom Headers"** - Add a new header
-    with name: `x-vercel-protection-bypass` - Set the value to your Vercel
-    secret (the one you copied in Step 1) - Optionally add:
-    `x-vercel-set-bypass-cookie` with value `true` for browser-based testing
-  </Step>
-  <Step title="Save Preset">
-    Click **"Create"** or **"Save"** to save your device preset with the bypass
-    headers
+  <Step title="Save Configuration">
+    Save your project settings. QA.tech will now use this URL format for all
+    tests, automatically bypassing Vercel's protection.
   </Step>
 </Steps>
 
-## Header Configuration Details
+<Note>
+  When you visit a Vercel URL with these query parameters, Vercel automatically
+  redirects to a clean URL without the query parameters after setting the bypass
+  cookie. This makes it a clean solution that doesn't require managing custom
+  headers.
+</Note>
 
-### Required Header
+## Query Parameter Configuration Details
 
-- **Header Name**: `x-vercel-protection-bypass`
-- **Header Value**: Your generated Vercel secret
+### Required Parameters
+
+- **Parameter**: `x-vercel-protection-bypass`
+- **Value**: Your generated Vercel secret
 - **Purpose**: Bypasses all deployment protection mechanisms
+
+- **Parameter**: `x-vercel-set-bypass-cookie`
+- **Value**: `true`
+- **Purpose**: Sets a bypass cookie for subsequent requests, ensuring consistent access throughout the test session
