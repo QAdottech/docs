@@ -124,10 +124,7 @@
     },
     {
       "group": "API Reference",
-      "pages": [
-        "api-reference/introduction",
-        "api-reference/test-case-creation"
-      ]
+      "pages": ["api-reference/introduction", "api-reference/start-run"]
     }
   ],
   "footerSocials": {

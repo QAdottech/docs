@@ -1,0 +1,223 @@
+---
+title: Start Run API
+description: 'API endpoint for programmatically starting test runs'
+icon: 'play-circle'
+---
+
+# Start Run API
+
+The Start Run API allows you to programmatically trigger test runs for your projects. This endpoint is particularly useful for integrating QA.tech testing into your CI/CD pipelines and custom automation workflows.
+
+## Overview
+
+The Start Run API provides a single endpoint to create new test runs:
+
+- **Endpoint**: `POST /projects/{projectId}/runs`
+- **Authentication**: Bearer token (JWT)
+- **Content-Type**: `application/json`
+
+## Authentication
+
+The Start Run API supports two authentication methods:
+
+1. **Bearer Token Authentication**: Use your project's API token in the `Authorization` header
+2. **Webhook Signature Authentication**: For CI/CD integrations, use webhook signatures in the `X-Webhook-Signature` header
+
+You can obtain your project's API token through the QA.tech dashboard in the project settings under "API & Integrations".
+
+For webhook signature authentication, the signature should be a JWT token signed with your project's API token. The token should be passed in the `X-Webhook-Signature` header with the format: `X-Webhook-Signature: <jwt-token>`.
+
+## Request Parameters
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `projectId` | string | Yes | The unique identifier of your QA.tech project |
+
+### Headers
+
+| Header | Value | Required | Description |
+|--------|-------|----------|-------------|
+| `Content-Type` | `application/json` | Yes | Media type of the request body |
+
+### Request Body
+
+The request body is optional and can contain the following fields:
+
+```json
+{
+  "trigger": "API",
+  "integrationName": "CircleCI",
+  "testPlanShortId": "abc123"
+}
+```
+
+#### Optional Fields
+
+- **`trigger`** (string, enum: `["API", "GITHUB"]`): The trigger type for the test run (defaults to "API")
+- **`integrationName`** (string): Human-readable name of what triggered this test (defaults to "API")
+- **`testPlanShortId`** (string): The short ID of the test plan to execute
+- **`testPlanShortIds`** (array): Alternative way to specify test plan ID as an array (deprecated, only single test plan supported)
+- **`actor`** (string): GitHub actor (username) who triggered the run (required when trigger is "GITHUB")
+- **`branch`** (string): Git branch name (required when trigger is "GITHUB")
+- **`commitHash`** (string): Git commit hash (required when trigger is "GITHUB")
+- **`commitMessage`** (string): Git commit message (required when trigger is "GITHUB")
+- **`repository`** (string): GitHub repository name (required when trigger is "GITHUB")
+- **`applications`** (object): Optional application environment overrides for testing specific environments. Each application can specify either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`).
+
+## Example Requests
+
+### Basic Test Run
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "testPlanShortId": "abc123"
+  }'
+```
+
+### Test Run with Preview Environment
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "integrationName": "Vercel Preview",
+    "testPlanShortId": "abc123",
+    "applications": {
+      "frontend-app": {
+        "environment": {
+          "url": "https://pr-123-frontend.vercel.app",
+          "name": "PR-123-Frontend"
+        }
+      },
+      "backend-api": {
+        "environment": {
+          "short_id": "existing-env-456"
+        }
+      }
+    }
+  }'
+```
+
+### GitHub-Triggered Test Run
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
+  -H "X-Webhook-Signature: YOUR_WEBHOOK_SIGNATURE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "trigger": "GITHUB",
+    "testPlanShortId": "abc123",
+    "actor": "octocat",
+    "branch": "feature/new-api",
+    "commitHash": "abc123def456",
+    "commitMessage": "Add new API endpoint",
+    "repository": "owner/repo"
+  }'
+```
+
+## Response Format
+
+### Success Response (201)
+
+```json
+{
+  "success": true,
+  "run": {
+    "id": "run_abc123def456",
+    "shortId": "abc123",
+    "url": "https://app.qa.tech/projects/project-123/results/abc123",
+    "testCount": 5,
+    "testPlan": {
+      "id": "plan_xyz789",
+      "name": "API Integration Tests"
+    }
+  }
+}
+```
+
+### Error Responses
+
+#### Bad Request (400)
+Returned when the request body is malformed or missing required fields.
+
+#### Unauthorized (401)
+Returned when the bearer token is invalid or expired.
+
+#### Payment Required (402)
+Returned when the organization has reached its usage limit.
+
+#### Forbidden (403)
+Returned when the organization is suspended or access is denied.
+
+#### Not Found (404)
+Returned when the specified project ID doesn't exist.
+
+#### Internal Server Error (500)
+Returned when there's an internal server error.
+
+## Use Cases
+
+### CI/CD Integration
+
+Integrate test runs into your deployment pipeline to automatically test changes before they reach production.
+
+### Preview Environment Testing
+
+Test pull request changes in isolated environments before merging.
+
+### Scheduled Testing
+
+Set up recurring test runs to ensure ongoing quality assurance.
+
+### Custom Workflows
+
+Trigger tests based on custom business logic or external events.
+
+## Integration Examples
+
+### GitHub Actions
+
+```yaml
+name: QA.tech Test Run
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger QA.tech Test
+        run: |
+          curl -X POST https://app.qa.tech/api/projects/${{ secrets.QA_PROJECT_ID }}/runs \
+            -H "X-Webhook-Signature: ${{ secrets.QA_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "trigger": "GITHUB",
+              "integrationName": "GitHub Actions",
+              "testPlanShortId": "${{ secrets.QA_TEST_PLAN_ID }}",
+              "actor": "${{ github.actor }}",
+              "branch": "${{ github.head_ref }}",
+              "commitHash": "${{ github.sha }}",
+              "commitMessage": "${{ github.event.head_commit.message }}",
+              "repository": "${{ github.repository }}",
+              "applications": {
+                "frontend": {
+                  "environment": {
+                    "url": "${{ steps.deploy.outputs.preview-url }}",
+                    "name": "PR Preview"
+                  }
+                }
+              }
+            }'
+```
+
+## OpenAPI Specification
+
+For detailed API schema and additional examples, refer to the [OpenAPI specification](/api-reference/api.json).
