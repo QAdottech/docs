@@ -14,7 +14,7 @@
     "/projects/{projectId}/runs": {
       "post": {
         "summary": "Start the tests",
-        "description": "This endpoint triggers a new test run for the specified project. Supports both API token authentication and Netlify webhook signatures for CI/CD integration.",
+        "description": "This endpoint triggers a new test run for the specified project. Supports both Bearer token authentication and Netlify-specific webhook signatures for CI/CD integration.",
         "parameters": [
           {
             "in": "path",

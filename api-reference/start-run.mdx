@@ -8,8 +8,6 @@ icon: 'play-circle'
 
 The Start Run API allows you to programmatically trigger test runs for your projects. This endpoint is particularly useful for integrating QA.tech testing into your CI/CD pipelines and custom automation workflows.
 
-## Overview
-
 The Start Run API provides a single endpoint to create new test runs:
 
 - **Endpoint**: `POST /projects/{projectId}/runs`
@@ -21,11 +19,11 @@ The Start Run API provides a single endpoint to create new test runs:
 The Start Run API supports two authentication methods:
 
 1. **Bearer Token Authentication**: Use your project's API token in the `Authorization` header
-2. **Webhook Signature Authentication**: For CI/CD integrations, use webhook signatures in the `X-Webhook-Signature` header
+2. **Netlify Webhook Signature**: For Netlify deployments, use Netlify webhook signatures in the `X-Webhook-Signature` header
 
 You can obtain your project's API token through the QA.tech dashboard in the project settings under "API & Integrations".
 
-For webhook signature authentication, the signature should be a JWT token signed with your project's API token. The token should be passed in the `X-Webhook-Signature` header with the format: `X-Webhook-Signature: <jwt-token>`.
+For Netlify webhook authentication, the signature must be a JWT token with `issuer: 'netlify'`, signed with your project's API token using the HS256 algorithm. The token should be passed in the `X-Webhook-Signature` header with the format: `X-Webhook-Signature: <jwt-token>`.
 
 ## Request Parameters
 
@@ -104,11 +102,13 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
   }'
 ```
 
-### GitHub-Triggered Test Run
+### Netlify Webhook-Triggered Test Run
+
+> **Note**: The `X-Webhook-Signature` must be a JWT token with `issuer: 'netlify'` signed using the HS256 algorithm.
 
 ```bash
 curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
-  -H "X-Webhook-Signature: YOUR_WEBHOOK_SIGNATURE" \
+  -H "X-Webhook-Signature: YOUR_NETLIFY_WEBHOOK_SIGNATURE" \
   -H "Content-Type: application/json" \
   -d '{
     "trigger": "GITHUB",
