@@ -11,6 +11,14 @@ The simplest way to get started is to use the "Run Tests" button found on the [D
 
 You can also run individual tests by navigating to the test and clicking **Run Test**.
 
+<Note>
+  When running multiple tests via a **Test Plan**, QA.tech automatically
+  executes them in parallel where the dependency graph allows, with auto-scaling
+  up to approximately 100 concurrent agents. This significantly reduces total
+  execution time compared to running tests individually. Learn more in [Test
+  Plans](/core-concepts/test-plans#performance--parallel-execution).
+</Note>
+
 ## Trigger a Run as Part of a Pipeline
 
 You can also integrate test runs as part of your **CI pipeline**.
