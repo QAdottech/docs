@@ -1,48 +1,27 @@
 ---
 title: 'IP Access'
-description: 'Configure your ingress'
+description: 'Configure CDNs and firewalls to allow QA.tech testing traffic'
 icon: 'globe'
 ---
 
-## Whitelisting
+## Overview
 
-To permit traffic originating from QA.tech you need to add our IP addresses to your firewall rules. This process is called whitelisting, and is usually done by your security team.
-
-## QA.tech IP range
-
-The current list of IPs that you need to whitelist can be found logged in to [QA.tech](https://app.qa.tech) under Configuration - Network.
-
-Or by accessing https://app.qa.tech/api/outbound-ips
-
-## Whitelisting IPs on Cloudflare to Avoid Captcha
-
-When using Cloudflare with your application, you may encounter captcha challenges for your automated tests or agents. To prevent this, you can whitelist our agent IPs on Cloudflare.
-
-### Creating a WAF Rule for IP Whitelisting
-
-You can create a WAF (Web Application Firewall) rule to whitelist specific IPs:
-
-1. Log in to your Cloudflare dashboard
-2. Navigate to the Security section
-3. Select WAF > Tools > IP Access Rules
-4. Add the agent IPs to the allowlist
-
-For more details, see the [Cloudflare documentation on IP Access Rules](https://developers.cloudflare.com/waf/tools/ip-access-rules/).
-
-### Finding Agent IPs
-
-You can always find the current agent IPs in the application:
-
-1. Go to Settings > Network in the app
-2. Copy the listed IP addresses to use in your Cloudflare WAF rules
-
-Whitelisting these IPs will ensure your automated processes can interact with your application without being blocked by captcha challenges.
-
-## Whitelisting IPs for Other Security Providers
+QA.tech's automated testing appears as bot traffic to CDNs and firewalls. To prevent blocking, you need to configure your CDN or firewall to allow traffic from QA.tech's IP addresses.
 
 QA.tech uses a dedicated pool of static IP addresses (through NAT) for all test runs and agent sessions. This means you can whitelist these IPs in any security system that makes IP-based decisions.
 
-### What IP Whitelisting Enables
+## QA.tech IP Addresses
+
+Find the current list of QA.tech IP addresses:
+
+- **In the app:** [QA.tech](https://app.qa.tech) → Settings → Network
+- **Direct access:** https://app.qa.tech/api/outbound-ips
+
+<Warning>
+IP addresses may change. Always use the current list from Settings → Network or the API endpoint above.
+</Warning>
+
+## What IP Whitelisting Enables
 
 Whitelisting QA.tech's IP addresses allows your tests to:
 
@@ -51,12 +30,49 @@ Whitelisting QA.tech's IP addresses allows your tests to:
 - **Access IP-restricted resources** - Allow QA.tech through firewall rules or IP allowlists
 - **Reduce bot detection false positives** - Prevent security tools from flagging legitimate test traffic
 
-### Configuring Other Security Providers
+## Cloudflare Configuration
+
+### Recommended: AI Crawl Control
+
+Cloudflare's [AI Crawl Control](https://developers.cloudflare.com/ai-crawl-control/) is designed for managing automated traffic like QA.tech testing.
+
+**Setup approach:**
+1. Identify QA.tech traffic in your AI Crawl Control dashboard (look for requests from QA.tech IP ranges during test execution)
+2. Create allow rules for QA.tech traffic patterns
+3. Monitor and adjust as needed
+
+**Why this works best:** Automatically manages bot traffic with built-in analytics and zero configuration for most users.
+
+### Alternative: WAF IP Rules
+
+If you need traditional IP whitelisting:
+
+1. Log in to your Cloudflare dashboard
+2. Navigate to Security → WAF → Tools → IP Access Rules
+3. Add QA.tech IP addresses to the allowlist
+4. Set action to "Allow"
+
+For detailed steps, see [Cloudflare's WAF documentation](https://developers.cloudflare.com/waf/tools/ip-access-rules/).
+
+## AWS CloudFront Configuration
+
+CloudFront blocking typically involves geographic restrictions, AWS WAF Bot Control, or signed URLs.
+
+**Common solutions:**
+- **AWS WAF Bot Control:** Add QA.tech IP ranges to your bot control allow rules
+- **Geographic restrictions:** Ensure QA.tech's operating regions aren't blocked
+- **Signed URLs/cookies:** Contact QA.tech support for integration guidance
+
+For detailed AWS setup, see [AWS WAF Bot Control documentation](https://aws.amazon.com/waf/features/bot-control/).
+
+## Other CDNs and Firewalls
+
+For other CDN providers or firewall systems, add QA.tech IP addresses to your allow/whitelist rules.
 
 The exact steps depend on your security provider, but the concept is the same across all platforms:
 
-1. **Get QA.tech's IP addresses** from Settings > Network in the app or via https://app.qa.tech/api/outbound-ips
-2. **Add them to your security tool's IP allowlist/whitelist** 
+1. **Get QA.tech's IP addresses** from Settings → Network in the app or via https://app.qa.tech/api/outbound-ips
+2. **Add them to your security tool's IP allowlist/whitelist**
 3. **Configure the rule** to bypass security checks (CAPTCHA, rate limiting, etc.) for these IPs
 
 **Common platforms that support IP whitelisting:**
@@ -70,3 +86,15 @@ The exact steps depend on your security provider, but the concept is the same ac
 - Most enterprise firewalls and CDNs
 
 Consult your security provider's documentation for specific instructions on IP allowlisting.
+
+## Troubleshooting
+
+**Still seeing 403 errors or captcha challenges?**
+
+1. **Verify IP addresses are current** – QA.tech IPs may change; check Settings → Network
+2. **Check rate limiting rules** – QA.tech tests may trigger rate limits before allow rules apply
+3. **Review geographic restrictions** – Ensure no blanket blocks on QA.tech's operating regions
+4. **Wait for propagation** – CDN changes take 5-10 minutes to propagate globally
+5. **Test after changes** – Run a simple test to verify your configuration
+
+**Need help?** Contact QA.tech support with your CDN provider and error details.
