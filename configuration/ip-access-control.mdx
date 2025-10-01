@@ -1,6 +1,6 @@
 ---
 title: 'IP Access'
-description: 'Configure CDNs and firewalls to allow QA.tech testing traffic'
+description: 'Configure your ingress to allow QA.tech testing traffic'
 icon: 'globe'
 ---
 
@@ -14,11 +14,11 @@ QA.tech uses a dedicated pool of static IP addresses (through NAT) for all test 
 
 Find the current list of QA.tech IP addresses:
 
-- **In the app:** [QA.tech](https://app.qa.tech) → Settings → Network
+- **In the app:** [**Settings → Network**](https://app.qa.tech/dashboard/current-project/settings/network)
 - **Direct access:** https://app.qa.tech/api/outbound-ips
 
 <Warning>
-IP addresses may change. Always use the current list from Settings → Network or the API endpoint above.
+IP addresses may change. Always use the current list from [Settings → Network](https://app.qa.tech/dashboard/current-project/settings/network) or the API endpoint above.
 </Warning>
 
 ## What IP Whitelisting Enables
@@ -71,7 +71,7 @@ For other CDN providers or firewall systems, add QA.tech IP addresses to your al
 
 The exact steps depend on your security provider, but the concept is the same across all platforms:
 
-1. **Get QA.tech's IP addresses** from Settings → Network in the app or via https://app.qa.tech/api/outbound-ips
+1. **Get QA.tech's IP addresses** from [Settings → Network](https://app.qa.tech/dashboard/current-project/settings/network) or via https://app.qa.tech/api/outbound-ips
 2. **Add them to your security tool's IP allowlist/whitelist**
 3. **Configure the rule** to bypass security checks (CAPTCHA, rate limiting, etc.) for these IPs
 
@@ -91,7 +91,7 @@ Consult your security provider's documentation for specific instructions on IP a
 
 **Still seeing 403 errors or captcha challenges?**
 
-1. **Verify IP addresses are current** – QA.tech IPs may change; check Settings → Network
+1. **Verify IP addresses are current** – QA.tech IPs may change; check [Settings → Network](https://app.qa.tech/dashboard/current-project/settings/network)
 2. **Check rate limiting rules** – QA.tech tests may trigger rate limits before allow rules apply
 3. **Review geographic restrictions** – Ensure no blanket blocks on QA.tech's operating regions
 4. **Wait for propagation** – CDN changes take 5-10 minutes to propagate globally
