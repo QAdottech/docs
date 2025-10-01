@@ -37,3 +37,36 @@ You can always find the current agent IPs in the application:
 2. Copy the listed IP addresses to use in your Cloudflare WAF rules
 
 Whitelisting these IPs will ensure your automated processes can interact with your application without being blocked by captcha challenges.
+
+## Whitelisting IPs for Other Security Providers
+
+QA.tech uses a dedicated pool of static IP addresses (through NAT) for all test runs and agent sessions. This means you can whitelist these IPs in any security system that makes IP-based decisions.
+
+### What IP Whitelisting Enables
+
+Whitelisting QA.tech's IP addresses allows your tests to:
+
+- **Bypass CAPTCHA challenges** - Works with Google reCAPTCHA, hCaptcha, Cloudflare Turnstile, and other CAPTCHA services that use IP reputation scoring
+- **Bypass rate limiting** - Avoid IP-based throttling or blocking
+- **Access IP-restricted resources** - Allow QA.tech through firewall rules or IP allowlists
+- **Reduce bot detection false positives** - Prevent security tools from flagging legitimate test traffic
+
+### Configuring Other Security Providers
+
+The exact steps depend on your security provider, but the concept is the same across all platforms:
+
+1. **Get QA.tech's IP addresses** from Settings > Network in the app or via https://app.qa.tech/api/outbound-ips
+2. **Add them to your security tool's IP allowlist/whitelist** 
+3. **Configure the rule** to bypass security checks (CAPTCHA, rate limiting, etc.) for these IPs
+
+**Common platforms that support IP whitelisting:**
+- AWS WAF (Web Application Firewall)
+- Google Cloud Armor
+- Azure Front Door / Application Gateway
+- Imperva / Incapsula
+- Akamai
+- Sucuri
+- Wordfence (WordPress)
+- Most enterprise firewalls and CDNs
+
+Consult your security provider's documentation for specific instructions on IP allowlisting.
