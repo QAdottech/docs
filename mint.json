@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "QA.tech Technical Documentation",
+  "name": "QA.tech Docs",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/logo.svg"
