@@ -58,6 +58,20 @@ It can fetch information about your [GitHub pull requests](/configuration/github
 
 The assistant can search QA.tech's documentation to answer questions about platform features and capabilities, and provide you with contact information for customer support when you need help beyond what the AI can provide.
 
+## Agentic AI Workflows Behind the Scenes
+
+The Chat Assistant uses multiple specialized AI agents that automatically coordinate to handle your requests. You don't manage these agents—they work together seamlessly based on what you ask for.
+
+**Specialized Agents:**
+
+**Test Generation Specialist** - Activates when you ask to create or suggest tests. Automatically prioritizes revenue-critical flows first (checkout, payments, bookings) before secondary features (settings, navigation, profiles).
+
+**Explorative Testing Specialist** - Activates when you run tests, analyze your site, or review pull requests.
+
+**Onboarding Specialist** - Activates for new project setup. Focuses on delivering 3-5 high-impact tests quickly with minimal questions. Designed to help you master the key features of QA.tech.
+
+Just describe what you want naturally—the system routes to the right specialist and coordinates complex workflows automatically.
+
 ## Available Tools Reference
 
 The AI Chat agent has access to 20 specialized tools organized into these categories:
@@ -80,6 +94,4 @@ The AI Chat agent has access to 20 specialized tools organized into these catego
 
 You don't need to know which tools the assistant uses—just describe what you want to accomplish, and it will choose the right tools automatically.
 
-<Tip>
-**We're constantly improving:** Our AI agents and their capabilities are continuously evolving. We regularly add new tools and enhance existing ones to make the Chat Assistant even more powerful and helpful for your testing needs.
-</Tip>
+Our AI agents and their capabilities are continuously evolving. We regularly add new tools and enhance existing ones to make the Chat Assistant even more powerful and helpful for your testing needs.
