@@ -14,6 +14,14 @@ Configs are reusable pieces of data that can be accessed across multiple tests. 
 - Email addresses
 - File uploads
 
+<Warning>
+  **Security Notice: Use Test Credentials Only**
+  
+  Config data (including passwords and credentials) is **stored unencrypted** and is passed directly to AI language models during test execution. This is by design to enable the AI agent to authenticate during testing.
+  
+  **Never use real user credentials or production passwords.** Always create dedicated test accounts with limited permissions for your QA.tech tests.
+</Warning>
+
 ### Adding a New Config
 
 1. Navigate to Settings » Configs
