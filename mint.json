@@ -28,7 +28,7 @@
 
   "anchors": [
     {
-      "name": "Documentation",
+      "name": "Guides",
       "icon": "book-open-cover",
       "url": "introduction"
     },
