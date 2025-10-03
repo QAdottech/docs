@@ -1,0 +1,93 @@
+---
+title: AI Chat Assistant
+description: 'Natural language interface for managing your QA.tech projects'
+icon: 'message-bot'
+---
+
+The AI Chat Assistant is your intelligent testing companion, built directly into the QA.tech platform. It uses natural language processing to help you manage tests, analyze your application, and get QA guidance without clicking through menus.
+
+You can access the chat assistant by clicking the chat icon in your project dashboard. Just describe what you want to do in plain English, and the assistant will use its 20+ specialized tools to help you accomplish your goal.
+
+Think of it as having a QA expert available 24/7 who knows your project and QA.tech platform inside and out.
+
+## What can you do with the Chat Assistant
+
+**Test Management**
+
+The assistant can list your existing tests, generate new test cases based on your requirements, run tests in the background, and fetch detailed information about specific tests including their steps, configurations, and dependencies. It understands test scenarios (grouping folders) and test plans, making it easy to organize and trigger your test suite.
+
+**Application Analysis**
+
+It can crawl and analyze your website to discover features, search through the knowledge graph to find specific functionality that's been discovered in previous crawls, and search your project's knowledge base where you've added documentation and important information. This helps the assistant provide context-aware suggestions tailored to your application.
+
+**Configuration Management**
+
+The assistant can show you what configurations are available in your project, help you create new configurations for credentials and test data, and even display interactive forms right in the chat to collect configuration details from you. It understands different config types like username/password, email credentials, and 2FA setups.
+
+**GitHub Integration**
+
+It can fetch information about your GitHub pull requests and write comprehensive test reviews directly on your PRs. When you ask it to test a pull request, it can run relevant tests against the preview environment and provide detailed feedback on what was verified and what issues were found.
+
+**Help & Support**
+
+The assistant can search QA.tech's documentation to answer questions about platform features and capabilities, and provide you with contact information for customer support when you need help beyond what the AI can provide.
+
+## Example Conversations
+
+Here are some natural prompts you can use to interact with the assistant:
+
+- What tests do I have in my project?
+- I need test cases for my project. What tests should I create first?
+- Generate 5 tests for the checkout flow
+- Create a test that validates login and then checks the user profile page
+- Can you crawl my site?
+- Analyze the dashboard features after login
+- What do you know about my payment processing feature?
+- Search my knowledge base for authentication documentation
+- I need to add login credentials
+- What configurations do I have available?
+- Create a username and password config for testing
+- Test this pull request and write a review
+- Run tests on PR #123
+- Does QA.tech support cross-browser testing?
+- How do I add a dependency to a test?
+
+The assistant understands context and can handle follow-up questions, so you can have natural back-and-forth conversations about your testing needs.
+
+## What the Chat Assistant can't do
+
+**Browser Support**
+
+The assistant can only help you test on Chrome browser. However, you can configure different viewports, locales, and user agents through test plans to simulate different devices and regions.
+
+**Testing Types**
+
+It focuses exclusively on end-to-end browser testing. If you need API testing, security testing, performance testing, or load testing, you'll need to use other tools. The assistant is designed to test what a real user can see and interact with in the browser.
+
+**Media Content**
+
+Tests cannot interact with or validate video or audio content. The testing agent cannot play media files or interact with media players, so tests involving video playback or audio verification won't work.
+
+**Test Editing**
+
+The assistant cannot edit tests that were created in previous sessions. If you need to modify an existing test's steps, goal, or configuration, you'll need to use the platform UI to make those changes directly.
+
+## Available Tools Reference
+
+The assistant has access to 20 specialized tools organized into these categories:
+
+**Test Management:** get-test-cases, get-test-case-details, get-test-scenarios, get-test-plan-info, suggest-test-cases, run-test-cases, wait-for-run
+
+**Application Analysis:** analyze-site, search-feature-graph, search-knowledge-base
+
+**Configuration:** get-configs-info, create-config, request-config-details
+
+**GitHub Integration:** get-github-pull-request, add-github-pull-request-review
+
+**Project Information:** get-applications, generate-project-context
+
+**Help & Support:** get-qatech-docs, contact-customer-support
+
+**Advanced:** handover-to-different-agent (automatically switches between specialized agents based on your needs)
+
+You don't need to know which tools the assistant uses—just describe what you want to accomplish, and it will choose the right tools automatically.
