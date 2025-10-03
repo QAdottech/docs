@@ -1,0 +1,189 @@
+---
+title: Start Run API
+description: 'API endpoint for programmatically starting test runs'
+icon: 'play-circle'
+---
+
+# Start Run API
+
+The Start Run API allows you to programmatically trigger test runs for your projects. This endpoint is particularly useful for integrating QA.tech testing into your CI/CD pipelines and custom automation workflows.
+
+The Start Run API provides a single endpoint to create new test runs:
+
+- **Endpoint**: `POST /projects/{projectId}/runs`
+- **Authentication**: Bearer token (JWT)
+- **Content-Type**: `application/json`
+
+## Authentication
+
+The Start Run API uses Bearer token authentication. Include your project's API token in the `Authorization` header:
+
+```
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+You can obtain your project's API token through the QA.tech dashboard in the project settings under "API & Integrations".
+
+## Request Parameters
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `projectId` | string | Yes | The unique identifier of your QA.tech project |
+
+### Headers
+
+| Header | Value | Required | Description |
+|--------|-------|----------|-------------|
+| `Content-Type` | `application/json` | Yes | Media type of the request body |
+
+### Request Body
+
+The request body is optional and can contain the following fields:
+
+```json
+{
+  "integrationName": "CircleCI",
+  "testPlanShortId": "abc123"
+}
+```
+
+#### Optional Fields
+
+- **`integrationName`** (string): Human-readable name of what triggered this test (defaults to "API")
+- **`testPlanShortId`** (string): The short ID of the test plan to execute
+- **`applications`** (object): Optional application environment overrides for testing specific environments. Each application can specify either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`).
+
+## Example Requests
+
+### Basic Test Run
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "testPlanShortId": "abc123"
+  }'
+```
+
+### Test Run with Preview Environment
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "integrationName": "Vercel Preview",
+    "testPlanShortId": "abc123",
+    "applications": {
+      "frontend-app": {
+        "environment": {
+          "url": "https://pr-123-frontend.vercel.app",
+          "name": "PR-123-Frontend"
+        }
+      },
+      "backend-api": {
+        "environment": {
+          "short_id": "existing-env-456"
+        }
+      }
+    }
+  }'
+```
+
+## Response Format
+
+### Success Response (200)
+
+```json
+{
+  "success": true,
+  "run": {
+    "id": "run_abc123def456",
+    "shortId": "abc123",
+    "url": "https://app.qa.tech/projects/project-123/results/abc123",
+    "testCount": 5,
+    "testPlan": {
+      "id": "plan_xyz789",
+      "name": "API Integration Tests"
+    }
+  }
+}
+```
+
+### Error Responses
+
+#### Bad Request (400)
+Returned when the request body is malformed or missing required fields.
+
+#### Unauthorized (401)
+Returned when the bearer token is invalid or expired.
+
+#### Payment Required (402)
+Returned when the organization has reached its usage limit.
+
+#### Forbidden (403)
+Returned when the organization is suspended or access is denied.
+
+#### Not Found (404)
+Returned when the specified project ID doesn't exist.
+
+#### Internal Server Error (500)
+Returned when there's an internal server error.
+
+## Use Cases
+
+### CI/CD Integration
+
+Integrate test runs into your deployment pipeline to automatically test changes before they reach production.
+
+### Preview Environment Testing
+
+Test pull request changes in isolated environments before merging.
+
+### Scheduled Testing
+
+Set up recurring test runs to ensure ongoing quality assurance.
+
+### Custom Workflows
+
+Trigger tests based on custom business logic or external events.
+
+## Integration Examples
+
+### GitHub Actions
+
+```yaml
+name: QA.tech Test Run
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger QA.tech Test
+        run: |
+          curl -X POST https://app.qa.tech/api/projects/${{ secrets.QA_PROJECT_ID }}/runs \
+            -H "Authorization: Bearer ${{ secrets.QA_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "integrationName": "GitHub Actions",
+              "testPlanShortId": "${{ secrets.QA_TEST_PLAN_ID }}",
+              "applications": {
+                "frontend": {
+                  "environment": {
+                    "url": "${{ steps.deploy.outputs.preview-url }}",
+                    "name": "PR-${{ github.event.number }}"
+                  }
+                }
+              }
+            }'
+```
+
+## OpenAPI Specification
+
+For detailed API schema and additional examples, refer to the [OpenAPI specification](/api-reference/api.json).

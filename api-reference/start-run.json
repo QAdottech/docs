@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "QA.tech API",
-    "description": "API for managing project runs",
+    "description": "API for managing project runs and test executions",
     "version": "1.0.0"
   },
   "servers": [
@@ -37,7 +37,7 @@
           }
         ],
         "requestBody": {
-          "required": true,
+          "required": false,
           "content": {
             "application/json": {
               "schema": {
@@ -56,13 +56,17 @@
                   },
                   "applications": {
                     "type": "object",
-                    "description": "Optional application environment overrides",
+                    "description": "Optional application environment overrides for testing specific environments",
                     "additionalProperties": {
                       "type": "object",
                       "properties": {
                         "environment": {
                           "type": "object",
                           "properties": {
+                            "short_id": {
+                              "type": "string",
+                              "description": "Existing environment short ID to use instead of creating new one"
+                            },
                             "url": {
                               "type": "string",
                               "example": "https://preview-123.vercel.app",
@@ -74,8 +78,7 @@
                               "description": "Human readable name for the environment"
                             }
                           },
-                          "required": ["url"],
-                          "description": "Environment configuration for the application"
+                          "description": "Environment configuration for the application. Either short_id or url+name must be provided."
                         }
                       },
                       "required": ["environment"]
@@ -89,33 +92,100 @@
                       },
                       "app-short-id-2": {
                         "environment": {
-                          "url": "https://preview-123-backend.vercel.app",
-                          "name": "PR-123-Backend"
+                          "short_id": "existing-env-123"
                         }
                       }
                     }
                   }
+                }
+              },
+              "examples": {
+                "basic": {
+                  "summary": "Basic test run",
+                  "value": {
+                    "testPlanShortId": "abc123"
+                  }
                 },
-                "required": ["testPlanShortId"]
+                "preview-environments": {
+                  "summary": "Test run with preview environment overrides",
+                  "value": {
+                    "testPlanShortId": "abc123",
+                    "integrationName": "CI/CD Pipeline",
+                    "applications": {
+                      "frontend-app": {
+                        "environment": {
+                          "url": "https://pr-123-frontend.vercel.app",
+                          "name": "PR-123-Frontend"
+                        }
+                      },
+                      "backend-api": {
+                        "environment": {
+                          "short_id": "existing-env-456"
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Successfully created run",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "runId": {
-                      "type": "string",
-                      "example": "abc123"
+                    "success": {
+                      "type": "boolean",
+                      "example": true,
+                      "description": "Indicates if the request was successful"
                     },
-                    "status": {
-                      "type": "string",
-                      "example": "created"
+                    "run": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "run_abc123def456",
+                          "description": "The unique identifier of the created run"
+                        },
+                        "shortId": {
+                          "type": "string",
+                          "example": "abc123",
+                          "description": "The short identifier of the run"
+                        },
+                        "url": {
+                          "type": "string",
+                          "example": "https://app.qa.tech/projects/project-123/results/abc123",
+                          "description": "The URL to view the test results"
+                        },
+                        "testCount": {
+                          "type": "integer",
+                          "example": 5,
+                          "description": "The number of tests in this run"
+                        },
+                        "testPlan": {
+                          "type": "object",
+                          "description": "The test plan that was executed"
+                        }
+                      },
+                      "required": ["id", "shortId", "url", "testCount"]
+                    }
+                  },
+                  "required": ["success", "run"]
+                },
+                "example": {
+                  "success": true,
+                  "run": {
+                    "id": "run_abc123def456",
+                    "shortId": "abc123",
+                    "url": "https://app.qa.tech/projects/project-123/results/abc123",
+                    "testCount": 5,
+                    "testPlan": {
+                      "id": "plan_xyz789",
+                      "name": "API Integration Tests"
                     }
                   }
                 }
@@ -123,13 +193,100 @@
             }
           },
           "400": {
-            "description": "Bad request"
+            "description": "Bad request - invalid parameters or malformed request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid test plan ID or malformed applications config"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized - invalid or missing authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid API token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required - organization has reached usage limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Organization has reached usage limit. Upgrade your account to continue."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - organization is suspended or access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Organization is suspended"
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "Project not found"
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Project not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "API Error"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
