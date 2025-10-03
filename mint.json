@@ -70,6 +70,7 @@
       "pages": [
         "core-concepts/overview",
         "core-concepts/ai-agent-testing",
+        "core-concepts/ai-chat-assistant",
         "core-concepts/knowledge-graph",
         "core-concepts/knowledge",
         "core-concepts/applications-and-environments",

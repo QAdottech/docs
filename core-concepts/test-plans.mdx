@@ -78,6 +78,25 @@ To run a Test Plan manually:
 2. Locate your Test Plan
 3. Click the "Run Tests" button
 
+## Performance & Parallel Execution
+
+QA.tech automatically runs tests in parallel to minimize total execution time when executing test plans:
+
+- **Automatic parallelization**: Tests run concurrently by default when executing a test plan, significantly reducing the time required to complete a full test suite
+- **Dependency-aware**: Parallel execution respects the dependency graph, ensuring dependent tests run in the correct order while maximizing parallelization opportunities
+- **Auto-scaling**: The system automatically scales up to approximately 100 concurrent agents based on demand, with no manual configuration required
+- **Intelligent scheduling**: Independent tests execute simultaneously while dependent tests wait for their prerequisites to complete
+
+This means that while a single test case may take several minutes to execute, running a test plan with multiple independent test cases will complete much faster than running them sequentially. For example, 20 independent tests that each take 3 minutes would complete in approximately 3 minutes when run as a test plan, rather than 60 minutes if run sequentially.
+
+<Tip>
+  To maximize parallel execution benefits, organize your test cases to minimize
+  dependencies between tests. The more independent tests in your test plan, the
+  more parallelization can occur. Learn more about [Test
+  Dependencies](/core-concepts/dependencies) and [Creating
+  Tests](/best-practices/creating-tests).
+</Tip>
+
 ## Best Practices
 
 1. **Optimize Test Organization**:

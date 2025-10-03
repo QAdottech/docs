@@ -131,7 +131,7 @@
           }
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Successfully created run",
             "content": {
               "application/json": {

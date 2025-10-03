@@ -53,6 +53,23 @@ QA.tech automatically provides several configs for common testing needs:
 
    - For standard authentication
    - Fields: Username (can be email) and password
+   - Optional "Use for Basic Auth" checkbox for HTTP Basic Authentication
+
+   <Accordion title="When to enable Basic Auth">
+     The "Use for Basic Auth" checkbox is for **HTTP Basic Authentication**, which is different from regular login forms.
+     
+     **Enable this when your tests need to access:**
+     - Staging or testing environments protected with browser authentication popups
+     - URLs that trigger browser dialogs asking for username/password
+     - Corporate proxies or internal tools requiring basic authentication
+     - Password-protected development environments
+     
+     When enabled, QA.tech automatically supplies these credentials to the browser whenever it encounters an HTTP Basic Auth challenge, so your tests can proceed without manual intervention.
+     
+     <Note>
+       **Important:** This is for the HTTP Basic Authentication protocol (RFC 7617), not for testing login forms on your website. For regular login forms, create a Username + Password config and leave "Use for Basic Auth" disabled.
+     </Note>
+   </Accordion>
 
 2. **Username + Password with 2FA**
 
