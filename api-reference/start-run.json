@@ -14,7 +14,7 @@
     "/projects/{projectId}/runs": {
       "post": {
         "summary": "Start the tests",
-        "description": "This endpoint triggers a new test run for the specified project. Supports both Bearer token authentication and Netlify-specific webhook signatures for CI/CD integration.",
+        "description": "This endpoint triggers a new test run for the specified project.",
         "parameters": [
           {
             "in": "path",
@@ -43,12 +43,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "trigger": {
-                    "type": "string",
-                    "enum": ["API", "GITHUB"],
-                    "default": "API",
-                    "description": "The trigger type for the test run. Defaults to 'API' if not provided."
-                  },
                   "integrationName": {
                     "type": "string",
                     "example": "CircleCI",
@@ -58,36 +52,7 @@
                   "testPlanShortId": {
                     "type": "string",
                     "example": "abc123",
-                    "description": "The short ID of the test plan to run. Can also be provided as testPlanShortIds array with single element."
-                  },
-                  "testPlanShortIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "maxItems": 1,
-                    "description": "Alternative way to specify test plan ID as an array. Only single test plan supported.",
-                    "deprecated": true
-                  },
-                  "actor": {
-                    "type": "string",
-                    "description": "GitHub actor (username) who triggered the run. Required when trigger is 'GITHUB'."
-                  },
-                  "branch": {
-                    "type": "string",
-                    "description": "Git branch name. Required when trigger is 'GITHUB'."
-                  },
-                  "commitHash": {
-                    "type": "string",
-                    "description": "Git commit hash. Required when trigger is 'GITHUB'."
-                  },
-                  "commitMessage": {
-                    "type": "string",
-                    "description": "Git commit message. Required when trigger is 'GITHUB'."
-                  },
-                  "repository": {
-                    "type": "string",
-                    "description": "GitHub repository name. Required when trigger is 'GITHUB'."
+                    "description": "The short ID of the test plan to run"
                   },
                   "applications": {
                     "type": "object",
@@ -141,22 +106,11 @@
                     "testPlanShortId": "abc123"
                   }
                 },
-                "github-trigger": {
-                  "summary": "GitHub-triggered test run",
-                  "value": {
-                    "trigger": "GITHUB",
-                    "testPlanShortId": "abc123",
-                    "actor": "octocat",
-                    "branch": "feature/new-api",
-                    "commitHash": "abc123def456",
-                    "commitMessage": "Add new API endpoint",
-                    "repository": "owner/repo"
-                  }
-                },
                 "preview-environments": {
                   "summary": "Test run with preview environment overrides",
                   "value": {
                     "testPlanShortId": "abc123",
+                    "integrationName": "CI/CD Pipeline",
                     "applications": {
                       "frontend-app": {
                         "environment": {

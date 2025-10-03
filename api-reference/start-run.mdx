@@ -16,14 +16,13 @@ The Start Run API provides a single endpoint to create new test runs:
 
 ## Authentication
 
-The Start Run API supports two authentication methods:
+The Start Run API uses Bearer token authentication. Include your project's API token in the `Authorization` header:
 
-1. **Bearer Token Authentication**: Use your project's API token in the `Authorization` header
-2. **Netlify Webhook Signature**: For Netlify deployments, use Netlify webhook signatures in the `X-Webhook-Signature` header
+```
+Authorization: Bearer YOUR_API_TOKEN
+```
 
 You can obtain your project's API token through the QA.tech dashboard in the project settings under "API & Integrations".
-
-For Netlify webhook authentication, the signature must be a JWT token with `issuer: 'netlify'`, signed with your project's API token using the HS256 algorithm. The token should be passed in the `X-Webhook-Signature` header with the format: `X-Webhook-Signature: <jwt-token>`.
 
 ## Request Parameters
 
@@ -45,7 +44,6 @@ The request body is optional and can contain the following fields:
 
 ```json
 {
-  "trigger": "API",
   "integrationName": "CircleCI",
   "testPlanShortId": "abc123"
 }
@@ -53,15 +51,8 @@ The request body is optional and can contain the following fields:
 
 #### Optional Fields
 
-- **`trigger`** (string, enum: `["API", "GITHUB"]`): The trigger type for the test run (defaults to "API")
 - **`integrationName`** (string): Human-readable name of what triggered this test (defaults to "API")
 - **`testPlanShortId`** (string): The short ID of the test plan to execute
-- **`testPlanShortIds`** (array): Alternative way to specify test plan ID as an array (deprecated, only single test plan supported)
-- **`actor`** (string): GitHub actor (username) who triggered the run (required when trigger is "GITHUB")
-- **`branch`** (string): Git branch name (required when trigger is "GITHUB")
-- **`commitHash`** (string): Git commit hash (required when trigger is "GITHUB")
-- **`commitMessage`** (string): Git commit message (required when trigger is "GITHUB")
-- **`repository`** (string): GitHub repository name (required when trigger is "GITHUB")
 - **`applications`** (object): Optional application environment overrides for testing specific environments. Each application can specify either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`).
 
 ## Example Requests
@@ -99,25 +90,6 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
         }
       }
     }
-  }'
-```
-
-### Netlify Webhook-Triggered Test Run
-
-> **Note**: The `X-Webhook-Signature` must be a JWT token with `issuer: 'netlify'` signed using the HS256 algorithm.
-
-```bash
-curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
-  -H "X-Webhook-Signature: YOUR_NETLIFY_WEBHOOK_SIGNATURE" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "trigger": "GITHUB",
-    "testPlanShortId": "abc123",
-    "actor": "octocat",
-    "branch": "feature/new-api",
-    "commitHash": "abc123def456",
-    "commitMessage": "Add new API endpoint",
-    "repository": "owner/repo"
   }'
 ```
 
@@ -196,22 +168,16 @@ jobs:
       - name: Trigger QA.tech Test
         run: |
           curl -X POST https://app.qa.tech/api/projects/${{ secrets.QA_PROJECT_ID }}/runs \
-            -H "X-Webhook-Signature: ${{ secrets.QA_API_TOKEN }}" \
+            -H "Authorization: Bearer ${{ secrets.QA_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "trigger": "GITHUB",
               "integrationName": "GitHub Actions",
               "testPlanShortId": "${{ secrets.QA_TEST_PLAN_ID }}",
-              "actor": "${{ github.actor }}",
-              "branch": "${{ github.head_ref }}",
-              "commitHash": "${{ github.sha }}",
-              "commitMessage": "${{ github.event.head_commit.message }}",
-              "repository": "${{ github.repository }}",
               "applications": {
                 "frontend": {
                   "environment": {
                     "url": "${{ steps.deploy.outputs.preview-url }}",
-                    "name": "PR Preview"
+                    "name": "PR-${{ github.event.number }}"
                   }
                 }
               }
