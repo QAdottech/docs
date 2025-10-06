@@ -15,7 +15,33 @@ If we can't complete a task due to the UI or UX being non-functional, we mark it
 We keep track of all the failed network requests that occurred during the test execution. This could reflect rate limit errors or environment/API configuration issues.
 
 **Accessibility issues**
-We automatically run the [axe](https://github.com/dequelabs/axe-core) suite of accessibility checks on every page we visit.
+
+We automatically check for WCAG 2.0, 2.1, and 2.2 violations using [axe-core](https://github.com/dequelabs/axe-core) on every page your tests visit.
+
+**How it works:**
+
+- Scans run automatically during test execution (on page load, after navigation, after clicks)
+- Issues appear in the dashboard with the exact URL, HTML element, and WCAG documentation
+- Same issue across multiple test runs is grouped together
+
+**Coverage:**
+
+- ✅ WCAG 2.0 (Level A, AA, AAA)
+- ✅ WCAG 2.1 (Level A, AA)
+- ✅ WCAG 2.2 (Level AA)
+
+**Limitations:**
+
+- Maximum 10 issues captured per test session ([see limits](/core-concepts/limits))
+- Color contrast not checked (use browser DevTools for this)
+- Content in iframes not scanned
+- Certain rules disabled: `region`, `landmark-one-main`
+
+**To maximize coverage:** Create tests that visit all important pages in your app. Tests provide deeper coverage than crawlers because they can authenticate, fill forms, and navigate complex flows.
+
+<Note>
+  Accessibility scans are integrated into test execution. To schedule regular accessibility checks, create a test plan and schedule it to run daily/weekly.
+</Note>
 
 **Console errors**
 Console errors are usually filed as low-severity issues.
