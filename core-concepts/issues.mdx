@@ -6,21 +6,51 @@ icon: 'bug'
 
 ## What types of issues does QA.tech detect?
 
-We are continusly improving our issue detection. Some examples of issues we detect are:
+We continuously improve our issue detection and can export issues to Linear, Jira, and Trello. Some examples of issues we detect:
 
-**UX issues**
-If we can't complete a task due to the UI or UX being non-functional, we mark it as a UX issue. This reflects an issue you most likely need to investigate to improve the user experience of your product.
+### Failed tests
 
-**Network issues**
-We keep track of all the failed network requests that occurred during the test execution. This could reflect rate limit errors or environment/API configuration issues.
+When a test cannot be completed, we create a failed test issue. This often indicates a UX problem or functional issue in your application that needs investigation.
 
-**Accessibility issues**
-We automatically run the [axe](https://github.com/dequelabs/axe-core) suite of accessibility checks on every page we visit.
+### Console errors
 
-**Console errors**
-Console errors are usually filed as low-severity issues.
+We capture JavaScript console errors that occur during test execution. These are typically filed as low-severity issues but can indicate bugs or misconfigurations.
 
-Because we interact with your product as a user, through a browser, we do not detect issues and exceptions happening server-side. For this, we recommend using a monitoring tool such as BugSnag or Sentry.
+### Accessibility issues
+
+We automatically check for WCAG 2.0, 2.1, and 2.2 violations using [axe-core](https://github.com/dequelabs/axe-core) on every page your tests visit.
+
+#### How it works
+
+- Scans run automatically during test execution (on page load, after navigation, after clicks)
+- Issues appear in the dashboard with the exact URL, HTML element, and WCAG documentation
+- Same issue across multiple test runs is grouped together
+
+#### WCAG coverage
+
+- ✅ WCAG 2.0 (Level A, AA, AAA)
+- ✅ WCAG 2.1 (Level A, AA)
+- ✅ WCAG 2.2 (Level AA)
+
+#### Limitations
+
+- Maximum 10 issues captured per test session ([see limits](/core-concepts/limits))
+- Color contrast not checked (use browser DevTools for this)
+- Content in iframes not scanned
+- Certain rules disabled: `region`, `landmark-one-main`
+
+**To maximize coverage:** Create tests that visit all important pages in your app. Tests provide deeper coverage than crawlers because they can authenticate, fill forms, and navigate complex flows.
+
+<Note>
+  Accessibility scans are integrated into test execution. To schedule regular accessibility checks, create a test plan and schedule it to run daily/weekly.
+</Note>
+
+### What we don't detect
+
+Because we interact with your product as a user through a browser:
+
+- **Server-side errors:** Use a monitoring tool like Sentry or BugSnag for backend exceptions
+- **Network request failures:** We log these for debugging but don't create issues for them
 
 ## Issue Statuses
 
@@ -30,4 +60,4 @@ Ignored issues do not count towards your statistics and insights.
 
 ## Export Issues
 
-Issues can easily be exported to your ticket system of choice. Connect it under the Configuration tab.
+Issues can easily be exported to Linear, Jira, or Trello. Configure integrations in [Settings → Integrations](/integrations/linear).

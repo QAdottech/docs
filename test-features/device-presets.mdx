@@ -120,6 +120,22 @@ When a test plan has a device preset configured, it takes precedence over projec
 
 All test runs initiated from this test plan will now use the selected device preset unless overridden by test case settings.
 
+## Accessibility Emulation
+
+Test how your app responds to user accessibility preferences:
+
+| Setting            | Values                           | Purpose                       |
+| ------------------ | -------------------------------- | ----------------------------- |
+| **Color Scheme**   | `light`, `dark`, `no-preference` | Test dark mode                |
+| **Forced Colors**  | `active`, `none`                 | Test high contrast mode       |
+| **Reduced Motion** | `reduce`, `no-preference`        | Test with animations disabled |
+
+Configure in Advanced Settings when creating/editing device presets.
+
+<Note>
+  These settings **emulate user preferences**. For checking WCAG violations, see [Accessibility Issues](/core-concepts/issues#accessibility-issues).
+</Note>
+
 ## Best Practices
 
 1. **Use Project Defaults**: Set a default device preset at the project level for consistent testing
