@@ -11,6 +11,15 @@ The simplest way to get started is to use the "Run Tests" button found on the [D
 
 You can also run individual tests by navigating to the test and clicking **Run Test**.
 
+### Run with Dependencies
+
+When running an individual test that has dependencies, you have two options:
+
+- **Run Test** - Uses [dependency output state optimization](/core-concepts/output-state-optimization) to skip recently completed dependencies (completed within 6 hours)
+- **Run w. Dependencies** - Forces all dependency tests to run fresh, generating new output data
+
+Use **Run w. Dependencies** when you need fresh time-sensitive data like OTP codes or temporary tokens that may have expired. [Learn more](/core-concepts/output-state-optimization#my-test-is-using-stale-output-data-old-otp-codes-expired-tokens).
+
 <Note>
   When running multiple tests via a **Test Plan**, QA.tech automatically
   executes them in parallel where the dependency graph allows, with auto-scaling

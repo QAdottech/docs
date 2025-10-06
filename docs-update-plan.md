@@ -203,6 +203,7 @@
 
 ## ✅ Completed Tasks
 
+- **Oct 6, 2025:** Output State Time Window & Stale Data Fix - Corrected time window from 1 hour to 6 hours in `/core-concepts/output-state-optimization.mdx` and `/core-concepts/dependencies.mdx`. Added concise troubleshooting entry for stale output data (OTP codes, tokens) with "Run w. Dependencies" solution. Clarified that both browser state AND output data are preserved. Added "Run with Dependencies" section to `/best-practices/running-tests.mdx` explaining when to use each option.
 - **Oct 2, 2025:** HTTP Basic Authentication Documentation - Added detailed explanation of "Use for Basic Auth" checkbox in Username + Password config section of `/core-concepts/configs.mdx`. Includes accordion with use cases (staging environments, browser auth popups, corporate proxies), distinction from form-based login, and implementation details (RFC 7617).
 - **Oct 2, 2025:** Documentation Backlog Audit - Comprehensive audit completed. Verified 5 features already have docs (SSH Tunnel, Dialog Handling, Device Presets, Output State, File Uploads). Identified Device Presets needs update for accessibility features. Removed 15 internal/not-customer-facing items.
 - **Oct 1, 2025:** Parallel Execution Documentation - Added "Performance & Parallel Execution" section to `/core-concepts/test-plans.mdx` explaining automatic parallelization (up to ~100 concurrent agents), dependency-aware scheduling, and auto-scaling. Added cross-reference note in `/best-practices/running-tests.mdx`.

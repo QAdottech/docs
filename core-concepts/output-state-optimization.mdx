@@ -6,8 +6,8 @@ icon: 'rocket'
 
 When you have tests with ["Resume From" dependencies](/core-concepts/dependencies#resume-from) (like a "Login" test that other tests rely on), QA.tech can automatically:
 
-- **Skip running dependency tests** that completed successfully in the last hour
-- **Reuse the browser state** (login session, cookies, etc.) from the previous run
+- **Skip running dependency tests** that completed successfully in the last 6 hours
+- **Reuse the browser state** (login session, cookies, etc.) and output data from the previous run
 - **Start your main tests immediately** with the correct browser state already loaded
 
 This dramatically reduces test execution time while maintaining the same reliability.
@@ -39,7 +39,7 @@ Let's say you have these tests:
 
 QA.tech automatically uses dependency output states for **"Resume From"** dependencies when:
 
-✅ **Dependency test completed successfully** within the last hour  
+✅ **Dependency test completed successfully** within the last 6 hours  
 ✅ **Same environment** (dependencies must match the test environment)  
 ✅ **Browser state is valid** (login sessions haven't expired)
 
@@ -57,7 +57,7 @@ Skip redundant dependency tests that recently completed successfully.
 
 Multiple safety checks ensure reliability is never compromised:
 
-- **Time Limits**: Only reuses browser state less than 1 hour old
+- **Time Limits**: Only reuses browser state less than 6 hours old
 - **Success Verification**: Only uses state from tests that passed completely
 - **Graceful Fallback**: Runs tests normally if dependency output states aren't available
 
@@ -88,10 +88,14 @@ The system preserves:
 
 ### My tests are running slower than expected
 
-- Verify your dependency tests completed successfully in the last hour
+- Verify your dependency tests completed successfully in the last 6 hours
 - Ensure you're running tests in the same environment as recent dependency runs
 
 ### Dependency output states aren't being used
 
-- Confirm dependency tests completed successfully within the last hour
+- Confirm dependency tests completed successfully within the last 6 hours
 - Check that you're testing in the same environment where dependencies ran
+
+### My test is using stale output data (old OTP codes, expired tokens)
+
+Output data from dependency tests (extracted values, OTP codes, tokens) is preserved along with browser state for up to 6 hours. For time-sensitive data, click **"Run w. Dependencies"** to force fresh runs of all dependency tests.

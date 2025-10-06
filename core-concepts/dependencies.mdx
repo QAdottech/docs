@@ -12,7 +12,7 @@ Test dependencies define relationships between your tests, controlling execution
 Test waits for dependency to complete before starting. Browser state is not transferred, but output data from the dependency test is passed to the dependent test session.
 
 ### Resume From  
-Test reuses browser state (login sessions, cookies, etc.) from dependency if completed successfully within the last hour. If dependency is older or failed, test waits for dependency to run first.
+Test reuses browser state (login sessions, cookies, etc.) and output data from dependency if completed successfully within the last 6 hours. If dependency is older or failed, test waits for dependency to run first.
 
 ## Multiple Dependencies
 
@@ -27,7 +27,7 @@ Configure multiple dependencies using both "Wait For" and "Resume From" relation
 3. **View Dashboard Test** (resumes from Login Test)
 
 **Execution:**
-- If Login Test completed successfully within 1 hour: Create Order and View Dashboard start immediately with saved login session
+- If Login Test completed successfully within 6 hours: Create Order and View Dashboard start immediately with saved login session
 - If Login Test is older or failed: Login Test runs first, then dependent tests start with fresh login session
 
 ### Wait For Example
@@ -43,7 +43,7 @@ Configure multiple dependencies using both "Wait For" and "Resume From" relation
 
 Resume From dependencies automatically use state optimization when:
 
-✅ Dependency completed successfully within last hour  
+✅ Dependency completed successfully within last 6 hours  
 ✅ Same environment  
 ✅ Valid browser state
 
