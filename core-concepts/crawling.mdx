@@ -1,0 +1,93 @@
+---
+title: "Crawling Sessions"
+description: "Learn how crawling sessions help QA.tech understand your application and improve test suggestions"
+icon: "spider"
+---
+
+# Crawling Sessions
+
+Crawling sessions help QA.tech learn about your application by exploring pages and interactions. This improves test suggestions and agent performance.
+
+## Overview
+
+Manual crawling allows you to explore specific areas of your application. Use this when:
+
+- Launching new features
+- Needing focused exploration (e.g., admin panels, checkout flows)
+- Updating navigation or UI structure
+- Improving test coverage for critical user journeys
+
+Navigate to [**Settings → Crawling**](https://app.qa.tech/dashboard/current-project/settings/crawling) to access the Crawling Sessions page.
+
+## Configuration
+
+### Output State (Optional)
+
+Resume from a test case's final browser state. Useful for:
+
+- Crawling authenticated areas (use a login test's output state)
+- Exploring flows requiring specific setup
+
+### Start URL
+
+The URL where crawling begins (e.g., `https://app.example.com/dashboard`).
+
+### Maximum Depth
+
+How many link levels deep to crawl from the start URL.
+
+- **0**: Only the starting page
+- **1**: Starting page + directly linked pages
+- **2+**: Progressively deeper exploration
+
+**Range**: 0-10
+**Default**: 1
+
+### Maximum Actions
+
+Maximum number of interactions (clicks, navigations) during the session.
+
+**Range**: 1-1,000
+**Default**: 300
+
+### Crawling Intent (Optional)
+
+Describe what to focus on (up to 500 characters). The crawler prioritizes actions matching your intent.
+
+**Examples**:
+
+- `Focus on login and authentication flows`
+- `Explore product catalog and filtering options`
+- `Crawl admin panel and user management`
+
+## Understanding Results
+
+### Session Status
+
+- **Processing**: Currently running
+- **Complete**: Successfully finished
+- **Failed**: Encountered an error
+- **Cancelled**: Manually stopped
+
+### Iteration Details
+
+Each crawling iteration shows:
+
+- **Screenshot**: Visual capture of the page
+- **Source Action**: How the crawler reached this page ("n/a" for start page)
+- **Depth**: Links away from start URL (0 = start page)
+- **Found Actions**: Interactive elements discovered (links, buttons, forms)
+- **Intent Score**: Relevance to your goal (0-40% low, 41-70% moderate, 71-100% high)
+
+## Best Practices
+
+- **Be specific**: Clear intents work better (❌ "Crawl everything" → ✅ "Focus on e-commerce checkout flow")
+- **Use output states**: Chain a login test to explore authenticated areas
+- **Review results**: Check screenshots and intent scores to verify exploration
+
+## Troubleshooting
+
+**Crawl Failed**
+
+- Requires authentication → Use output state from login test
+- Pages not accessible or SSL issues
