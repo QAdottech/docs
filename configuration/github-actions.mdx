@@ -169,29 +169,6 @@ jobs:
 - Production smoke tests
 - Load testing during off-peak hours
 
-## Configuration Reference
-
-### Inputs
-
-| Input | Description | Required | Default |
-|:------|:------------|:---------|:--------|
-| `project_id` | Your QA.tech project ID | Yes | - |
-| `api_token` | QA.tech API token | Yes | - |
-| `test_plan_short_id` | Test plan short ID to run | No | All tests |
-| `blocking` | Wait for test results before completing | No | `false` |
-| `applications_config` | JSON with application environment overrides | No | - |
-| `api_url` | Custom API URL | No | `https://app.qa.tech` |
-
-### Outputs
-
-| Output | Description |
-|:-------|:------------|
-| `runId` | The ID of the created test run |
-| `runShortId` | Short ID for the test run |
-| `success` | Boolean indicating if run was successful |
-| `run_result` | Test execution result (`PASSED`, `FAILED`, `SKIPPED`) - only when `blocking: true` |
-| `run_status` | Final run status (`COMPLETED`, `ERROR`, etc.) - only when `blocking: true` |
-
 ## Direct API Integration
 
 If you prefer direct API calls instead of the GitHub Action, you can use the REST API.
@@ -290,6 +267,33 @@ Email daniel@qa.tech with:
 - Use case (what you want to test)
 
 You'll receive setup instructions and access within 1-2 business days.
+
+## Configuration Reference
+
+<Note>
+**GitHub Action Parameter Reference**
+
+### Inputs
+
+| Input | Description | Required | Default |
+|:------|:------------|:---------|:--------|
+| `project_id` | Your QA.tech project ID | Yes | - |
+| `api_token` | QA.tech API token | Yes | - |
+| `test_plan_short_id` | Test plan short ID to run | No | All tests |
+| `blocking` | Wait for test results before completing | No | `false` |
+| `applications_config` | JSON with application environment overrides | No | - |
+| `api_url` | Custom API URL | No | `https://app.qa.tech` |
+
+### Outputs
+
+| Output | Description |
+|:-------|:------------|
+| `runId` | The ID of the created test run |
+| `runShortId` | Short ID for the test run |
+| `success` | Boolean indicating if run was successful |
+| `run_result` | Test execution result (`PASSED`, `FAILED`, `SKIPPED`) - only when `blocking: true` |
+| `run_status` | Final run status (`COMPLETED`, `ERROR`, etc.) - only when `blocking: true` |
+</Note>
 
 ## Related Features
 
