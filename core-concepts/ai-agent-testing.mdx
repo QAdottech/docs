@@ -41,15 +41,45 @@ If you need to do complex calculations and financial operations, stick with dete
 
 If your test relies on changing state in a database, an API, or something else not accessible through the web, you need to do a specific setup for that.
 
-## QA.tech's different agents
+## How QA.tech uses specialized agents
 
-**Latest**
-This will use the currently best agent at QA.tech's disposal. This is the best choice for most cases and is the default when creating tests.
+QA.tech routes testing tasks to different specialized agents based on context. You don't manage these directly—they activate automatically based on what you're trying to accomplish.
 
-**Computer Use**
-Current default agent. This agent is designed to be able to use a computer more like a human would. It relies 90% on screenshots of the page and moves the mouse, clicks elements, uses the keyboard, and more. This is currently under development and bleeding edge. You can try with this agent if the standard agent is not working for your test.
+**Interactive Testing: [Chat Assistant](/core-concepts/ai-chat-assistant)**
 
-This agent is based on the Computer Use model from Anthropic.
+Handles conversational workflows where you need to iterate on test coverage, ask questions about your application, or generate test cases. The chat agent coordinates with other specialists (test generation, explorative testing, onboarding) depending on your request.
 
-**Legacy**
-An agent inspired by the ReAct paper. It uses a reasoning engine to make decisions and passes those down to an agent that can interact with the web. This is combined with a grounding model for understanding the web page from a visual perspective and a model for remembering the elements from previous interactions.
+Use this when: You're actively exploring what to test, generating new test cases, or need help understanding QA.tech features.
+
+**Autonomous PR Testing: [GitHub App](/configuration/github-app)**
+
+Automatically reviews pull requests by analyzing code changes, determining what user-facing functionality changed, generating relevant tests, executing them, and posting detailed reviews. Operates fully autonomously—no human interaction required or possible during execution.
+
+Use this when: You want every PR automatically tested before merge, without manual intervention.
+
+**On-Demand PR Testing: [GitHub Actions](/configuration/github-exploratory-testing)**
+
+Triggered by mentioning `@qatech` in a PR comment. Runs explorative testing against your preview environment and posts findings. Similar to the autonomous agent but human-initiated.
+
+Use this when: You want control over when exploratory testing runs, or you're evaluating QA.tech in a private beta.
+
+**First-Time Setup: Onboarding Agent**
+
+Guides new projects through initial crawling, login setup, and creation of 3-5 high-impact test cases (prioritizing revenue-critical flows like checkout and payments). Accessed through the [Chat Assistant](/core-concepts/ai-chat-assistant) during project setup.
+
+Use this when: You're setting up QA.tech for the first time and need to establish baseline test coverage quickly.
+
+## Choosing the right approach
+
+| Scenario | AI Agents | Scripts | Manual QA |
+|:---------|:----------|:--------|:----------|
+| **Exploratory testing** | ✅ Best - can discover edge cases through varied behavior | ❌ Fixed paths only | ✅ Good - but slow and expensive |
+| **Regression testing** | ✅ Good - handles UI changes gracefully | ✅ Best - fastest execution | ❌ Too repetitive |
+| **Exact same steps every time** | ⚠️ Possible but overkill | ✅ Best - fully deterministic | ❌ Error-prone over time |
+| **Testing multiple user flows** | ✅ Best - tries different approaches automatically | ⚠️ Need separate script per variant | ✅ Good - but doesn't scale |
+| **Complex calculations** | ❌ Use assertions in code instead | ✅ Best - precise math | ⚠️ Manual calculation prone to errors |
+| **Form filling with realistic data** | ✅ Best - understands context | ⚠️ Need hardcoded test data | ✅ Good - but tedious |
+| **Testing preview environments** | ✅ Best - [automatic PR reviews](/configuration/github-app) | ⚠️ Need CI/CD integration | ❌ Requires manual coordination |
+| **First-time test coverage** | ✅ Best - [onboarding agent](/core-concepts/ai-chat-assistant) sets up quickly | ❌ Requires upfront investment | ⚠️ Slow to establish baseline |
+
+In practice, most teams use a combination: AI agents for exploration and edge cases, scripts for critical deterministic flows, and manual QA for subjective evaluation (design, UX, brand consistency).
