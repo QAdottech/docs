@@ -1,0 +1,301 @@
+---
+title: GitHub Actions
+description: 'Trigger tests from CI/CD workflows with full control'
+icon: 'github'
+---
+
+Integrate QA.tech into your CI/CD workflows with the GitHub Action. You control which tests run, when they run, and which environments to test.
+
+<Note>
+Looking for automatic AI-powered PR reviews? See [GitHub App](/configuration/github-app) instead.
+</Note>
+
+<Steps>
+  <Step title="Configure Secrets">
+    Add the following secrets to your GitHub repository:
+    
+    - `QATECH_API_TOKEN` - Your QA.tech API token
+    - `QATECH_PROJECT_ID` - Your QA.tech project ID
+    
+    You can find these values in your [project settings](https://app.qa.tech/dashboard/current-project/settings/integrations).
+    
+    Learn more about [creating secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
+  </Step>
+  
+  <Step title="Create Workflow File">
+    Create `.github/workflows/qatech.yml` in your repository:
+
+    ```yaml
+    name: QA.tech Tests
+    on:
+      push:
+        branches:
+          - main
+
+    jobs:
+      test:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: QAdottech/run-action@v2
+            with:
+              project_id: ${{ secrets.QATECH_PROJECT_ID }}
+              api_token: ${{ secrets.QATECH_API_TOKEN }}
+              blocking: true
+    ```
+
+    This runs all tests in your project whenever code is pushed to `main`. The `blocking` option waits for test results before completing the workflow.
+  </Step>
+
+  <Step title="Trigger Your First Run">
+    Push to your main branch or open a PR (depending on your workflow configuration). QA.tech will execute your tests and report results directly in the GitHub Actions UI.
+  </Step>
+</Steps>
+
+## Basic Usage
+
+The simplest way to run tests is without any additional configuration:
+
+```yaml
+- uses: QAdottech/run-action@v2
+  with:
+    project_id: ${{ secrets.QATECH_PROJECT_ID }}
+    api_token: ${{ secrets.QATECH_API_TOKEN }}
+    blocking: true  # Wait for results before continuing
+```
+
+This executes all tests in your project. For more control, see the examples below.
+
+## Testing Pull Requests
+
+Run tests automatically when PRs are opened or updated:
+
+```yaml
+name: QA.tech PR Tests
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: QAdottech/run-action@v2
+        with:
+          project_id: ${{ secrets.QATECH_PROJECT_ID }}
+          api_token: ${{ secrets.QATECH_API_TOKEN }}
+          test_plan_short_id: 'smoke-tests'  # Optional: run specific plan
+          blocking: true
+```
+
+**When to use:**
+- Catch issues before merge
+- Validate changes against existing tests
+- Gate PRs based on test results
+
+## Testing Preview Deployments
+
+Test preview environments with dynamic URLs:
+
+```yaml
+name: Test Preview Deployment
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      preview_url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          # Your deployment logic
+          echo "url=https://preview-${{ github.event.number }}.vercel.app" >> $GITHUB_OUTPUT
+
+  test:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: QAdottech/run-action@v2
+        with:
+          project_id: ${{ secrets.QATECH_PROJECT_ID }}
+          api_token: ${{ secrets.QATECH_API_TOKEN }}
+          test_plan_short_id: 'regression-suite'
+          blocking: true
+          applications_config: |
+            {
+              "applications": {
+                "frontend-app-id": {
+                  "environment": {
+                    "url": "${{ needs.deploy.outputs.preview_url }}",
+                    "name": "PR-${{ github.event.number }}"
+                  }
+                }
+              }
+            }
+```
+
+**When to use:**
+- Testing Vercel/Netlify preview deployments
+- Multi-environment testing (frontend + backend)
+- PR-specific URL testing
+
+## Scheduled Testing
+
+Run tests on a schedule (e.g., nightly regression suite):
+
+```yaml
+name: Nightly Tests
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: QAdottech/run-action@v2
+        with:
+          project_id: ${{ secrets.QATECH_PROJECT_ID }}
+          api_token: ${{ secrets.QATECH_API_TOKEN }}
+          test_plan_short_id: 'full-regression'
+          blocking: false  # Don't block on schedule
+```
+
+**When to use:**
+- Comprehensive nightly regression testing
+- Production smoke tests
+- Load testing during off-peak hours
+
+## Direct API Integration
+
+If you prefer direct API calls instead of the GitHub Action, you can use the REST API.
+
+### Basic Request
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $QATECH_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"testPlanShortId": "your-test-plan-id"}' \
+  https://app.qa.tech/api/projects/$QATECH_PROJECT_ID/runs
+```
+
+### With Environment Overrides
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $QATECH_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "testPlanShortId": "your-test-plan-id",
+    "applications": {
+      "app-short-id": {
+        "environment": {
+          "url": "https://preview.example.com",
+          "name": "Preview Environment"
+        }
+      }
+    }
+  }' \
+  https://app.qa.tech/api/projects/$QATECH_PROJECT_ID/runs
+```
+
+**Response format:**
+```json
+{
+  "success": true,
+  "run": {
+    "id": "run_abc123",
+    "shortId": "abc123",
+    "url": "https://app.qa.tech/projects/project-123/results/abc123",
+    "testCount": 5
+  }
+}
+```
+
+See the [Start Run API Reference](/api-reference/start-run) for complete documentation including error responses and authentication details.
+
+## Exploratory Testing with @qatech
+
+<Warning>
+**Private Beta** - This feature is currently in private beta. Request access by emailing daniel@qa.tech
+</Warning>
+
+Trigger deep exploratory testing on any pull request by mentioning `@qatech` in a PR comment. The AI agent analyzes your changes, discovers functionality gaps, creates tests, and provides detailed feedback.
+
+<Note>
+This is different from [automatic PR reviews](/configuration/github-app). Exploratory testing is on-demand and focuses on discovering issues through interactive testing, while automatic reviews run on every PR.
+</Note>
+
+**How it works:**
+
+Mention `@qatech` anywhere in a PR comment:
+
+```
+@qatech please test the new payment flow
+```
+
+The agent will:
+1. **Analyze changes** - Examines PR diff and crawls the preview deployment
+2. **Check coverage** - Identifies which existing tests apply
+3. **Create tests** - Generates new tests for untested functionality
+4. **Run tests** - Executes relevant tests against the PR preview
+5. **Post review** - Writes a detailed GitHub review with findings
+
+**When to use exploratory testing vs automatic reviews:**
+
+| Use Exploratory Testing | Use Automatic PR Reviews |
+|:------------------------|:-------------------------|
+| Deep investigation of complex changes | Every PR as standard gating |
+| Interactive testing with custom instructions | Hands-off automated coverage |
+| Specific areas need thorough validation | General functional regression |
+| Debugging test failures | Consistent baseline testing |
+
+**Example use cases:**
+- "Test the entire checkout flow with different payment methods"
+- "Explore what happens when users upload large files"
+- "Check if the new search handles edge cases"
+
+**Request private beta access:**
+
+Email daniel@qa.tech with:
+- Organization name
+- GitHub repository
+- Use case (what you want to test)
+
+You'll receive setup instructions and access within 1-2 business days.
+
+## Configuration Reference
+
+<Note>
+**GitHub Action Parameter Reference**
+
+### Inputs
+
+| Input | Description | Required | Default |
+|:------|:------------|:---------|:--------|
+| `project_id` | Your QA.tech project ID | Yes | - |
+| `api_token` | QA.tech API token | Yes | - |
+| `test_plan_short_id` | Test plan short ID to run | No | All tests |
+| `blocking` | Wait for test results before completing | No | `false` |
+| `applications_config` | JSON with application environment overrides | No | - |
+| `api_url` | Custom API URL | No | `https://app.qa.tech` |
+
+### Outputs
+
+| Output | Description |
+|:-------|:------------|
+| `runId` | The ID of the created test run |
+| `runShortId` | Short ID for the test run |
+| `success` | Boolean indicating if run was successful |
+| `run_result` | Test execution result (`PASSED`, `FAILED`, `SKIPPED`) - only when `blocking: true` |
+| `run_status` | Final run status (`COMPLETED`, `ERROR`, etc.) - only when `blocking: true` |
+</Note>
+
+## Related Features
+
+- **Automatic PR reviews:** [GitHub App](/configuration/github-app) runs tests on every PR
+- **Direct API:** [Start Run API Reference](/api-reference/start-run) for custom integrations
