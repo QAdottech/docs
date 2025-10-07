@@ -68,7 +68,6 @@
     {
       "group": "Core Concepts",
       "pages": [
-        "core-concepts/overview",
         "core-concepts/ai-agent-testing",
         "core-concepts/ai-chat-assistant",
         "core-concepts/knowledge-graph",
@@ -100,7 +99,8 @@
     {
       "group": "Configuration",
       "pages": [
-        "configuration/github",
+        "configuration/github-actions",
+        "configuration/github-app",
         "configuration/gitlab",
         "configuration/envoyer",
         "configuration/vercel-preview-protection",

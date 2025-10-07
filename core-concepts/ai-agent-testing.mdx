@@ -1,55 +1,123 @@
 ---
 title: AI Agent Testing
-description: 'An intro to AI agents, and how they are used for QA'
+description: 'How QA.tech uses specialized AI agents to test your application'
 icon: user-secret
 ---
 
-AI agents are autonomous software entities that perform tasks or make decisions based on input data, using artificial intelligence techniques. They can learn, adapt, and operate without constant human intervention.
+QA.tech uses specialized AI agents to test your application like humans would, but faster and more thoroughly. Our system automatically routes testing tasks to the right agent based on context—no manual configuration needed.
 
-They can handle complex tasks in various domains by learning from their experiences. For example: AI agents can serve as virtual assistants, help power autonomous vehicles, and support recommendation systems
+## Our AI Agent System
 
-## What is AI agent testing
+| Agent | Purpose | How It Activates | Learn More |
+|:------|:--------|:-----------------|:-----------|
+| **Chat Assistant** | Interactive testing, test creation, project analysis | You start a conversation | [AI Chat Assistant](/core-concepts/ai-chat-assistant) |
+| **PR Review** | Autonomous testing of every pull request | Automatic on PR open/update | [GitHub App](/configuration/github-app) |
+| **Explorative** | Deep on-demand testing with custom instructions | `@qatech` mention in PR comments | [GitHub Actions](/configuration/github-actions) |
+| **Test Generation** | Creates test cases from requirements | Via Chat Assistant | [AI Chat Assistant](/core-concepts/ai-chat-assistant) |
+| **Onboarding** | First-time setup and baseline test coverage | Via Chat Assistant | [AI Chat Assistant](/core-concepts/ai-chat-assistant) |
 
-It’s testing, but using AI agents instead of humans or scripts to complete the tasks.
+## How It Works in Practice
 
-**What are the benefits of AI agent testing?**
+Here's what happens when you open a PR that changes your checkout flow:
 
-**Flexibility**
+**1. Automatic Detection**
+```
+PR opened: "Add Apple Pay to checkout"
+→ PR Review agent activates
+```
 
-AI agents can handle more open-ended instructions compared to a traditional script-based automation tool. An agent can take an instruction such as “fill out a form with values that make sense”, and produce great results while using a script or automation tool would require complex setups for each field you want to fill in.
+**2. Change Classification**
+```
+Analyzing diff...
+├─ checkout.tsx: USER-FACING ✓
+├─ payment-methods.ts: USER-FACING ✓
+└─ README.md: DOCS ONLY ✗
 
-**More human-like behavior**
+Classification: USER-FACING changes detected
+```
 
-Agents can be primed to use different approaches every time – making them perfect for testing systems with multiple permutations of a user flow.
+**3. Coverage Assessment**
+```
+Existing tests found:
+├─ "Complete checkout with credit card" ✓
+├─ "Complete checkout with PayPal" ✓
+└─ Apple Pay integration: NOT COVERED ⚠️
+```
 
-For example: Testing an e-commerce application, the agent could add a different mix of items to the cart each time, and check out with different addresses, behaving much more like a normal end user – making it great at finding bugs in edge cases
+**4. Test Generation**
+```
+Creating new test:
+"Complete checkout flow with Apple Pay"
+├─ Add item to cart
+├─ Navigate to checkout
+├─ Select Apple Pay as payment method
+├─ Verify payment confirmation
+└─ Verify order appears in account
+```
 
-**Fast**
+**5. Execution & Review**
+```
+Running against PR preview environment...
+✅ All tests passing (3/3)
 
-While not as fast as optimized code (….yet), AI agents are able to operate faster than their human counterparts. Being available 24/7 and never getting bored, they excel at being thorough even for highly repetitive testing tasks.
+Posting GitHub review:
+"✅ Tests passing - Apple Pay integration verified"
+```
 
-**What are AI agents bad at**
+This entire workflow runs autonomously—no human intervention required.
 
-**Very deterministic tests**
+## When to Use AI Agents vs Scripts
 
-Do you have a large set of actions that need to be done in the exact same order, every time? Then scripted tests are great. Use AI agent testing to test the less predictable user flows, as a complement to the scripted user journeys.
+| Scenario | AI Agents | Scripts | Manual QA |
+|:---------|:----------|:--------|:----------|
+| **Exploratory testing** | ✅ Best - discovers edge cases through varied behavior | ❌ Fixed paths only | ✅ Good - but slow and expensive |
+| **Regression testing** | ✅ Good - handles UI changes gracefully | ✅ Best - fastest execution | ❌ Too repetitive |
+| **Exact same steps every time** | ⚠️ Possible but overkill | ✅ Best - fully deterministic | ❌ Error-prone over time |
+| **Testing multiple user flows** | ✅ Best - tries different approaches automatically | ⚠️ Need separate script per variant | ✅ Good - but doesn't scale |
+| **Complex calculations** | ❌ Use assertions in code instead | ✅ Best - precise math | ⚠️ Manual calculation prone to errors |
+| **Form filling with realistic data** | ✅ Best - understands context | ⚠️ Need hardcoded test data | ✅ Good - but tedious |
+| **Testing preview environments** | ✅ Best - [automatic PR reviews](/configuration/github-app) | ⚠️ Need CI/CD integration | ❌ Requires manual coordination |
+| **First-time test coverage** | ✅ Best - [onboarding agent](/core-concepts/ai-chat-assistant) sets up quickly | ❌ Requires upfront investment | ⚠️ Slow to establish baseline |
 
-**Math**
-If you need to do complex calculations and financial operations, stick with deterministic calculations in code! AI can sanity check things but does not have good mathematical skills at this time.
+In practice, most teams use a combination: AI agents for exploration and edge cases, scripts for critical deterministic flows, and manual QA for subjective evaluation (design, UX, brand consistency).
 
-**Tests that require privileged access**
+## Agent Coordination
 
-If your test relies on changing state in a database, an API, or something else not accessible through the web, you need to do a specific setup for that.
+Agents automatically hand off tasks to specialists when needed:
 
-## QA.tech's different agents
+**Chat → Test Generation**
+```
+You: "Create 5 tests for the checkout flow"
+→ Chat Assistant routes to Test Generation agent
+→ Analyzes your application structure
+→ Creates tests prioritizing revenue-critical paths
+```
 
-**Latest**
-This will use the currently best agent at QA.tech's disposal. This is the best choice for most cases and is the default when creating tests.
+**Chat → Explorative**
+```
+You: "Test this pull request"
+→ Chat Assistant routes to Explorative agent
+→ Fetches PR details and preview environment
+→ Runs tests and posts review
+```
 
-**Computer Use**
-Current default agent. This agent is designed to be able to use a computer more like a human would. It relies 90% on screenshots of the page and moves the mouse, clicks elements, uses the keyboard, and more. This is currently under development and bleeding edge. You can try with this agent if the standard agent is not working for your test.
+**PR Review → Test Generation**
+```
+PR detected with untested functionality
+→ PR Review agent requests new tests
+→ Test Generation creates coverage
+→ PR Review executes and reports
+```
 
-This agent is based on the Computer Use model from Anthropic.
+You don't manage this coordination—it happens automatically based on what you're trying to accomplish.
 
-**Legacy**
-An agent inspired by the ReAct paper. It uses a reasoning engine to make decisions and passes those down to an agent that can interact with the web. This is combined with a grounding model for understanding the web page from a visual perspective and a model for remembering the elements from previous interactions.
+## Getting Started
+
+**For Interactive Testing:**
+Open the [Chat Assistant](/core-concepts/ai-chat-assistant) in your project dashboard and start asking questions or requesting tests.
+
+**For Automatic PR Testing:**
+Install the [GitHub App](/configuration/github-app) and select repositories to enable automatic reviews on every PR.
+
+**For On-Demand PR Testing:**
+Set up [GitHub Actions integration](/configuration/github-actions) and mention `@qatech` in PR comments when you want deep exploratory testing.
