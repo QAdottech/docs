@@ -40,7 +40,7 @@ Looking to manually trigger tests from CI/CD workflows? See [GitHub Actions](/co
     Navigate to [Settings → Integrations](https://app.qa.tech/dashboard/current-project/settings/integrations?focus=github-app) and:
     
     - Select the repository you want to enable PR reviews for
-    - Toggle **"Enable automatic PR reviews"** to ON
+    - **Automatic PR reviews are enabled by default** - toggle OFF only if you want to pause reviews
     - (Optional) Add custom review context instructions
   </Step>
 
@@ -88,6 +88,21 @@ When testing payment flows, always verify:
 ```
 
 **Max length:** 1,024 characters
+
+### Understanding GitHub Deployments
+
+GitHub Deployments are GitHub's native way of tracking when code is deployed to an environment. When your CI/CD deploys a PR, it can create a deployment record that includes the environment name and URL.
+
+**Platforms with automatic GitHub deployment integration:**
+- **Vercel** - Creates GitHub deployments automatically for every PR
+- **Netlify** - Auto-registers deployments when configured
+- **Render, Railway, Fly.io** - Most modern platforms support this
+
+**For other platforms:** You'll need to manually create GitHub deployment records in your CI/CD pipeline. Need help setting this up? Contact us at support@qa.tech.
+
+<Note>
+Without GitHub deployments, QA.tech won't know which URL to test your PR against. Environment mapping only works when your CI/CD creates these deployment records.
+</Note>
 
 ### Environment Mapping (Optional)
 
@@ -145,6 +160,28 @@ The agent posts a review with:
 - Code quality opinions
 - Implementation suggestions
 - References to other bot comments
+
+## Best Practices
+
+**Deploy with Vercel or Netlify**
+
+These platforms automatically create GitHub deployments, making PR testing seamless. No additional configuration needed - just connect your repository and every PR gets tested automatically.
+
+**Build a regression test suite**
+
+As your PR tests pass, promote them to a regression test plan. This creates a growing suite of real-world tests that catch regressions automatically on future PRs.
+
+**Let QA.tech test PRs first**
+
+Configure PR reviews to run before requesting human code review. This catches functional issues early, so reviewers can focus on code quality instead of manually testing features.
+
+**Use review context for your domain**
+
+Add domain-specific testing guidelines in the review context (e.g., "Always verify email notifications are sent" or "Check mobile responsiveness"). The agent will incorporate these into its testing approach.
+
+**Test in parallel with human review**
+
+Run both QA.tech and human reviews simultaneously. The agent handles functional testing while humans review code architecture - best of both worlds.
 
 ## Troubleshooting
 
