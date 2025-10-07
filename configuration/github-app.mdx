@@ -13,7 +13,7 @@ Looking to manually trigger tests from CI/CD workflows? See [GitHub Actions](/co
 ## What It Does
 
 | Feature | Description |
-|---------|-------------|
+|:--------|:------------|
 | ✅ **Autonomous Testing** | Automatically detects which tests to run based on PR changes |
 | ✅ **Test Generation** | Creates missing tests for untested functionality |
 | ✅ **Preview Environment Testing** | Tests against PR preview deployments |
@@ -21,33 +21,15 @@ Looking to manually trigger tests from CI/CD workflows? See [GitHub Actions](/co
 | ❌ **Manual Control** | No control over which tests run (use Actions for that) |
 | ❌ **Custom Workflows** | No YAML workflows needed or supported |
 
-**What gets tested:**
-- User-facing changes (UI, APIs, business logic accessible through the UI)
-
-**What doesn't get tested:**
-- Documentation-only changes
-- Infrastructure/CI/CD configurations
-- Build tooling updates
-
 <Steps>
   <Step title="Install GitHub App">
     Go to [Settings → Organization → Connections](https://app.qa.tech/dashboard/current-project/settings/organization/connections) and add the GitHub App connection. Follow the OAuth flow to grant access to your repositories.
   </Step>
 
-  <Step title="Configure Repository Integration">
-    Navigate to [Settings → Integrations](https://app.qa.tech/dashboard/current-project/settings/integrations?focus=github-app) and:
+  <Step title="Select Repository">
+    Navigate to [Settings → Integrations](https://app.qa.tech/dashboard/current-project/settings/integrations?focus=github-app) and select the repository you want to enable PR reviews for.
     
-    - Select the repository you want to enable PR reviews for
-    - **Automatic PR reviews are enabled by default** - toggle OFF only if you want to pause reviews
-    - (Optional) Add custom review context instructions
-  </Step>
-
-  <Step title="Map Preview Environments (Optional)">
-    If you use GitHub Environments (e.g., from Vercel, Netlify), map them to your QA.tech Applications:
-    
-    - Click **"Map Environments"** in the integration settings
-    - Select which GitHub environment maps to which QA.tech Application
-    - Tests will automatically run against the correct preview URL
+    **PR reviews are enabled automatically** once you select a repository. 
   </Step>
 
   <Step title="Create a Pull Request">
@@ -60,34 +42,7 @@ Looking to manually trigger tests from CI/CD workflows? See [GitHub Actions](/co
   </Step>
 </Steps>
 
-## Configuration Options
-
-### Enable Automatic PR Reviews
-
-Toggle this setting to activate or pause PR reviews without removing the integration.
-
-**Location:** Settings → Integrations → GitHub App → "Enable automatic PR reviews"
-
-### Review Context (Optional)
-
-Add custom instructions that guide how the AI agent reviews your PRs.
-
-**Use cases:**
-- Specify areas requiring extra scrutiny
-- Provide domain-specific testing guidelines
-- Add authentication/setup requirements
-
-**Example:**
-```
-When testing payment flows, always verify:
-- Stripe test mode is active
-- Receipt emails are sent
-- Transaction appears in admin dashboard
-```
-
-**Max length:** 1,024 characters
-
-### Understanding GitHub Deployments
+## Understanding GitHub Deployments
 
 GitHub Deployments are GitHub's native way of tracking when code is deployed to an environment. When your CI/CD deploys a PR, it can create a deployment record that includes the environment name and URL.
 
@@ -102,7 +57,7 @@ GitHub Deployments are GitHub's native way of tracking when code is deployed to 
 Without GitHub deployments, QA.tech won't know which URL to test your PR against. Environment mapping only works when your CI/CD creates these deployment records.
 </Note>
 
-### Environment Mapping (Optional)
+## Environment Mapping
 
 Map GitHub deployment environments to QA.tech Applications so tests run against the correct preview URLs.
 
@@ -115,6 +70,8 @@ Map GitHub deployment environments to QA.tech Applications so tests run against 
 1. Your CI/CD deploys a PR and creates a GitHub environment (e.g., "Preview" or "pr-123")
 2. QA.tech detects the deployment
 3. Tests run using the mapped Application's URL from that environment
+
+**Location:** Settings → Integrations → GitHub App → Map Environments
 
 ## How PR Reviews Work
 
@@ -171,25 +128,35 @@ As your PR tests pass, promote them to a regression test plan. This creates a gr
 
 **Let QA.tech test PRs first**
 
-Configure PR reviews to run before requesting human code review. This catches functional issues early, so reviewers can focus on code quality instead of manually testing features.
+Configure PR reviews to run before requesting human code review. This catches functional issues early, so your colleagues can focus on code quality instead of manually testing features.
 
-**Use review context for your domain**
+**Customize reviews with context**
 
-Add domain-specific testing guidelines in the review context (e.g., "Always verify email notifications are sent" or "Check mobile responsiveness"). The agent will incorporate these into its testing approach.
+Add domain-specific instructions to guide the AI agent's testing approach. Go to Settings → Integrations → GitHub App and add review context.
 
-**Test in parallel with human review**
+Example for payment flows:
+```
+When testing payment flows, always verify:
+- Stripe test mode is active
+- Receipt emails are sent
+- Transaction appears in admin dashboard
+```
 
-Run both QA.tech and human reviews simultaneously. The agent handles functional testing while humans review code architecture - best of both worlds.
+Use cases:
+- Specify areas requiring extra scrutiny
+- Provide domain-specific testing guidelines
+- Add authentication/setup requirements
+
 
 ## Troubleshooting
 
 ### PR reviews aren't posting
 
 **Check:**
-- [ ] GitHub App installed and granted repository access
-- [ ] Repository integration configured in QA.tech
-- [ ] "Enable automatic PR reviews" toggle is ON
-- [ ] PR has user-facing changes (not docs/infra only)
+- GitHub App installed and granted repository access
+- Repository integration configured in QA.tech
+- PR reviews are enabled for this repository 
+- PR has user-facing changes (not docs/infra only)
 
 ### Tests running against wrong URL
 

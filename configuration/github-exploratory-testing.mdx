@@ -1,0 +1,62 @@
+---
+title: Exploratory Testing Agent
+description: 'On-demand AI-powered exploratory testing for PRs (Private Beta)'
+icon: 'flask'
+---
+
+<Warning>
+**Private Beta** - This feature is currently in private beta. Request access by emailing daniel@qa.tech
+</Warning>
+
+Trigger deep exploratory testing on any pull request by mentioning `@qatech` in a PR comment. The AI agent analyzes your changes, discovers functionality gaps, creates tests, and provides detailed feedback.
+
+<Note>
+This is different from [automatic PR reviews](/configuration/github-app). Exploratory testing is on-demand and focuses on discovering issues through interactive testing, while automatic reviews run on every PR.
+</Note>
+
+## How It Works
+
+Mention `@qatech` anywhere in a PR comment:
+
+```
+@qatech please test the new payment flow
+```
+
+The agent will:
+1. **Analyze changes** - Examines PR diff and crawls the preview deployment
+2. **Check coverage** - Identifies which existing tests apply
+3. **Create tests** - Generates new tests for untested functionality
+4. **Run tests** - Executes relevant tests against the PR preview
+5. **Post review** - Writes a detailed GitHub review with findings
+
+## When to Use It
+
+| Use Exploratory Testing | Use Automatic PR Reviews |
+|:------------------------|:-------------------------|
+| Deep investigation of complex changes | Every PR as standard gating |
+| Interactive testing with custom instructions | Hands-off automated coverage |
+| Specific areas need thorough validation | General functional regression |
+| Debugging test failures | Consistent baseline testing |
+
+**Example use cases:**
+- "Test the entire checkout flow with different payment methods"
+- "Explore what happens when users upload large files"
+- "Check if the new search handles edge cases"
+
+## Request Private Beta Access
+
+**Email:** daniel@qa.tech
+
+**Include in your request:**
+- Organization name
+- GitHub repository
+- Use case (what you want to test)
+
+You'll receive setup instructions and access within 1-2 business days.
+
+## Related Features
+
+- **Automatic reviews:** [GitHub App for PR Reviews](/configuration/github-app)
+- **Manual testing:** [GitHub Actions](/configuration/github-actions)
+- **Test creation:** Create tests through the QA.tech dashboard
+
