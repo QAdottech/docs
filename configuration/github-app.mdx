@@ -1,0 +1,197 @@
+---
+title: GitHub App for PR Reviews
+description: 'Automatic AI-powered pull request testing and reviews'
+icon: 'robot'
+---
+
+# GitHub App for Automated PR Reviews
+
+Get autonomous AI-powered test coverage and reviews on every pull request. The QA.tech GitHub App analyzes code changes, creates missing tests, and posts comprehensive reviews based on test results.
+
+<Note>
+Looking to manually trigger tests from CI/CD workflows? See [GitHub Actions](/configuration/github-actions) instead.
+</Note>
+
+## What It Does
+
+| Feature | Description |
+|---------|-------------|
+| ✅ **Autonomous Testing** | Automatically detects which tests to run based on PR changes |
+| ✅ **Test Generation** | Creates missing tests for untested functionality |
+| ✅ **Preview Environment Testing** | Tests against PR preview deployments |
+| ✅ **Approval/Rejection** | Posts reviews with pass/fail verdicts |
+| ❌ **Manual Control** | No control over which tests run (use Actions for that) |
+| ❌ **Custom Workflows** | No YAML workflows needed or supported |
+
+**What gets tested:**
+- User-facing changes (UI, APIs, business logic accessible through the UI)
+
+**What doesn't get tested:**
+- Documentation-only changes
+- Infrastructure/CI/CD configurations
+- Build tooling updates
+
+<Steps>
+  <Step title="Install GitHub App">
+    Go to [Settings → Organization → Connections](https://app.qa.tech/dashboard/current-project/settings/organization/connections) and add the GitHub App connection. Follow the OAuth flow to grant access to your repositories.
+  </Step>
+
+  <Step title="Configure Repository Integration">
+    Navigate to [Settings → Integrations](https://app.qa.tech/dashboard/current-project/settings/integrations?focus=github-app) and:
+    
+    - Select the repository you want to enable PR reviews for
+    - Toggle **"Enable automatic PR reviews"** to ON
+    - (Optional) Add custom review context instructions
+  </Step>
+
+  <Step title="Map Preview Environments (Optional)">
+    If you use GitHub Environments (e.g., from Vercel, Netlify), map them to your QA.tech Applications:
+    
+    - Click **"Map Environments"** in the integration settings
+    - Select which GitHub environment maps to which QA.tech Application
+    - Tests will automatically run against the correct preview URL
+  </Step>
+
+  <Step title="Create a Pull Request">
+    Once enabled, the agent automatically:
+    1. Detects code changes when PRs are opened or updated
+    2. Determines which tests are relevant
+    3. Creates new tests for untested functionality
+    4. Runs all relevant tests against the PR preview
+    5. Posts a review with approval or decline based on results
+  </Step>
+</Steps>
+
+## Configuration Options
+
+### Enable Automatic PR Reviews
+
+Toggle this setting to activate or pause PR reviews without removing the integration.
+
+**Location:** Settings → Integrations → GitHub App → "Enable automatic PR reviews"
+
+### Review Context (Optional)
+
+Add custom instructions that guide how the AI agent reviews your PRs.
+
+**Use cases:**
+- Specify areas requiring extra scrutiny
+- Provide domain-specific testing guidelines
+- Add authentication/setup requirements
+
+**Example:**
+```
+When testing payment flows, always verify:
+- Stripe test mode is active
+- Receipt emails are sent
+- Transaction appears in admin dashboard
+```
+
+**Max length:** 1,024 characters
+
+### Environment Mapping (Optional)
+
+Map GitHub deployment environments to QA.tech Applications so tests run against the correct preview URLs.
+
+**When to use:**
+- You have multiple Applications (frontend, backend, etc.)
+- Your CI/CD creates GitHub deployment environments
+- You want tests to run against PR-specific URLs
+
+**How it works:**
+1. Your CI/CD deploys a PR and creates a GitHub environment (e.g., "Preview" or "pr-123")
+2. QA.tech detects the deployment
+3. Tests run using the mapped Application's URL from that environment
+
+## How PR Reviews Work
+
+### Agent Workflow
+
+```
+PR opened/updated
+  ↓
+1. Classify Changes
+   → User-facing? Continue
+   → Docs/infra only? Skip testing, post info comment
+  ↓
+2. Assess Coverage
+   → Find relevant existing tests
+   → Identify gaps in coverage
+  ↓
+3. Create Tests (if needed)
+   → Generate tests for untested functionality
+   → Configure dependencies (e.g., login tests)
+  ↓
+4. Run Tests
+   → Execute against PR preview environment
+   → Wait for completion
+  ↓
+5. Post Review
+   → ✅ Approve if all tests pass
+   → ❌ Decline if tests fail
+   → ℹ️ Informational if untestable
+```
+
+### Review Format
+
+The agent posts a review with:
+
+- **Verdict:** ✅ Tests passing / ❌ Tests failing / ℹ️ Unable to verify
+- **What was tested:** Description of coverage in prose
+- **Results summary:** Patterns and themes from test outcomes
+- **Test details:** Automatic table with individual test results
+
+**What reviews DON'T include:**
+- Code quality opinions
+- Implementation suggestions
+- References to other bot comments
+
+## Troubleshooting
+
+### PR reviews aren't posting
+
+**Check:**
+- [ ] GitHub App installed and granted repository access
+- [ ] Repository integration configured in QA.tech
+- [ ] "Enable automatic PR reviews" toggle is ON
+- [ ] PR has user-facing changes (not docs/infra only)
+
+### Tests running against wrong URL
+
+**Solutions:**
+- Map your GitHub environments to Applications (Settings → Integrations → GitHub App → Map Environments)
+- Verify your CI/CD creates GitHub deployment environments
+- Check that environment names match between GitHub and QA.tech
+
+### Agent created irrelevant tests
+
+**Solutions:**
+- Add review context with specific testing guidelines
+- Update existing tests to cover the functionality better
+- The agent learns from your existing test patterns
+
+### Review says "Unable to verify through end-to-end testing"
+
+**This is expected for:**
+- Documentation-only changes (.md, .txt, README)
+- Infrastructure changes (CI/CD, Docker, deployment scripts)
+- Build configuration (package.json without functional changes)
+
+**The agent can only test changes accessible through the UI.**
+
+## Limitations
+
+- **No manual test selection:** Agent autonomously decides which tests to run
+- **Requires preview deployments:** Cannot test without accessible PR environment
+- **UI-testable changes only:** Backend-only microservices without UI access can't be tested
+- **No workflow customization:** Unlike GitHub Actions, there's no YAML configuration
+
+## Need Manual Control?
+
+If you need to:
+- Choose specific test plans to run
+- Trigger tests from custom CI/CD steps
+- Control test execution timing
+
+Use [GitHub Actions](/configuration/github-actions) instead, or use both for comprehensive coverage.
+

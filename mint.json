@@ -99,7 +99,8 @@
     {
       "group": "Configuration",
       "pages": [
-        "configuration/github",
+        "configuration/github-actions",
+        "configuration/github-app",
         "configuration/gitlab",
         "configuration/envoyer",
         "configuration/vercel-preview-protection",
