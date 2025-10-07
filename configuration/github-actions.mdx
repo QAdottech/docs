@@ -51,9 +51,24 @@ Looking for automatic AI-powered PR reviews? See [GitHub App](/configuration/git
   </Step>
 </Steps>
 
-## Common Patterns
+## Basic Usage
 
-**Run tests on pull requests:**
+The simplest way to run tests is without any additional configuration:
+
+```yaml
+- uses: QAdottech/run-action@v2
+  with:
+    project_id: ${{ secrets.QATECH_PROJECT_ID }}
+    api_token: ${{ secrets.QATECH_API_TOKEN }}
+    blocking: true  # Wait for results before continuing
+```
+
+This executes all tests in your project. For more control, see the examples below.
+
+## Testing Pull Requests
+
+Run tests automatically when PRs are opened or updated:
+
 ```yaml
 name: QA.tech PR Tests
 on:
@@ -68,21 +83,25 @@ jobs:
         with:
           project_id: ${{ secrets.QATECH_PROJECT_ID }}
           api_token: ${{ secrets.QATECH_API_TOKEN }}
+          test_plan_short_id: 'smoke-tests'  # Optional: run specific plan
           blocking: true
 ```
 
-**Run specific test plan:**
-```yaml
-- uses: QAdottech/run-action@v2
-  with:
-    project_id: ${{ secrets.QATECH_PROJECT_ID }}
-    api_token: ${{ secrets.QATECH_API_TOKEN }}
-    test_plan_short_id: 'checkout-flow'
-    blocking: true
-```
+**When to use:**
+- Catch issues before merge
+- Validate changes against existing tests
+- Gate PRs based on test results
 
-**Test preview deployments with environment overrides:**
+## Testing Preview Deployments
+
+Test preview environments with dynamic URLs:
+
 ```yaml
+name: Test Preview Deployment
+on:
+  pull_request:
+    types: [opened, synchronize]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -118,9 +137,41 @@ jobs:
             }
 ```
 
-## Action Configuration
+**When to use:**
+- Testing Vercel/Netlify preview deployments
+- Multi-environment testing (frontend + backend)
+- PR-specific URL testing
 
-**Inputs:**
+## Scheduled Testing
+
+Run tests on a schedule (e.g., nightly regression suite):
+
+```yaml
+name: Nightly Tests
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: QAdottech/run-action@v2
+        with:
+          project_id: ${{ secrets.QATECH_PROJECT_ID }}
+          api_token: ${{ secrets.QATECH_API_TOKEN }}
+          test_plan_short_id: 'full-regression'
+          blocking: false  # Don't block on schedule
+```
+
+**When to use:**
+- Comprehensive nightly regression testing
+- Production smoke tests
+- Load testing during off-peak hours
+
+## Configuration Reference
+
+### Inputs
 
 | Input | Description | Required | Default |
 |:------|:------------|:---------|:--------|
@@ -131,7 +182,7 @@ jobs:
 | `applications_config` | JSON with application environment overrides | No | - |
 | `api_url` | Custom API URL | No | `https://app.qa.tech` |
 
-**Outputs:**
+### Outputs
 
 | Output | Description |
 |:-------|:------------|
@@ -141,9 +192,21 @@ jobs:
 | `run_result` | Test execution result (`PASSED`, `FAILED`, `SKIPPED`) - only when `blocking: true` |
 | `run_status` | Final run status (`COMPLETED`, `ERROR`, etc.) - only when `blocking: true` |
 
-## Direct API Usage
+## Direct API Integration
 
-If you prefer direct API calls instead of the GitHub Action:
+If you prefer direct API calls instead of the GitHub Action, you can use the REST API.
+
+### Basic Request
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $QATECH_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"testPlanShortId": "your-test-plan-id"}' \
+  https://app.qa.tech/api/projects/$QATECH_PROJECT_ID/runs
+```
+
+### With Environment Overrides
 
 ```bash
 curl -X POST \
@@ -161,6 +224,19 @@ curl -X POST \
     }
   }' \
   https://app.qa.tech/api/projects/$QATECH_PROJECT_ID/runs
+```
+
+**Response format:**
+```json
+{
+  "success": true,
+  "run": {
+    "id": "run_abc123",
+    "shortId": "abc123",
+    "url": "https://app.qa.tech/projects/project-123/results/abc123",
+    "testCount": 5
+  }
+}
 ```
 
 See the [Start Run API Reference](/api-reference/start-run) for complete documentation including error responses and authentication details.
