@@ -273,32 +273,25 @@ Automate your QA process by integrating QA.tech with your GitHub workflows. You 
           https://app.qa.tech/api/projects/$QATECH_PROJECT_ID/runs
         ```
 
-        **In GitHub Actions workflow:**
-        ```yaml
-        - name: Trigger QA.tech Tests
-          run: |
-            curl -X POST \
-              -H "Authorization: Bearer ${{ secrets.QATECH_API_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "testPlanShortId": "your-test-plan-id",
-                "applications": {
-                  "frontend-app-id": {
-                    "environment": {
-                      "url": "${{ steps.deploy.outputs.url }}",
-                      "name": "PR-${{ github.event.number }}"
-                    }
-                  }
-                }
-              }' \
-              https://app.qa.tech/api/projects/${{ secrets.QATECH_PROJECT_ID }}/runs
+        **Response format:**
+        ```json
+        {
+          "success": true,
+          "run": {
+            "id": "run_abc123",
+            "shortId": "abc123",
+            "url": "https://app.qa.tech/.../results/abc123",
+            "testCount": 5,
+            "testPlan": { "id": "...", "name": "..." }
+          }
+        }
         ```
 
         <Note>
-        To find your application IDs, go to your test plan in QA.tech and click "API Integration". The modal will show all applications connected to your test plan with their short IDs.
+        For complete API documentation including error responses, authentication details, and additional examples, see the [Start Run API Reference](/api-reference/start-run).
         </Note>
     </Tab>
 
 </Tabs>
 
-For more information about our API and other integration options, check out our [API Reference](/api-reference/start-the-tests).
+For more information about our API and other integration options, check out our [Start Run API Reference](/api-reference/start-run).
