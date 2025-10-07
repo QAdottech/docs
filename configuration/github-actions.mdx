@@ -273,18 +273,25 @@ Automate your QA process by integrating QA.tech with your GitHub workflows. You 
           https://app.qa.tech/api/projects/$QATECH_PROJECT_ID/runs
         ```
 
-        **Response format:**
-        ```json
-        {
-          "success": true,
-          "run": {
-            "id": "run_abc123",
-            "shortId": "abc123",
-            "url": "https://app.qa.tech/.../results/abc123",
-            "testCount": 5,
-            "testPlan": { "id": "...", "name": "..." }
-          }
-        }
+        **In GitHub Actions workflow:**
+        ```yaml
+        - name: Trigger QA.tech Tests
+          run: |
+            curl -X POST \
+              -H "Authorization: Bearer ${{ secrets.QATECH_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "testPlanShortId": "your-test-plan-id",
+                "applications": {
+                  "frontend-app-id": {
+                    "environment": {
+                      "url": "${{ steps.deploy.outputs.url }}",
+                      "name": "PR-${{ github.event.number }}"
+                    }
+                  }
+                }
+              }' \
+              https://app.qa.tech/api/projects/${{ secrets.QATECH_PROJECT_ID }}/runs
         ```
 
         <Note>
