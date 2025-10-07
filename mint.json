@@ -101,7 +101,6 @@
       "pages": [
         "configuration/github-actions",
         "configuration/github-app",
-        "configuration/github-exploratory-testing",
         "configuration/gitlab",
         "configuration/envoyer",
         "configuration/vercel-preview-protection",

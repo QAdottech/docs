@@ -299,6 +299,57 @@ Looking for automatic AI-powered PR reviews? See [GitHub App](/configuration/git
 
 For more information about our API and other integration options, check out our [Start Run API Reference](/api-reference/start-run).
 
+## Exploratory Testing with @qatech
+
+<Warning>
+**Private Beta** - This feature is currently in private beta. Request access by emailing daniel@qa.tech
+</Warning>
+
+Trigger deep exploratory testing on any pull request by mentioning `@qatech` in a PR comment. The AI agent analyzes your changes, discovers functionality gaps, creates tests, and provides detailed feedback.
+
+<Note>
+This is different from [automatic PR reviews](/configuration/github-app). Exploratory testing is on-demand and focuses on discovering issues through interactive testing, while automatic reviews run on every PR.
+</Note>
+
+**How it works:**
+
+Mention `@qatech` anywhere in a PR comment:
+
+```
+@qatech please test the new payment flow
+```
+
+The agent will:
+1. **Analyze changes** - Examines PR diff and crawls the preview deployment
+2. **Check coverage** - Identifies which existing tests apply
+3. **Create tests** - Generates new tests for untested functionality
+4. **Run tests** - Executes relevant tests against the PR preview
+5. **Post review** - Writes a detailed GitHub review with findings
+
+**When to use exploratory testing vs automatic reviews:**
+
+| Use Exploratory Testing | Use Automatic PR Reviews |
+|:------------------------|:-------------------------|
+| Deep investigation of complex changes | Every PR as standard gating |
+| Interactive testing with custom instructions | Hands-off automated coverage |
+| Specific areas need thorough validation | General functional regression |
+| Debugging test failures | Consistent baseline testing |
+
+**Example use cases:**
+- "Test the entire checkout flow with different payment methods"
+- "Explore what happens when users upload large files"
+- "Check if the new search handles edge cases"
+
+**Request private beta access:**
+
+Email daniel@qa.tech with:
+- Organization name
+- GitHub repository
+- Use case (what you want to test)
+
+You'll receive setup instructions and access within 1-2 business days.
+
 ## Related Features
 
-Looking for on-demand exploratory testing? See [Exploratory Testing via GitHub](/configuration/github-exploratory-testing) to trigger deep testing by mentioning @qatech in PR comments.
+- **Automatic PR reviews:** [GitHub App](/configuration/github-app) runs tests on every PR
+- **Manual testing:** Use the GitHub Action (documented above) for CI/CD workflows
