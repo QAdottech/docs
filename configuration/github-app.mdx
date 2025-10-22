@@ -14,8 +14,9 @@ Looking to manually trigger tests from CI/CD workflows? See [GitHub Actions](/co
 
 | Feature | Description |
 |:--------|:------------|
-| ✅ **Autonomous Testing** | Automatically detects which tests to run based on PR changes |
-| ✅ **Test Generation** | Creates missing tests for untested functionality |
+| ✅ **Intelligent Test Selection** | AI semantically matches PR changes to relevant tests (typically 5-15 tests selected) |
+| ✅ **Gap-Only Test Generation** | Creates 1-3 tests only when coverage gaps exist; most PRs create zero new tests |
+| ✅ **Persistent Test Suite** | Auto-generated tests become permanent regression tests for future PRs |
 | ✅ **Preview Environment Testing** | Tests against PR preview deployments |
 | ✅ **Approval/Rejection** | Posts reviews with pass/fail verdicts |
 | ❌ **Manual Control** | No control over which tests run (use Actions for that) |
@@ -102,6 +103,155 @@ PR opened/updated
    → ℹ️ Informational if untestable
 ```
 
+## Understanding Test Selection & Creation
+
+The PR Review agent uses AI to intelligently select and create tests. Here's how it decides what to run and when to create new tests.
+
+### How Test Selection Works
+
+The agent matches PR changes to test goals semantically, not through keyword matching:
+
+**Example: PR changes checkout payment flow**
+```
+Your project: 645 total tests
+
+Agent analyzes:
+├─ "Complete checkout with credit card" → RELEVANT ✓
+├─ "Complete checkout with PayPal" → RELEVANT ✓  
+├─ "Verify payment confirmation email" → RELEVANT ✓
+├─ "User profile photo upload" → NOT RELEVANT ✗
+└─ "Search products by category" → NOT RELEVANT ✗
+
+Selected: 12 tests covering payment & checkout flows
+```
+
+**Key mechanics:**
+- AI semantically matches changed files to test goals
+- Runs ALL tests it determines are relevant (no arbitrary limits)
+- Only considers tests with `status='enabled'` (skips draft/error tests)
+- Better than fixed CI that runs all 645 tests every time
+
+### Typical Test Counts
+
+| PR Type | Existing Tests Selected | New Tests Created | Total |
+|:--------|:-----------------------|:------------------|:------|
+| Bug fix in login | 3-7 | 0 (already covered) | 3-7 |
+| Small feature | 5-10 | 1-2 (fill gaps) | 6-12 |
+| Major feature | 15-25 | 3-5 (new functionality) | 18-30 |
+| Refactor | 10-20 | 0 (no new behavior) | 10-20 |
+| Docs/infra only | 0 | 0 (untestable via UI) | 0 |
+
+**No upper limit** - the agent runs as many tests as needed for confidence, optimized for coverage not speed.
+
+### Creating Tests for Coverage Gaps
+
+Tests are created **only when gaps exist** - not for every PR.
+
+**Example: PR adds Apple Pay to checkout**
+```
+Agent assesses existing coverage:
+├─ "Complete checkout with credit card" ✓ Exists
+├─ "Complete checkout with PayPal" ✓ Exists
+└─ Apple Pay integration ✗ Gap identified
+
+Decision: Create 1 new test
+→ "Complete checkout with Apple Pay"
+```
+
+**When tests ARE created:**
+- New features with zero coverage
+- New user flows not tested before
+- New payment methods, auth methods, etc.
+
+**When tests are NOT created (most common):**
+- Bug fixes (existing tests already cover the flow)
+- Refactors (no new user-facing behavior)
+- Code improvements (same functionality)
+- Documentation/infrastructure changes
+
+**Reality check - 100 PRs:**
+- ~60 PRs: Bug fixes/refactors → 0 new tests
+- ~25 PRs: Docs/infra → 0 new tests  
+- ~10 PRs: Small features → 1 test each = 10 tests
+- ~5 PRs: Major features → 3 tests each = 15 tests
+- **Total: ~25 new tests, NOT 300**
+
+### Auto-Generated Test Lifecycle
+
+Tests created during PR review become permanent regression tests:
+
+**The Journey:**
+```
+PR #42: Add Apple Pay
+├─ Agent identifies gap
+├─ Creates "Complete checkout with Apple Pay"  
+├─ Test runs on PR #42 ✅
+├─ Test persists in your suite (labeled 'ephemeral')
+└─ Available for future PRs
+
+PR #58: Refactor checkout UI
+├─ Agent finds "Complete checkout with Apple Pay" exists
+├─ Runs existing test (no new test created) ✅
+└─ Your suite protects against Apple Pay regressions
+```
+
+**Key points:**
+- Tests persist permanently (not temporary/deleted after PR)
+- Labeled 'ephemeral' to indicate AI-generated pending review
+- Automatically selected for future relevant PRs
+- Suite grows intelligently with zero maintenance
+
+**Managing auto-generated tests:**
+- Review tests in UI (Settings → Test Cases, filter by 'ephemeral')
+- Enable/refine tests removes 'ephemeral' label
+- Disable or delete tests you don't want
+- Tests work fine as-is, review is optional
+
+### Preventing Test Overlap
+
+The agent actively prevents duplicate tests through semantic understanding:
+
+**How it works:**
+1. Agent calls `getTestCases` before creating ANY new tests
+2. Reviews ALL existing test names, goals, and coverage areas
+3. Explicitly instructed: "avoid semantic duplication with existing tests"
+4. Understands functional overlap (not just name matching)
+
+**Example - Avoiding Duplicates:**
+
+| Existing Test | PR Change | Agent Decision |
+|:-------------|:----------|:---------------|
+| "User login with credentials" | Add OAuth | Create "User login with Google OAuth" (different method) |
+| "Complete checkout flow" | Fix checkout bug | Skip creation (already covered) |
+| "Test payment processing" | Add refunds | Create "Process refund" (new functionality) |
+
+**Why some overlap may still occur:**
+- AI isn't perfect (may miss subtle semantic overlap)
+- Intentional coverage from different angles is valuable
+- Better to have slight redundancy than missed coverage
+
+**Your control:**
+- Review auto-generated tests (labeled 'ephemeral')
+- Disable redundant tests in UI
+- Delete duplicates if created
+- System never auto-deletes tests
+
+### Self-Limiting Growth
+
+As your test suite grows, the system creates fewer tests automatically:
+
+```
+Early PRs:
+├─ Small test suite = Many gaps
+└─ More test generation
+
+Later PRs:
+├─ Large test suite = Better coverage
+└─ Mostly reuses existing tests
+
+Result: Test creation naturally slows as coverage improves
+```
+
 ### Review Format
 
 The agent posts a review with:
@@ -122,9 +272,9 @@ The agent posts a review with:
 
 These platforms automatically create GitHub deployments, making PR testing seamless. No additional configuration needed - just connect your repository and every PR gets tested automatically.
 
-**Build a regression test suite**
+**Your test suite grows automatically**
 
-As your PR tests pass, promote them to a regression test plan. This creates a growing suite of real-world tests that catch regressions automatically on future PRs.
+Tests created during PR reviews persist permanently and become regression tests automatically. No manual promotion needed - the agent reuses these tests on future PRs when relevant. Review auto-generated tests (labeled 'ephemeral') in Settings → Test Cases to refine or disable them.
 
 **Let QA.tech test PRs first**
 
@@ -147,6 +297,24 @@ Use cases:
 - Provide domain-specific testing guidelines
 - Add authentication/setup requirements
 
+
+## Frequently Asked Questions
+
+### Will auto-generated tests pollute my test suite?
+
+No. The agent only creates tests for coverage gaps - most PRs (bug fixes, refactors) create zero new tests. Even major feature PRs typically add 3-5 focused tests, not hundreds. The system is self-limiting: better coverage means fewer gaps, which means less test generation over time.
+
+### Can I control which tests run?
+
+No - the GitHub App is fully autonomous for speed and simplicity. For manual test selection and control, use [GitHub Actions](/configuration/github-actions) instead. You can use both: GitHub App for automatic PR reviews + Actions for manual deep testing.
+
+### How do I review or delete auto-generated tests?
+
+Go to Settings → Test Cases and filter by 'ephemeral' label. You can enable (removes label), edit, disable, or delete any test. Tests work fine as-is - review is optional.
+
+### What if the agent creates duplicate tests?
+
+The agent actively prevents duplicates by reading all existing tests first and using semantic deduplication. If a duplicate slips through (AI isn't perfect), simply disable or delete it in the UI. Better to occasionally have slight redundancy than miss coverage gaps.
 
 ## Troubleshooting
 
@@ -183,7 +351,7 @@ Use cases:
 
 ## Limitations
 
-- **No manual test selection:** Agent autonomously decides which tests to run
+- **Fully autonomous:** Cannot manually select specific tests (use GitHub Actions for control)
 - **Requires preview deployments:** Cannot test without accessible PR environment
 - **UI-testable changes only:** Backend-only microservices without UI access can't be tested
 - **No workflow customization:** Unlike GitHub Actions, there's no YAML configuration
