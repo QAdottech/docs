@@ -105,11 +105,7 @@ PR opened/updated
 
 ## Understanding Test Selection & Creation
 
-The PR Review agent uses AI to intelligently select and create tests. Here's how it decides what to run and when to create new tests.
-
-### How Test Selection Works
-
-The agent matches PR changes to test goals semantically, not through keyword matching:
+The PR Review agent uses AI to intelligently select and create tests. It matches PR changes to test goals semantically, not through keyword matching.
 
 **Example: PR changes checkout payment flow**
 ```
@@ -129,7 +125,7 @@ Selected: 12 tests covering payment & checkout flows
 - AI semantically matches changed files to test goals
 - Runs ALL tests it determines are relevant (no arbitrary limits)
 - Only considers tests with `status='enabled'` (skips draft/error tests)
-- Better than fixed CI that runs all 645 tests every time
+- More intelligent than fixed CI that runs all existing tests every time
 
 ### Typical Test Counts
 
@@ -169,16 +165,9 @@ Decision: Create 1 new test
 - Code improvements (same functionality)
 - Documentation/infrastructure changes
 
-**Reality check - 100 PRs:**
-- ~60 PRs: Bug fixes/refactors → 0 new tests
-- ~25 PRs: Docs/infra → 0 new tests  
-- ~10 PRs: Small features → 1 test each = 10 tests
-- ~5 PRs: Major features → 3 tests each = 15 tests
-- **Total: ~25 new tests, NOT 300**
-
 ### Auto-Generated Test Lifecycle
 
-Tests created during PR review become permanent regression tests:
+Tests created during PR review stay in the system labeled 'ephemeral' and can be enabled for future runs. This way you're automatically getting new functionality in your app covered by tests and you have full control over it.
 
 **The Journey:**
 ```
@@ -195,27 +184,15 @@ PR #58: Refactor checkout UI
 └─ Your suite protects against Apple Pay regressions
 ```
 
-**Key points:**
-- Tests persist permanently (not temporary/deleted after PR)
-- Labeled 'ephemeral' to indicate AI-generated pending review
-- Automatically selected for future relevant PRs
-- Suite grows intelligently with zero maintenance
-
 **Managing auto-generated tests:**
 - Review tests in UI (Settings → Test Cases, filter by 'ephemeral')
 - Enable/refine tests removes 'ephemeral' label
-- Disable or delete tests you don't want
-- Tests work fine as-is, review is optional
+- Delete tests you don't want
+
 
 ### Preventing Test Overlap
 
-The agent actively prevents duplicate tests through semantic understanding:
-
-**How it works:**
-1. Agent calls `getTestCases` before creating ANY new tests
-2. Reviews ALL existing test names, goals, and coverage areas
-3. Explicitly instructed: "avoid semantic duplication with existing tests"
-4. Understands functional overlap (not just name matching)
+The agent actively prevents duplicate tests through semantic understanding. It checks all your enabled test cases before creating any new tests, reviews all existing test names, goals, and coverage areas, practically understanding functional overlap (not just name matching).
 
 **Example - Avoiding Duplicates:**
 
@@ -224,17 +201,6 @@ The agent actively prevents duplicate tests through semantic understanding:
 | "User login with credentials" | Add OAuth | Create "User login with Google OAuth" (different method) |
 | "Complete checkout flow" | Fix checkout bug | Skip creation (already covered) |
 | "Test payment processing" | Add refunds | Create "Process refund" (new functionality) |
-
-**Why some overlap may still occur:**
-- AI isn't perfect (may miss subtle semantic overlap)
-- Intentional coverage from different angles is valuable
-- Better to have slight redundancy than missed coverage
-
-**Your control:**
-- Review auto-generated tests (labeled 'ephemeral')
-- Disable redundant tests in UI
-- Delete duplicates if created
-- System never auto-deletes tests
 
 ### Self-Limiting Growth
 
@@ -266,36 +232,7 @@ The agent posts a review with:
 - Implementation suggestions
 - References to other bot comments
 
-## Best Practices
 
-**Deploy with Vercel or Netlify**
-
-These platforms automatically create GitHub deployments, making PR testing seamless. No additional configuration needed - just connect your repository and every PR gets tested automatically.
-
-**Your test suite grows automatically**
-
-Tests created during PR reviews persist permanently and become regression tests automatically. No manual promotion needed - the agent reuses these tests on future PRs when relevant. Review auto-generated tests (labeled 'ephemeral') in Settings → Test Cases to refine or disable them.
-
-**Let QA.tech test PRs first**
-
-Configure PR reviews to run before requesting human code review. This catches functional issues early, so your colleagues can focus on code quality instead of manually testing features.
-
-**Customize reviews with context**
-
-Add domain-specific instructions to guide the AI agent's testing approach. Go to Settings → Integrations → GitHub App and add review context.
-
-Example for payment flows:
-```
-When testing payment flows, always verify:
-- Stripe test mode is active
-- Receipt emails are sent
-- Transaction appears in admin dashboard
-```
-
-Use cases:
-- Specify areas requiring extra scrutiny
-- Provide domain-specific testing guidelines
-- Add authentication/setup requirements
 
 
 ## Frequently Asked Questions
