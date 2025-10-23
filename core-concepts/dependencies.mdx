@@ -53,6 +53,43 @@ State preserved includes:
 - Session storage data
 - All browser state from dependency test
 
+## Application and Environment Constraints
+
+Dependencies work between tests in the same project, but browser state cannot transfer across different domains due to browser security restrictions.
+
+### What Works vs. What Doesn't
+
+| ✅ Supported | ❌ Not Supported |
+|-------------|-----------------|
+| Tests in same application, different environments | Browser state (cookies, sessions) across different domains |
+| Output data (IDs, names) passed between any tests | Resume From dependencies expecting login transfer across domains |
+| Wait For dependencies between different applications | Login session reuse from `app.example.com` to `admin.example.com` |
+| Sequential execution across applications | Cookie-based authentication across different URLs |
+
+### Cross-Application Workflows
+
+When testing workflows spanning multiple applications or services:
+
+**Use Wait For dependencies:**
+- Tests execute sequentially without browser state transfer
+- Output data (user IDs, team names) passes between tests
+- Each test starts with fresh browser state on its application URL
+
+**Example:**
+```
+Test 1: Create User (frontend.example.com) → outputs userId  
+Test 2: Verify User (admin.example.com) → waits for Test 1, receives userId
+```
+
+**Don't use Resume From across different domains:**
+- Browser sessions don't transfer between different domains
+- Login cookies are domain-specific
+- Will fail with authentication errors
+
+<Note>
+  **Why this happens:** Browser security prevents cookies and sessions from transferring across different domains. Each application needs its own authentication test if using Resume From dependencies.
+</Note>
+
 ## Failure Behavior
 
 When any dependency fails:
