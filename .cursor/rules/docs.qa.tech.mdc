@@ -75,7 +75,7 @@ Write steps like this, when its something the user has to do
 <Steps>
   <Step title="Enable Status Badge">
     Navigate to [**Settings →
-    Integrations**](https://app.qa.tech/dashboard/current-project/settings/integrations?focus=status-badge).
+    Integrations**](https://app.qa.tech/current-project/settings/integrations?focus=status-badge).
     Find the **Status Badge** section and toggle it to enable.
   </Step>
   <Step title="Configure Badge Options">
@@ -92,7 +92,7 @@ Write steps like this, when its something the user has to do
 
 we have a special that replaces projectId with current-project, like this
 
-https://app.qa.tech/dashboard/current-project/settings/integrations?focus=status-badge
+https://app.qa.tech/current-project/settings/integrations?focus=status-badge
 
 to link the user into our app from docs, keeping their previously selected project.
 

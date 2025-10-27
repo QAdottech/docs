@@ -18,7 +18,7 @@
   - Auto-runs exploratory + regression tests on PR creation/updates
   - Screenshot available: `/assets/images/integrations/screenshot-review.jpg`
   - Different setup flow than GitHub Actions (OAuth App vs Actions workflow)
-- **Code Reference:** `apps/saas/src/app/dashboard/p/[project]/settings/integrations/[integrationId]/components/GitHubAppIntegrationSettings.tsx`
+- **Code Reference:** `apps/saas/src/app/p/[project]/settings/integrations/[integrationId]/components/GitHubAppIntegrationSettings.tsx`
 - **Action:** Create new integration guide; explain OAuth setup, PR triggers, review flow, permissions
 - **Status:** ⚠️ **PENDING**
 
@@ -33,7 +33,7 @@
   - 30s scrape interval recommended
   - Uses same API token as other integrations
   - Includes prometheus.yml config example in UI
-- **Code Reference:** `apps/saas/src/app/dashboard/p/[project]/settings/integrations/[integrationId]/components/MetricsIntegrationSettings.tsx`
+- **Code Reference:** `apps/saas/src/app/p/[project]/settings/integrations/[integrationId]/components/MetricsIntegrationSettings.tsx`
 - **Action:** Create integration guide with setup, config examples, available metrics reference, Grafana dashboard examples
 - **Cross-reference:** GET `/api/projects/{id}/metrics` endpoint (see API section)
 - **Status:** ⚠️ **PENDING**
@@ -279,14 +279,14 @@ For each "already documented" feature, I:
 
 **Code Locations (Oct 2 Audit - Main Branch Merge):**
 
-- GitHub App Integration: `apps/saas/src/app/dashboard/p/[project]/settings/integrations/[integrationId]/components/GitHubAppIntegrationSettings.tsx`
-- Prometheus Metrics: `apps/saas/src/app/dashboard/p/[project]/settings/integrations/[integrationId]/components/MetricsIntegrationSettings.tsx`
+- GitHub App Integration: `apps/saas/src/app/p/[project]/settings/integrations/[integrationId]/components/GitHubAppIntegrationSettings.tsx`
+- Prometheus Metrics: `apps/saas/src/app/p/[project]/settings/integrations/[integrationId]/components/MetricsIntegrationSettings.tsx`
 - CAPTCHA (Internal Only): `apps/browser-engine/src/lib/browser/captcha/index.ts` - See `CAPSOLVER_ENABLED_PROJECT_IDS` (hardcoded single project)
 - Ephemeral Tests: `packages/mcp/src/tools/suggest-test-cases.ts` (isEphemeral flag)
 - Inline Test Suggestions: `apps/saas/src/components/Chat/messages/assistant/tools/suggestions/InlineToolCallSuggestTestCases.tsx`
 - Device Presets Schema: `packages/device-presets/src/index.ts` - colorScheme, forcedColors, reducedMotion in schema
-- Device Presets UI: `apps/saas/src/app/dashboard/p/[project]/settings/device-presets/components/advanced/ColorSchemeSelector.tsx`
-- Integration Configs: `apps/saas/src/app/dashboard/p/[project]/settings/integrations/[integrationId]/components/INTEGRATION_CONFIGS.tsx`
+- Device Presets UI: `apps/saas/src/app/p/[project]/settings/device-presets/components/advanced/ColorSchemeSelector.tsx`
+- Integration Configs: `apps/saas/src/app/p/[project]/settings/integrations/[integrationId]/components/INTEGRATION_CONFIGS.tsx`
 - Merge Details: 176 files changed (+3,714/-3,045 lines)
 
 **Quick Audit Commands:**
