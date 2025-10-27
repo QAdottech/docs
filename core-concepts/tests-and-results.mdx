@@ -35,3 +35,17 @@ Negative testing is a QA practice that validates how a system handles invalid in
 ## Tests and Test Runs
 
 Every time a test run is triggered, we run the selected scenarios. The result is a test run with one or more test cases in it.
+
+## Filtering and Searching Results
+
+When viewing test run results, you can quickly find specific tests using filters and search:
+
+- **Filter by result** — Show only PASSED, FAILED, or SKIPPED tests
+- **Filter by status** — Filter tests by execution state (INITIATED, RUNNING, COMPLETED, ERROR, CANCELLED)
+- **Search by name** — Find specific tests using the search box
+
+<Note>
+**Result vs. Status**: A test's _result_ is the outcome after completion (PASSED/FAILED/SKIPPED), while _status_ tracks the execution state. For example, a test can have STATUS=COMPLETED with RESULT=FAILED.
+</Note>
+
+All filters persist in the URL, making it easy to share specific views with your team.

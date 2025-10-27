@@ -1,25 +1,86 @@
 ---
-title: Test Results
+title: How to review test results
 icon: check-double
 ---
 
-## How to review test results
+Different stages of your development workflow need different testing approaches. This guide helps you choose the right testing strategy for your needs and efficiently manage results across your workflow.
 
-We recommend the following process:
+<Note>
+**Foundation for Testing**
 
-1. Assign someone on your team to manage the results. This can be the **QA team** or the **developer** responsible for the PR/release that triggered the test run.
-2. If a test fails, triage it by:
-   - Navigating to the failing test.
-   - Reviewing the playback to see what went wrong.
-3. If the issue is related to your product:
-   - Handle it as you typically would for regressions in your product.
-4. If the failure is due to a bad test:
-   - Modify the failed step to better guide the agent for future runs. For example, you might choose to make the step more or less deterministic, depending on your needs.
+Before using any testing approach below, ensure you've [crawled your website](/core-concepts/crawling) to build the [knowledge graph](/core-concepts/knowledge-graph) and configured [authentication](/best-practices/handle-auth). These prerequisites enable the AI agent to test efficiently.
+</Note>
 
-## Notifications
+## Choosing Your Testing Strategy
 
-The best way to get notified of a failing test is to set up [Notifications](/core-concepts/notifications)
+Different testing approaches fit different scenarios. Choose based on when you need results and what you're validating:
 
-## Export the Issues
+| Testing Approach | Best For | When to Use | Setup Guide |
+|-----------------|----------|-------------|-------------|
+| Manual test runs | Ad-hoc testing, debugging, development | Quick validation, iterating on test design | [Running Tests](/best-practices/running-tests) |
+| Scheduled test plans | Production monitoring, regression suites | Daily/nightly checks, SLA monitoring | [Test Plans](/core-concepts/test-plans) |
+| PR-triggered testing | Pre-merge validation, preview environments | Every PR, feature branches | [GitHub Actions](/configuration/github-actions) |
+| API-triggered testing | Custom workflows, deployment pipelines | Post-deploy validation, multi-environment | [API Reference](/api-reference/start-run) |
 
-When we find an Issue it's tracked and saved - and you can always export them to your own project management tool - we have multiple integrations. See the Integrations section in the bottom left.
+**Recommended progression:**
+
+- **Start with:** Manual runs while building tests, then add PR testing
+- **Add next:** Scheduled nightly runs for comprehensive coverage
+- **Advanced:** API integration for custom deployment workflows
+- **Pro tip:** Use test plans to organize tests for different scenarios (smoke vs. full regression)
+
+## Organizing Tests with Test Plans
+
+Test plans help you run the right tests at the right time. Organize tests strategically to separate fast smoke tests from comprehensive regression suites.
+
+**Common test plan patterns:**
+
+- **Smoke tests plan** — 5-10 critical tests, runs on every PR (~5 min)
+- **Regression plan** — Full suite, runs nightly (~30-60 min)
+- **Production monitoring plan** — Key flows, runs every 4 hours
+- **Preview environment plan** — Dynamic URLs, runs on deploy
+
+<Note>
+Test plans enable parallel execution - 20 tests complete in ~3 minutes instead of 60 minutes sequential. See [Test Plans](/core-concepts/test-plans#performance--parallel-execution).
+</Note>
+
+Use test plans to:
+- Separate fast tests (PR-triggered) from slow tests (scheduled)
+- Target different environments (staging vs. production)
+- Control what runs when based on your workflow
+
+### Quick Triage Workflow
+
+<Steps>
+  <Step title="Filter to failures">
+    Use RESULT=FAILED + STATUS=COMPLETED to see only actionable failures. See [Tests and Results](/core-concepts/tests-and-results#filtering-and-searching-results) for filter options.
+  </Step>
+  <Step title="Review by scenario">
+    Grouped failures often share root cause - review scenario by scenario
+  </Step>
+  <Step title="Categorize each failure">
+    Determine if it's a product bug, test needs update, flaky test, or environment issue
+  </Step>
+  <Step title="Take action">
+    Create issues for bugs, update tests for intentional changes, add waits for flaky tests
+  </Step>
+</Steps>
+
+
+## Getting Notified
+
+Configure notifications based on your testing approach:
+
+- **PR tests** — GitHub comments post automatically (see [GitHub Actions](/configuration/github-actions))
+- **Scheduled runs** — Slack/email for failures (see [Notifications](/core-concepts/notifications))
+- **Production monitoring** — Immediate alerts for critical failures
+
+**Tip:** Set up different notification channels for different severity levels (Slack for critical, email for nightly)
+
+## Exporting Issues
+
+When you find bugs during review:
+
+- Export to Linear, Jira, or Trello: [Configure integrations](/integrations/linear)
+- Include playback URL and context before exporting
+- Tag with environment and test run for traceability
