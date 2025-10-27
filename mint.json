@@ -89,6 +89,7 @@
     {
       "group": "Test Features",
       "pages": [
+        "test-features/dynamic-navigation",
         "test-features/email-inbox",
         "test-features/file-uploads",
         "test-features/file-downloads",

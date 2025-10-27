@@ -1,0 +1,86 @@
+---
+title: 'Dynamic Navigation'
+description: 'How the AI agent navigates to URLs that change during test execution'
+icon: 'route'
+---
+
+# Dynamic Navigation
+
+The AI agent can navigate to URLs dynamically during test execution, without requiring static start URLs. This enables testing workflows where URLs are generated at runtime or vary based on test conditions.
+
+## When to Use
+
+Dynamic navigation is useful for testing:
+
+- User-specific URLs (e.g., `/users/{dynamicId}/profile`)
+- URLs displayed on the page that need to be visited
+- URLs copied to the clipboard during the test
+- Relative navigation within the same domain (e.g., `../settings`, `/dashboard`)
+
+## Supported Navigation Modes
+
+| Mode | Description | Example |
+|:-----|:------------|:--------|
+| **Full URL** | Navigate to complete web addresses | `https://example.com/page` |
+| **Relative URL** | Navigate relative to current page | `/dashboard`, `../settings`, `?tab=profile` |
+| **Clipboard URL** | Navigate to URL currently in clipboard | Copy URL with keyboard shortcut, then navigate |
+
+## How It Works
+
+The agent automatically handles navigation when:
+
+1. **Your test instructions** mention navigating to a URL or visiting a link
+2. **The agent encounters** a URL it needs to visit during test execution
+3. **URLs are dynamic** - the agent adapts to whatever URL is present at runtime
+
+<Note>
+**No configuration required** - the agent automatically determines which navigation mode to use based on the URL format and current page context.
+</Note>
+
+## Example Use Cases
+
+<Card title="Testing User Profiles" icon="user">
+**Goal:** "Navigate to the newly created user's profile page"
+
+The agent will:
+- Extract the dynamic user ID from the page
+- Construct and navigate to the profile URL
+- Verify the profile loads correctly
+</Card>
+
+<Card title="Testing Email Links" icon="link">
+**Goal:** "Copy the verification link and visit it in the browser"
+
+The agent will:
+- Copy the link to the clipboard
+- Navigate to the clipboard URL
+- Verify the verification page loads
+</Card>
+
+<Card title="Testing Relative Navigation" icon="compass">
+**Goal:** "From the product page, navigate to the shopping cart"
+
+The agent will:
+- Navigate relatively from current page (e.g., `../cart`)
+- Handle relative paths without needing full URLs
+</Card>
+
+## Technical Details
+
+**Navigation Requirements:**
+
+- **Full URLs**: Must use `http://`, `https://`, or `file://` protocol
+- **Relative URLs**: Requires an active page (cannot navigate relatively from `about:blank`)
+- **Clipboard URLs**: Clipboard must contain a valid web address
+
+**Error Handling:**
+
+The agent provides clear error messages when:
+- Clipboard is empty when attempting clipboard navigation
+- Relative URL is used without a current page loaded
+- URL format is invalid or uses unsupported protocols
+
+---
+
+**Related:** See [Email Inbox](/test-features/email-inbox) for navigating to links in test emails.
+
