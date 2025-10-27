@@ -4,7 +4,6 @@ description: 'Configure browser sessions with predefined device settings'
 icon: 'browser'
 ---
 
-# Device Presets
 
 Device presets allow you to configure browser sessions with predefined device settings, making it easy to test your application across different device configurations. When using device presets, you can simulate specific devices with their viewport sizes, user agents, and other device-specific settings.
 
@@ -84,6 +83,38 @@ Each project can have one default device preset. When set, this preset will be u
 
 1. Test case setting
 2. Test plan setting
+
+## Using Device Presets in AI Chat
+
+You can discover and work with device presets through the [AI Chat Assistant](/core-concepts/ai-chat-assistant) using natural language. The assistant can show you available presets and help you create or run tests with specific device configurations.
+
+**Example: Creating tests for mobile**
+
+Say you want to create tests that run on mobile devices. Simply ask:
+
+> "Create a test for the checkout flow on mobile"
+
+The assistant will:
+1. Show you available mobile device presets
+2. Ask which specific preset you'd like to use
+3. Create the test configured with the selected device preset
+
+**Example: Running tests with a different device**
+
+You can also override device presets when running existing tests:
+
+> "Run the login test on an iPhone"
+
+The assistant will show available mobile presets and run the test with your selected device configuration, overriding the test's default preset for that run.
+
+**More example queries:**
+
+- "What device presets do I have?"
+- "Show me all mobile presets"
+- "Can I test on tablet?"
+- "Create checkout tests for mobile and desktop"
+
+This makes it easy to explore your device options and work with device-specific testing without navigating through settings pages. Learn more about chat capabilities in the [AI Chat Assistant documentation](/core-concepts/ai-chat-assistant).
 
 ## Priority Order
 
