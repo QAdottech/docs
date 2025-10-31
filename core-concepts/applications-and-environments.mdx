@@ -108,3 +108,16 @@ For products with multiple services (e.g., user frontend, admin site, etc), you 
 - Clean up preview environments after feature completion
 
 This hierarchical structure helps you organize your testing infrastructure efficiently while maintaining clear separation between different applications and their configurations.
+
+### Complex Project Structures
+
+When dealing with multiple products, versions, or releases in a single project:
+
+- **Create separate applications** for each distinct product or major version (e.g., "Product v1.0", "Product v2.0")
+- **Maintain different environments** for each application's deployment stages (e.g., `staging`, `production`, `preview`)
+- **Use Test Scenarios** to organize related tests within or across applications
+- **Use Test Plans** to group tests for execution—these can be reused across environments
+
+<Tip>
+  For a detailed example of organizing tests across multiple versions, see [Organizing Tests for Complex Projects](/best-practices/creating-tests#organizing-tests-for-complex-projects).
+</Tip>

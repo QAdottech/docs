@@ -58,7 +58,6 @@
       "group": "Best Practices",
       "pages": [
         "best-practices/creating-tests",
-        "best-practices/project-context",
         "best-practices/running-tests",
         "best-practices/test-results",
         "best-practices/handle-auth",
