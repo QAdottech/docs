@@ -17,12 +17,11 @@ A good example of a test is something a user would like to do, or achieve. A use
 
 ## Creating a test
 
-Creating a new test in QA.tech is very simple.
-You can create a test in the platform by following a few simple steps.
+You can create test cases through the UI with AI-generated suggestions, or conversationally through the AI Chat Assistant.
 
-1. **Click the "Add Test Case" button**
+### Create Tests via UI
 
-At the top of the page you will find a button to create a new test.
+Click the **"Add Test Case"** button to open the test creation modal with two options:
 
 <img
   width="400px"
@@ -30,33 +29,44 @@ At the top of the page you will find a button to create a new test.
   alt="Add Test Case Button"
 />
 
-2. **Choose a Suggested Test or Create your own.**
+**Suggested tests** — QA.tech continuously crawls your application to discover testable features and interactions. These appear as AI-generated suggestions you can select and add to your project. Click "Analyze my site" to trigger a new crawl if you want fresh suggestions.
 
-Our agents are continuously scanning your site for things to test. Things it finds will pop up as suggestions here in the suggested tests list. You can either choose one or many of the suggestions or create your own using a freetext description.
+<img width="500px" src="/images/suggested-tests.png" alt="Suggested tests modal" />
 
-    __Suggested tests__ - Select a suggested test from the list and click continue
-    <img width="500px" src="/images/suggested-tests.png" alt="Suggested tests modal" />
+**Create your own test** — Describe what you want to test in natural language. The AI agent will understand your goal and attempt to generate the test steps automatically.
 
-    If you want to discover more test suggestions, you can click "Analyze my site" to initiate a new site crawl.
-    This process takes up to 15 minutes and will scan your site to detect additional testable features and interactions.
+<img width="500px" src="/images/create-tests-modal.png" alt="Create your own test modal" />
 
-    __Create your own test__ - Fill in the details for your test
-    <img width="500px" src="/images/create-tests-modal.png" alt="Create your own test modal" />
+Key fields:
+- **Name**: Clear, descriptive name (e.g., "Create admin user and verify access")
+- **Goal**: What the test should accomplish in natural language
+- **Expected Result** (optional): What success looks like
+- **Dependencies**: Configure test execution order (see [Test Dependencies](/core-concepts/dependencies) for WAIT_FOR and RESUME_FROM)
+- **Configurations**: Add required data like credentials or test accounts
+- **Advanced**: Agent selection and other settings
 
-    - **Name**: Give your test a descriptive name (e.g., "Create a new user with admin permissions")
-    - **Goal**: Describe what the test should accomplish (e.g., "Create an admin user and sign in with the new user")
-    - **Expected Result** (optional): Define what success looks like (e.g., "A new admin user appears on the users page")
-     - **Dependencies**: Configure which tests this should wait for or resume from
-    - **Configurations**: Add any required configuration values needed for the test
-    - **Advanced**: Additional settings including agent selection (defaults to Latest)
+### Create Tests via AI Chat Assistant
 
-    Make sure the test name is clear and concise, and that the goal provides enough detail for the agent to understand what needs to be tested.
+The [AI Chat Assistant](/core-concepts/ai-chat-assistant) provides a conversational, exploratory approach to test creation:
 
-1. **Review the generated test**
+**Natural conversation** — Describe your testing needs in plain English. Ask for multiple tests, request specific coverage areas, or iterate on suggestions through back-and-forth conversation.
 
-Once the new test is generated and starts to create a draft of the steps you are able to review the test.
+**Upload context** — Drag and drop specification documents, design files, or requirements (PDFs, images, text files) directly into the chat. The AI uses this context to generate more accurate, relevant tests.
 
-To review the test, click the review button next to your new test.
+**Safe experimentation** — Tests generated in chat aren't committed to your project until you explicitly click "Add Selected Tests". You can review, refine, or discard them without affecting your team. Uploaded files remain isolated to that chat conversation only.
+
+<Tip>
+Example prompts:
+- "Generate 5 tests for the checkout flow"
+- "What areas of my product should I cover with test cases first?"
+- "Create a test that validates login and checks the user profile page"
+
+See [AI Chat Assistant](/core-concepts/ai-chat-assistant) for more examples.
+</Tip>
+
+### Review and Refine
+
+After creating a test, the AI agent automatically attempts to execute it and generate test steps. Click the **review button** to inspect the results:
 
 <img
   width="500px"
@@ -64,69 +74,142 @@ To review the test, click the review button next to your new test.
   alt="Review generated test"
 />
 
-This will take you to the edit test page.
-
 <img width="700px" src="/images/edit-test-page.png" alt="Edit test page" />
 
-At this stage the agent will attempt to achieve the objective on its own and generate steps for you.
-Once finished you will have a set of steps to get started.
+**Left sidebar** — View and edit the goal, expected result, and generated steps. The Settings tab lets you configure dependencies, add required configurations, or adjust agent settings.
 
-**The sidebar to the left** shows you the generated goal, expected result and suggested steps. In the Settings tab you have the possibillity to change dependencies, add configs the test needs or change advanced options for the agent.
+**Right panel** — Inspect the execution trace showing exactly what the agent did. This helps you verify the test behaves as intended.
 
-**To the right you have the trace** of the attempted execution. Inspect that the agent correctly achieved what you want to test.
+Update steps as needed and click **"Save & Run"** to test your changes. You can stop execution at any time with the **"Stop"** button.
 
-If you want to change any of the steps you can update them and click **"Save & Run"** to see a new attempt with the updated steps.
+## Activating and Organizing Tests
 
-It is always possible to stop the agent by clicking the **"Stop"** button.
+After creating and reviewing your test, you'll want to activate it and organize it within your project.
 
-4. **Activate the test**
+### Activate Your Test
 
-Once you have a test case to your liking click on the **"Activate"** button in the top right corner. This will enable the test and make it part of your test suite.
+Tests are created in draft mode so you can review and refine them before they run. When you're ready, click the **"Activate"** button to enable the test and make it part of your active test suite.
 
-5. **Move the test to a Scenario group**
+<Note>
+If your test has dependencies that are also in draft mode, QA.tech will prompt you to activate them together to ensure proper execution order.
+</Note>
 
-Back on the "Test cases" page you can drag and drop the test to a Scenario group of your choosing. Grouping tests in Scenarios is a good way to keep your tests organized and helps get a good overview during execution.
+Once activated, the button changes to **"Convert to draft"** - use it if you need to temporarily disable the test for maintenance or updates.
 
-## How to format your test
+### Organize with Scenarios
 
-### Writing a good goal
+On the Test Cases page, you can drag and drop tests to organize them into Scenario groups. Scenarios help you:
+- Keep related tests together (e.g., "Checkout Flow", "User Management")
+- Create logical test groupings for better organization
+- Get a clear overview during test execution
+- Set up test dependencies within related workflows
 
-The goal is the main objective of the test case. The agent will use this both to build the steps and to solve the task if things change in the steps. Focus on describing what the agent should do during the test, rather than what it should validate (use expected result for that).
+## Writing Effective Tests
 
-#### Good goal examples
+### Writing a Good Goal
 
+The goal is the main objective of the test. The agent uses this to build steps and adapt when your application changes. Focus on describing **what to do**, not what to validate (use expected result for that).
+
+**Good goal examples:**
 - Search for 'Chair', navigate to a product and add it to the cart
-- Invite a new member of the role Admin to the project
-- Open the customer support chat and write a message
+- Invite a new member with Admin role to the project
+- Open the customer support chat and send a message
 
-Keep your goals:
+**Keep your goals:**
+- **Action-oriented** — Start with verbs like "Create", "Search", "Navigate", "Add"
+- **Specific** — Include exact details (product name, user role, button labels)
+- **Focused** — Describe actions to take, not validation criteria
 
-- Action-oriented: Start with verbs like "Create", "Search", "Navigate", "Add"
-- Specific: Include the exact details needed (e.g., product name, user role)
-- Focused: Describe the actions to take, not the validation criteria
+### Writing a Good Expected Result
 
-### Writing a good expected result
+The expected result defines what the agent should verify at the end of the test. Describe what should be visible or observable when the test completes successfully.
 
-The expected result defines what should be verified at the end of the test. It should clearly describe what the agent should see or experience when the test is completed successfully.
-
-#### Good expected result examples
-
+**Good expected result examples:**
 - The page should contain a user avatar
-- A success message should be displayed and the user should be redirected to the product list
-- The user should have received an email with a link to reset their password
+- A success message appears and the user is redirected to the product list
+- The user receives an email with a password reset link
 
-Keep your expected results:
+**Keep your expected results:**
+- **Observable** — Focus on things that can be verified visually or through system responses
+- **Specific** — Include exact elements, messages, or states to check
+- **Outcome-focused** — Describe the end state, not how to get there
 
-- Observable: Focus on things that can be verified visually or through system responses
-- Specific: Include exact elements, messages, or states to check for
-- Outcome-focused: Describe the end state, not the steps to get there
+<Tip>
+Keep tests to 10 steps or less. If you need more steps, create a new test with a [dependency](/core-concepts/dependencies) instead. Shorter tests are faster to execute and easier to maintain.
+</Tip>
 
-Try to keep your test to 10 steps or less. If your test requires more steps consider creating a new test with a chained dependency instead. Tests with too many steps have the downside of taking longer to execute, and being harder to maintain. Dependencies works like if you were to refresh your browser so data in inputs will be lost.
+### Test Dependencies
 
-### Understanding Test Dependencies
+Tests can depend on other tests to control execution order and reuse browser state. This is essential for complex workflows where one test needs data or state from another. Learn more in [Test Dependencies](/core-concepts/dependencies).
 
-Tests can depend on other tests to control execution order and reuse browser state. See [Test Dependencies](/core-concepts/dependencies) for detailed information on configuring "Wait For" and "Resume From" relationships.
+## Organizing Tests for Complex Projects
 
-## Using the Chat Agent for Test Generation
+When working on projects with multiple products or versions, it's often beneficial to organize tests into a single project with multiple applications and use Test Scenarios to manage different versions. This approach allows you to:
 
-Generate tests directly with QA.tech's chat agent through natural conversation. The agent can access your existing test cases, configs, and scenarios. It can also search through information that we store from your web application and your knowledge base, where you can add important information and crawl documentation pages.
+- **Maintain a single source of truth** for all test cases across your applications.
+- **Easily manage and update test cases** across different product versions.
+- **Scale your testing efforts** by reusing test cases across multiple applications.
+- **Reduce duplication** and ensure consistency across your test suites.
+
+QA.tech's structure is designed to handle this elegantly:
+
+**Project → Application → Environment → Test Cases**
+
+- **Project**: Your overall product or platform
+- **Application**: Each distinct product, major version, or variant
+- **Environment**: Where each application runs (dev, staging, production)
+- **Test Cases**: Belong to specific applications
+- **Test Scenarios**: Organize related tests within or across applications
+- **Test Plans**: Group tests into suites for CI/CD automation (e.g., "PR Smoke Tests", "Nightly Regression"). Test plans are how you integrate QA.tech into your deployment pipeline via the [API](/api-reference/start-run)
+
+#### Example Structure
+
+For a complex project with multiple versions running simultaneously:
+
+```
+PROJECT: "E-commerce Platform"
+├── APP: "Legacy v1.0"
+│   ├── ENV: Production
+│   └── TEST_CASES: [checkout flow, payment processing]
+│
+├── APP: "Current v2.0"
+│   ├── ENV: Production, Staging
+│   └── TEST_CASES: [new checkout, enhanced payments, user dashboard]
+│
+└── APP: "Beta v3.0"
+    ├── ENV: Staging
+    └── TEST_CASES: [experimental features, new architecture tests]
+```
+
+**Key Benefits:**
+- Each version's tests are naturally isolated within their Application
+- Share common infrastructure (configs, knowledge) at the Project level
+- Run the same tests against different environments (staging → production)
+- Test cross-version compatibility when needed
+
+### Using Test Plans for Release Management
+
+**Test Plans** group tests you want to run together and can be reused across different environments by updating their parameters (application and environment settings). For example, run the same "Smoke Tests" plan against staging, then production—no need to duplicate the plan.
+
+<Tip>
+**CI/CD Integration:** Test plans are designed for automation workflows. Use them with the [API](/api-reference/start-run) to trigger specific test suites from your deployment pipeline, GitHub Actions, or scheduled jobs. See [Test Plans](/core-concepts/test-plans) for API execution, scheduling, and environment override details.
+</Tip>
+
+Instead of creating separate plans per version, create plans based on **testing goals**:
+
+- **"Smoke Tests"** - Critical paths across all versions/applications
+- **"v2.0 Full Regression"** - All tests for the v2.0 application
+- **"Cross-Version Integration"** - Tests verifying compatibility between versions
+
+**Example Workflow:**
+
+1. Create a Test Plan called "Critical User Flows"
+2. Add essential tests from all your applications
+3. Run it against staging environments first
+4. Reuse the same plan for production by updating the environment parameters
+
+This approach allows you to:
+- Avoid duplicating Test Plans for each environment
+- Run comprehensive regression tests across multiple versions
+- Maintain consistent test coverage as you promote between environments
+- Schedule plans independently (e.g., smoke tests every hour, full regression nightly)
