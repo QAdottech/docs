@@ -280,7 +280,7 @@
                         },
                         "url": {
                           "type": "string",
-                          "example": "https://app.qatech.com/dashboard/p/project_slug/test-cases/test-case-uuid/edit"
+                          "example": "https://app.qatech.com/p/project_slug/test-cases/test-case-uuid/edit"
                         }
                       }
                     }

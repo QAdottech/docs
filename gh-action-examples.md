@@ -33,7 +33,7 @@ jobs:
 | `blocking`            | Enables blocking mode to wait for the test run to complete | No       | false                 |
 | `applications_config` | JSON string containing application environment overrides   | No       | -                     |
 
-You can find your project ID and generate an API token in your [QA.tech project settings](https://app.qa.tech/dashboard/current-project/settings/integrations).
+You can find your project ID and generate an API token in your [QA.tech project settings](https://app.qa.tech/current-project/settings/integrations).
 
 ## Outputs
 
