@@ -13,36 +13,125 @@ QA.tech supports most common authentication setups. If your preferred authentica
   Authentication credentials stored in [Configs](/core-concepts/configs) are **not encrypted** and are passed to AI language models during test execution. Always use dedicated test accounts—never real user credentials or production passwords.
 </Warning>
 
-## Supported Authentication Methods
+## What We Support
 
-- Username and password
-- Email and password
-- OTP (One-Time Password) via email
-- Two-Factor Authentication (2FA) with authenticator codes
+| Authentication Method | Description | Setup Required |
+| --------------------- | ----------- | -------------- |
+| Username + Password | Standard form-based login with username/email and password | Basic Config |
+| Email + Password | Login using email address and password | Basic Config |
+| OTP via Email | One-time passwords sent to email addresses | Email Config + Inbox |
+| Magic Link Login | Passwordless login via email links | Email Config + Inbox (auto-generated) |
+| Two-Factor Authentication (2FA) | Time-based codes from authenticator apps (Google Authenticator, Authy, etc.) | Advanced Config (see below) |
 
-## Unsupported Authentication Methods
+## What We Don't Support
 
-### BankID
+- **BankID** - Requires custom workarounds in your testing environment ([see guide](/applications/se-bank-id))
+- **CAPTCHA challenges** - Most CAPTCHA types (reCAPTCHA, hCAPTCHA, etc.) are not supported.
 
-Unfortunately, BankID does not offer straightforward methods for testing authentication logic in a controlled environment. This limitation often requires implementing custom exceptions or workarounds to enable effective testing.
+<Tip>
+**Avoid CAPTCHA on staging/dev:** Whitelist QA.tech's IP addresses to prevent CAPTCHA challenges during test execution. This allows our AI agents to run tests without interruption. Find your IP addresses in [**Settings → Network**](https://app.qa.tech/dashboard/current-project/settings/network) and see the [IP Access Control guide](/configuration/ip-access-control) for setup instructions.
+</Tip>
 
-One approach is to adjust the BankID sign-in flow in your testing environment. For example:
+---
 
+## Setting Up Authentication
+
+### Basic Credentials (Username/Password or Email/Password)
+
+For standard login forms, create a config in your project settings:
+
+1. Go to **Project Settings** → **Configs**
+2. Click **Add Config**
+3. Select **Username + Password Credentials** or **Email + Password Credentials**
+4. Fill in your test account credentials
+5. Click **Save**
+
+The AI will automatically use these credentials when it encounters a login form during test execution.
+
+<Tip>
+**Build a comprehensive knowledge graph:** If your application has different user types (admin, regular user, premium user, etc.), create separate authentication configs for each. Login tests can automatically trigger [crawling sessions](/core-concepts/crawling) after completion, allowing QA.tech to map out what each user type can access. This helps the AI generate more accurate tests tailored to different user permissions.
+</Tip>
+
+### Email-Based OTP
+
+For authentication flows that send one-time passwords to email:
+
+1. QA.tech provides dedicated email inboxes for each project
+2. The AI can automatically read OTP codes from emails sent to these addresses
+3. Configure email settings in **Project Settings** → **Configs**
+4. When writing tests, the AI will wait for and extract OTP codes automatically
+
+QA.tech's built-in email inbox system allows the AI to receive and process emails during test execution - no need to set up external email services or worry about email delivery. The AI can wait for emails (up to 3 minutes), extract verification codes, and click links automatically. Learn more about [Email Inbox](/test-features/email-inbox).
+
+### Magic Link Login
+
+For passwordless authentication via email links:
+
+1. QA.tech automatically provides a magic link email address for each project (no setup required)
+2. Enter this email address in your application's login form
+3. The AI automatically waits for the email, extracts the login link, and navigates to it
+
+<Tip>
+Create a test user account in your application using the magic link email address shown in your project's [**Magic Link Login** config](/core-concepts/configs) before running tests.
+</Tip>
+
+### Two-Factor Authentication (2FA)
+
+QA.tech allows testing login flows that are protected by Two-Factor Authentication (2FA). 
+#### How 2FA Testing Works
+
+Most modern 2FA systems use **Time-based One-Time Passwords (TOTP)**. This is the constantly changing, 6-digit code you see in apps like **Google Authenticator**, **Authy**, or **Microsoft Authenticator**.
+
+To test this, our AI needs the secret key that your application uses to generate these codes. You provide this secret key to us once, and our AI handles the rest.
+
+- **Your Role (One-Time Setup):** You will create a special `Config` in your QA.tech project settings. Instead of giving us a static 6-digit code, you will provide a special secret key in a format called a **URI**.
+- **Our AI's Role (During Every Test):** When the AI agent encounters a 2FA screen during a test, it will use the secret URI you provided to generate a **fresh, valid 6-digit code** at that exact moment. It then automatically enters the code to complete the login.
+
+This way, you never have to worry about codes expiring or manually entering them during a test run.
+
+#### Setting Up a 2FA Config
+
+Follow these steps to create a config for a test user account that has 2FA enabled.
+
+<Steps>
+  <Step title="Get Your 2FA QR Code">
+    Log in to the application you want to test and go to the security settings for your test user. Find the option to enable Two-Factor Authentication and proceed until the application shows you a **QR code**.
+    
+    Stop here. Do not scan it with your phone. We need to extract the secret key from this image.
+  </Step>
+  <Step title="Decode the QR Code to Get the URI">
+    The QR code contains a secret key that our AI needs. You can use a free online tool to extract this key.
+
+1. Take a screenshot of the QR code.
+2. Go to a site like [**scanqr.org**](https://scanqr.org/) in your browser.
+3. Upload the screenshot of the QR code.
+4. The tool will decode it and reveal a string of text called a URI. Copy this entire string. It will look something like this:
+
+```text
+otpauth://totp/YourApp:test.user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=YourApp
 ```
-// When displaying the BankID sign-in form
-if (process.env.IS_TESTING === '1') {
-  // Show a form where the user can manually enter their personal number
-  renderTestSignInForm();
-}
-```
+  </Step>
+  <Step title="Create the Config in QA.tech">
+    Now, let's add the credentials and the secret URI to QA.tech.
 
-```
-// When handling the form submission
-if (process.env.IS_TESTING === '1') {
-  // Do not send the request to BankID
-  // Instead, return a mocked successful response
-  return { status: 'success', userId: 'mock-user-id' };
-}
-```
+1. Navigate to your QA.tech project, go to **Settings**, and click on the **Configs** tab.
+2. Click the **Add Config** button.
+3. From the list of types, select **Username + Password Credentials - with Two-Factor Authentication**.
+4. Fill in the form:
+   - **Config Name:** Give it a memorable name (e.g., "Admin User with 2FA").
+   - **Username:** The username for your test account.
+   - **Password:** The password for your test account.
+   - **One-Time Password URI:** Paste the full `otpauth://` URI you copied from the QR code scanner.
+5. Click **Save**.
+  </Step>
+</Steps>
 
-This setup allows you to simulate the BankID login process during tests by bypassing the actual authentication request while maintaining realistic interaction with the UI.
+#### Running Tests with 2FA Enabled
+
+You're all set! You do not need to add any special instructions to your tests like "enter the 2FA code."
+
+When you ask the AI to perform a test that involves logging in (e.g., "Log in and check the user dashboard"), the agent will automatically:
+1. Use the username and password from your new config.
+2. When it sees the 2FA input screen, it will automatically generate a valid code using the URI you provided.
+3. It will enter the code and complete the login before proceeding with the rest of your test instructions.
+

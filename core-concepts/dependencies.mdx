@@ -1,110 +1,184 @@
 ---
 title: 'Test Dependencies'
-description: 'Control test execution order and reuse browser state across tests'
+description: 'Control test execution order, manage browser isolation, and structure multi-user testing scenarios'
 icon: 'link'
 ---
 
-Test dependencies define relationships between your tests, controlling execution order and enabling browser state reuse.
+<Note>
+  **"Browser session"** = an isolated browser context (BrowserContext) with its own separate cookies, localStorage, and sessionStorage. 
+  
+  **"Browser state"** = the data stored within a session (login cookies, localStorage values, sessionStorage, etc.)
+</Note>
+
+**Use dependencies when:** You're testing workflows (i.e. login → create → edit), need to maintain login sessions across tests, or need to pass data (like created user IDs) between tests. Dependencies ensure tests run in the right order and let you reuse expensive setup like authentication.
+
+Isolated tests not dependent on each other run in parallel (each in its own isolated browser session), so QA.tech can execute up to ~100 tests simultaneously for maximum speed. 
+
+Tests within a dependency chain run sequentially, meaning you'll get faster results with independent tests that are used for testing isolated features and don't depend on each other. 
+
+In practice you will have to use both - independent tests and tests with various combinations dependencies to cover functionality of your Application.
+
+
 
 ## Dependency Types
 
-### Wait For
-Test waits for dependency to complete before starting. Browser state is not transferred, but output data from the dependency test is passed to the dependent test session.
-
 ### Resume From  
-Test reuses browser state (login sessions, cookies, etc.) and output data from dependency if completed successfully within the last 6 hours. If dependency is older or failed, test waits for dependency to run first.
+**What it does:** Test inherits browser state (login sessions, cookies, localStorage, sessionStorage) AND output data from the dependency. If the dependency completed successfully within the last 6 hours in the same environment, state is reused immediately. If older or failed, the dependency runs first.
+
+**Use when:** You want to avoid repeated logins or expensive setup by reusing browser state from a previous test in the chain.
+
+### Wait For
+**What it does:** Test waits for dependency to complete before starting. Receives output data (user IDs, resource names, URLs) from the dependency test, but starts with a fresh browser session—no shared cookies, localStorage, or login state.
+
+**Use when:** You need execution order and data passing between different user contexts, or when tests need created data but not browser state. For workflows with the same user, use Resume From instead to avoid repeated logins.
+
+
 
 ## Multiple Dependencies
 
-Configure multiple dependencies using both "Wait For" and "Resume From" relationships. If any dependency fails, all dependent tests are skipped in the current run.
+A test can have multiple dependencies using both "Wait For" and "Resume From" relationships. If any dependency fails, all dependent tests are automatically skipped in that test run.
+
+<Note>
+  - Each test can have exactly **one Resume From** dependency (single browser state parent)
+  - Each test can have **multiple Wait For** dependencies (coordinate with many tests)
+</Note>
 
 ## Examples
 
 ### Resume From Example
-**Tests:**
-1. **Login Test** (creates logged-in session)
-2. **Create Order Test** (resumes from Login Test)  
-3. **View Dashboard Test** (resumes from Login Test)
+**Test structure:**
+1. **Login Test** → 2. **Create Order Test** → 3. **View Dashboard Test**
 
-**Execution:**
-- If Login Test completed successfully within 6 hours: Create Order and View Dashboard start immediately with saved login session
-- If Login Test is older or failed: Login Test runs first, then dependent tests start with fresh login session
+All three tests share the same browser session, so the browser state (login cookies, localStorage, etc.) is preserved throughout the chain.
 
-### Wait For Example
-**Tests:**
-1. **Create Team Test** (creates team, outputs team name)
-2. **Add User to Team Test** (waits for Create Team Test)
+### Wait For Example  
+**Test structure:**
+1. **Create Team Test** (outputs: team name "Marketing Team")
+2. **Add User to Team Test** (receives: team name from Test 1)
 
-**Execution:**
-- Create Team Test runs first and creates "Marketing Team"
-- Add User to Team Test receives "Marketing Team" as input data and uses it during execution
+Tests run sequentially, but each starts with a fresh browser session. Test 2 receives the output data from Test 1.
 
-## State Optimization
+## Browser Isolation & Parallel Execution
 
-Resume From dependencies automatically use state optimization when:
+Each independent test chain runs in its own isolated browser session. Tests within a chain run sequentially and share browser state through "Resume From" dependencies, while different chains run in parallel with complete isolation.
 
-✅ Dependency completed successfully within last 6 hours  
-✅ Same environment  
-✅ Valid browser state
+```mermaid
+graph TB
+    subgraph "Browser Session A"
+        T1["Test 1: Login User 1<br/>(No dependencies - NEW SESSION)"]
+        T2["Test 2: Create Dashboard<br/>(Resume From Test 1)"]
+        T3["Test 3: Edit Dashboard<br/>(Resume From Test 2)"]
+        T1 -->|Sequential<br/><b>Shares Session</b>| T2
+        T2 -->|Sequential<br/><b>Shares Session</b>| T3
+    end
+    
+    subgraph "Browser Session B"
+        T4["Test 4: Login User 2<br/>(No dependencies - NEW SESSION)"]
+        T5["Test 5: View Dashboard<br/>(Resume From Test 4)"]
+        T4 -->|Sequential<br/><b>Shares Session</b>| T5
+    end
+    
+    T3 -.->|Wait For<br/><b>Data Only</b>| T5
+```
 
-State preserved includes:
-- Login sessions and cookies
-- Local storage data
-- Session storage data
-- All browser state from dependency test
+**Key points:**
+- Session A (Tests 1→2→3) runs sequentially with shared User 1 login
+- Session B (Tests 4→5) runs sequentially with shared User 2 login
+- Both sessions run in parallel, completely isolated from each other
+- Test 5 waits for Test 3 to complete and receives output data, but maintains separate browser state
 
-## Application and Environment Constraints
+<Note>
+  **"Run Tests" Behavior:** When you click "Run Tests" or trigger a test plan:
+  - Independent test chains run in parallel with isolated browser sessions
+  - Tests within a chain run sequentially, maintaining dependency order
+  - The system auto-scales up to ~100 concurrent agents to maximize parallelization
+</Note>
 
-Dependencies work between tests in the same project, but browser state cannot transfer across different domains due to browser security restrictions.
+## Multi-User Testing Scenarios
+
+When testing features that require multiple users to be logged in simultaneously (e.g., collaboration, sharing, real-time features), create separate dependency chains for each user.
+
+### Pattern: Testing Collaborative Features
+
+**Scenario:** Test that User 1 can create and share a visualization with User 2, who can then view it.
+
+**Structure:**
+
+**User 1 Chain:**
+1. **Login as User 1** (root test, config: `user1@example.com`)
+2. **Create Visualization** (Resume From: Login as User 1)
+3. **Share Visualization** (Resume From: Create Visualization)
+
+**User 2 Chain:**
+1. **Login as User 2** (root test, config: `user2@example.com`) 
+2. **View Shared Visualization** (Resume From: Login as User 2, Wait For: Share Visualization)
+
+```mermaid
+graph TB
+    subgraph "User 1 Chain <br/>> Browser Session A"
+        U1L["Login as User 1<br/>(Config: user1)"]
+        U1C["Create Visualization<br/>(Resume From Login)"]
+        U1S["Share Visualization<br/>(Resume From Create)"]
+        U1L -->|Resume From<br/><b>Shares Session</b>| U1C
+        U1C -->|Resume From<br/><b>Shares Session</b>| U1S
+    end
+    
+    subgraph "User 2 Chain <br/> Browser Session B"
+        U2L["Login as User 2<br/>(Config: user2)"]
+        U2V["View Shared Visualization<br/>(Resume From Login)"]
+        U2L -->|Resume From<br/><b>Shares Session</b>| U2V
+    end
+    
+    U1S -.->|Wait For<br/><b>Passes visualization link</b>| U2V
+```
+
+**How It Works:**
+- User 1 chain runs in browser session A (all three tests share User 1's login)
+- User 2 chain runs in browser session B (both tests share User 2's login)
+- Sessions A and B are completely isolated from each other
+- Both users remain logged in throughout their respective chains
+- "Wait For" ensures User 2's test waits for sharing to complete
+- Output data (visualization link) passes from User 1 to User 2's test
+- Browser state (login sessions) remains isolated between chains
+
+**Key Points:**
+- Each user gets their own root login test with separate test configuration
+- Use different test configurations for different user credentials
+- Use "Resume From" within each user's chain to maintain their session
+- Use "Wait For" between chains to coordinate timing while keeping sessions isolated
+- Tests in different chains run in parallel but maintain complete isolation
+
+<Tip>
+  Each user needs their own root login test to ensure they get an isolated browser session. Depending on another user's login will cause the tests to share a session, and one user will log out the other.
+</Tip>
+
+## Application, Environment, and Domain Constraints
+
+Browser state can only be shared via Resume From when tests run in the **same Environment**. While you can create dependencies between tests in different Applications, Resume From will only work if both tests are assigned to the same Environment.
 
 ### What Works vs. What Doesn't
 
 | ✅ Supported | ❌ Not Supported |
 |-------------|-----------------|
-| Tests in same application, different environments | Browser state (cookies, sessions) across different domains |
-| Output data (IDs, names) passed between any tests | Resume From dependencies expecting login transfer across domains |
-| Wait For dependencies between different applications | Login session reuse from `app.example.com` to `admin.example.com` |
-| Sequential execution across applications | Cookie-based authentication across different URLs |
+| Resume From within the same Environment | Resume From across different Environments |
+| Output data passed between any tests, any Application, any Environment | Browser state transfer across different domains |
+| Wait For dependencies across different Applications | Cookie/localStorage transfer between `app.example.com` and `admin.example.com` |
+| Resume From across different Applications in the same Environment | Using Resume From between staging and production Environments |
 
-### Cross-Application Workflows
+### Testing Across Applications
 
-When testing workflows spanning multiple applications or services:
-
-**Use Wait For dependencies:**
+**Use Wait For dependencies across Applications:**
 - Tests execute sequentially without browser state transfer
-- Output data (user IDs, team names) passes between tests
-- Each test starts with fresh browser state on its application URL
+- Output data (user IDs, team names) passes between any tests
+- Each test starts with fresh browser state on its target URL
 
 **Example:**
 ```
-Test 1: Create User (frontend.example.com) → outputs userId  
-Test 2: Verify User (admin.example.com) → waits for Test 1, receives userId
+Test 1: Create User (Frontend Application) → outputs userId  
+Test 2: Verify User (Admin App Application) → waits for Test 1, receives userId
 ```
 
-**Don't use Resume From across different domains:**
-- Browser sessions don't transfer between different domains
-- Login cookies are domain-specific
-- Will fail with authentication errors
-
-<Note>
-  **Why this happens:** Browser security prevents cookies and sessions from transferring across different domains. Each application needs its own authentication test if using Resume From dependencies.
-</Note>
-
-## Failure Behavior
-
-When any dependency fails:
-- All dependent tests are skipped
-- Test run continues with other independent tests
-- Failed dependency must be fixed and re-run
-
-## Best Practices
-
-**Use Resume From when:**
-- Tests need login sessions or browser state
-- Optimizing test execution time
-- Dependencies create persistent state
-
-**Use Wait For when:**
-- Tests need fresh browser state
-- Dependencies create data that subsequent tests need (team names, user IDs, etc.)
-- Sequential execution required without browser state transfer
+**Resume From only works within the same Environment:**
+- The system requires both tests to use the same Environment for state reuse
+- Even if two Environments have similar URLs, Resume From won't work across different Environments
+- Tests in different Applications CAN use Resume From if they're in the same Environment

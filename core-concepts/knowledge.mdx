@@ -4,55 +4,24 @@ description: Manage project knowledge and context for better AI assistance
 icon: 'book-open'
 ---
 
-QA.tech's knowledge system helps AI assistants understand your project better by providing three types of context: knowledge items, global context, and auto-generated summaries.
+QA.tech's knowledge system helps AI assistants understand your project by providing context through knowledge items, global configuration, and auto-generated summaries. This enables more accurate test generation and better project-specific guidance.
 
-## Knowledge Items
+## Types of Knowledge
 
-Add documentation, links, and text content that AI assistants can reference when chatting and generating tests. This knowledge is searchable and helps provide accurate, project-specific context.
+### Knowledge Items
 
-### What You Can Add
+Add documentation, links, and text content that AI assistants can reference when generating tests and answering questions. Knowledge items are stored at the project level and shared across all team members.
+
+**What You Can Add:**
 
 - **URLs**: Link to documentation sites, help pages, API docs
 - **Text Content**: Add custom instructions, project notes, or guidelines
 
-### How It's Used
+### Global Context
 
-Knowledge items are automatically searched when:
+Global context is included in the AI agent's prompt for **all test executions** in your project. Use this to specify project-specific behaviors, requirements, or guidelines that should always apply.
 
-- Chatting with AI assistants about your project
-- Generating new test cases
-- Getting project-specific help and recommendations
-
-The AI uses semantic search to find relevant information from your knowledge base to provide accurate, context-aware responses.
-
-### Adding Knowledge Items
-
-<Steps>
-  <Step title="Navigate to Knowledge Settings">
-    Navigate to [**Settings →
-    Knowledge**](https://app.qa.tech/current-project/settings/knowledge).
-  </Step>
-  <Step title="Add New Knowledge">
-    Click **"Add Knowledge"** to create a new knowledge item.
-  </Step>
-  <Step title="Choose Content Type">
-    Choose your content type (URL, or Text) based on what you want to add.
-  </Step>
-  <Step title="Fill in Details">
-    Fill in the title and content for your knowledge item.
-  </Step>
-  <Step title="Save and Process">
-    Save to process and index the content for use by AI assistants.
-  </Step>
-</Steps>
-
-## Global Context
-
-Global context gets included in the AI agent's prompt for **all tests** in your project. Use this to specify project-specific behaviors, requirements, or guidelines that help the agent perform better.
-
-### What to Include
-
-The global context should contain information that the AI agent should be aware of when executing any test:
+**What to Include:**
 
 - **Service Description**: "The service is a route planning service for American railways"
 - **Data Requirements**: "When creating users, always use Swedish names"
@@ -60,36 +29,25 @@ The global context should contain information that the AI agent should be aware 
 - **UI Guidelines**: "If a button is red, it should never be clicked"
 - **Authentication Flows**: "Login requires 2FA via SMS"
 
-### Best Practices
+**Best Practices:**
 
 - Keep it concise but specific
 - Focus on universal rules that apply to all tests
 - Include domain-specific terminology and behaviors
 - Mention any unusual UI patterns or interactions
 
-For detailed examples and guidelines, see [Project Context Best Practices](/best-practices/project-context).
+### Project Summary
 
-## Project Summary
+An AI-generated summary of your website's functionality and structure, created by analyzing your pages and user interactions. This summary updates automatically as your site evolves.
 
-An AI-generated summary of your website's functionality and structure based on analysis of your pages and user interactions. This automatically provides context to help AI assistants understand your project better.
-
-### How It Works
-
-1. **Page Analysis**: QA.tech analyzes your website's structure and functionality
-2. **Graph Generation**: Creates a knowledge graph of your site's features and flows
-3. **AI Summary**: Generates a comprehensive summary using the graph data
-4. **Automatic Updates**: Refreshes as your site changes and more analysis is completed
-
-### What's Included
-
-The summary typically contains:
+**What's Included:**
 
 - Overview of your platform's purpose and main functionality
 - Key features and user flows
 - Important pages and their purposes
 - Integration points and external services
 
-### Refreshing the Summary
+**To Refresh the Summary:**
 
 <Steps>
   <Step title="Navigate to Knowledge Settings">
@@ -110,46 +68,113 @@ The summary typically contains:
   appears, ensure you've run some tests or site analysis first.
 </Note>
 
-## Knowledge in Chat
+## How Knowledge Works
 
-When using QA.tech's chat feature, the AI assistants automatically:
 
-1. **Search Knowledge Items**: Find relevant documentation and custom content
-2. **Apply Global Context**: Use project-specific guidelines and requirements
-3. **Reference Summary**: Understand your site's overall structure and purpose
+Knowledge has different roles during test creation versus test execution:
 
-This provides more accurate, project-specific responses when asking about:
+**During Test Creation (Chat & Test Generation):**
+- AI searches knowledge items for relevant documentation and specifications
+- Global context helps the AI understand your product domain
+- Project summary provides overall context about your application
+- Chat assistants use knowledge to answer questions and suggest tests
 
-- How to test specific features
-- Best practices for your type of application
-- Troubleshooting test issues
-- Understanding test results
+**During Test Execution:**
+- Only the generated test steps and global context are used
+- Knowledge items are disconnected from the running test
+- Tests execute based on the instructions that were created, not the original documentation
 
-## Knowledge in Test Generation
+This separation means you can safely update knowledge without affecting tests that are already running or scheduled.
 
-When generating new tests, AI assistants use your knowledge to:
+### Project Knowledge vs. Chat-Local Files
 
-- **Understand Requirements**: Apply global context rules and guidelines
-- **Reference Documentation**: Find relevant testing scenarios from your docs
-- **Avoid Duplicates**: Check against existing test patterns
-- **Suggest Improvements**: Recommend tests based on your documented flows
+Understanding the scope of your knowledge helps you organize it effectively:
 
-## Managing Knowledge
+**Project Knowledge** (Settings → Knowledge):
+- **Shared across all chats** in the project
+- **Accessible to all team members**
+- **Permanent and searchable** by semantic search
+- **Best for:** Official documentation, stable specifications, product rules
+
+**Chat-Local Files** (uploaded directly to a chat):
+- **Only exists in that specific chat conversation**
+- **Other users' chats cannot access it**
+- **Not added to project knowledge automatically**
+- **Best for:** Experimental specs, temporary references, exploratory work
+
+This isolation prevents temporary or incorrect information from affecting other team members' work.
+
+### Semantic Search
+
+Knowledge items are automatically indexed using embeddings, allowing the AI to find relevant information based on meaning rather than exact keywords. When you ask a question or generate tests, the system:
+
+1. Analyzes your request to understand intent
+2. Searches knowledge items for semantically similar content
+3. Provides the most relevant information to the AI assistant
+4. Uses clear file names to improve search accuracy
+
+## Managing Your Knowledge - where to Upload What
+
+Choose the right location based on how stable and official your information is:
+
+**Upload to Project Knowledge when:**
+- The information is official, approved documentation
+- It describes stable features and requirements
+- It contains compliance guidelines or business rules
+- It won't change frequently
+- All team members should reference it
+
+**Upload to Chat when:**
+- The information is experimental or exploratory
+- It describes new features still in development
+- It's a pull request description or feature branch documentation
+- It may be updated or replaced soon
+- You're testing ideas before committing them
+
+<Note>
+**Tip:** Start in chat for new work, then move to project knowledge once information is validated and official.
+</Note>
+
+### Adding Knowledge Items
+
+<Steps>
+  <Step title="Navigate to Knowledge Settings">
+    Navigate to [**Settings →
+    Knowledge**](https://app.qa.tech/current-project/settings/knowledge).
+  </Step>
+  <Step title="Add New Knowledge">
+    Click **"Add Knowledge"** to create a new knowledge item.
+  </Step>
+  <Step title="Choose Content Type">
+    Choose your content type (URL or Text) based on what you want to add.
+  </Step>
+  <Step title="Fill in Details">
+    Fill in the title and content for your knowledge item. Use clear,
+    descriptive titles that reflect the content - this helps both the AI search
+    and allows you to reference specific knowledge by name in chat (e.g., "use
+    the API documentation knowledge").
+  </Step>
+  <Step title="Save and Process">
+    Save to process and index the content for use by AI assistants.
+  </Step>
+</Steps>
 
 ### Organization Tips
 
-- **Use Clear Titles**: Make knowledge items easy to find and understand
-- **Keep Content Current**: Regularly update documentation links
-- **Remove Outdated Info**: Delete or update knowledge that's no longer relevant
-- **Test Your Knowledge**: Ask the chat assistant questions to verify knowledge quality
+- **Use Clear Titles**: Make knowledge items easy to find with specific, descriptive names
+- **Keep Content Current**: Regularly review and update documentation links
+- **Remove Outdated Info**: Delete or update knowledge that no longer reflects your product
+- **Test Your Knowledge**: Ask the chat assistant questions to verify it finds the right information
+- **Avoid Contradictions**: When updating specs, remove old versions to prevent confusion
 
-### Troubleshooting
+## Troubleshooting
 
 **Knowledge not being found in chat:**
 
 - Ensure content has been fully processed (check status indicators)
 - Try different search terms or questions
 - Verify the content is relevant to your question
+- Use clear, descriptive titles for better semantic search results
 
 **Global context not being applied:**
 
@@ -163,4 +188,8 @@ When generating new tests, AI assistants use your knowledge to:
 - Try running a few tests to build the knowledge graph
 - Manually refresh the summary after adding new functionality
 
-For more specific guidance on writing effective project context, see our [Project Context Best Practices](/best-practices/project-context).
+**Chat-uploaded files not visible to team:**
+
+- Remember: files uploaded in chat are conversation-specific
+- To share with team, add the file to Project Knowledge instead
+- Other team members need to upload it to their own chats, or use project knowledge
