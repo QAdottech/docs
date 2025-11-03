@@ -142,6 +142,10 @@ Keep tests to 10 steps or less. If you need more steps, create a new test with a
 
 Tests can depend on other tests to control execution order and reuse browser state. This is essential for complex workflows where one test needs data or state from another. Learn more in [Test Dependencies](/core-concepts/dependencies).
 
+<Tip>
+  **Testing with Multiple Users:** If your test requires multiple users logged in simultaneously (e.g., collaboration, sharing), create separate login tests for each user. Each login test becomes the root of an independent chain with its own isolated browser session, ensuring users don't interfere with each other. Learn more about [Multi-User Testing Scenarios](/core-concepts/dependencies#multi-user-testing-scenarios).
+</Tip>
+
 ## Organizing Tests for Complex Projects
 
 When working on projects with multiple products or versions, it's often beneficial to organize tests into a single project with multiple applications and use Test Scenarios to manage different versions. This approach allows you to:
