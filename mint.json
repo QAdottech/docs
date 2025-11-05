@@ -94,7 +94,8 @@
         "test-features/file-uploads",
         "test-features/file-downloads",
         "test-features/device-presets",
-        "test-features/dialog-handling"
+        "test-features/dialog-handling",
+        "test-features/api-calls"
       ]
     },
     {
