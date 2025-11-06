@@ -1,24 +1,60 @@
 ---
-title: Notifcations
+title: Notifications
 icon: bell
 ---
 
-## Notification
+You can get a Slack notification and/or weekly email summaries for the entire team.
 
-You can set up notifications for the following QA.tech events:
+## Notification Types
 
-- Test run failed
-- Test run succeeded
-- Weekly report
+| Type | Delivery | Timing | Content |
+|------|----------|--------|---------|
+| Run Completion | Slack | When run finishes (1+ tests) | Pass/fail status, duration, failed test details |
+| Weekly Summary | Email | Mondays 6 AM CET | Test statistics, pass rate, time saved, suggestions |
 
-## Platforms
+## Slack Notifications
 
-We currently support sending Slack and email notifications. If you'd like support for another notification platform, [please reach out to us](LINK-TO-CONTACT-PAGE)
+### Setup
 
-### Slack
+Configure Slack notifications in two steps:
 
-Configure Slack notifcations at [Settings => Connections](https://app.qa.tech/current-project/settings/organization/connections)
+1. **Connect Slack** at Organization Settings → Connections
+2. **Select channel** at Project Settings → Integrations → Slack
 
-### Email
+Each project can send notifications to one public Slack channel. You get one notification per run of the testing suite.
 
-Email notifications are enabled by default for all users.
+### What You Get
+
+Each notification includes:
+
+- **Run status** - Pass or fail with color coding
+- **Test plan name** - If run was part of a test plan
+- **Timing** - When started and total duration
+- **Failed tests** - Detailed breakdown with clickable links
+- **Results link** - Direct access to full test report
+
+You'll receive a notification for every completed run, whether you trigger it manually, through CI/CD, or via schedule.
+
+## Email Reports
+
+Weekly reports provide a summary of testing activity and quality metrics to all organization members.
+
+**When**: Every Monday at 6 AM Central European Time  
+**Who**: All organization members  
+
+### What You Get
+- Tests executed count
+- Pass percentage
+- Time saved estimate
+- Suggested new tests to add
+- Summary of test runs
+
+**Unsubscribe**: Use the unsubscribe link in the email footer individually.
+
+## Triggering Runs from CI/CD
+
+Tests triggered via GitHub Actions, GitLab CI, or direct API automatically send notifications when complete. This keeps your team informed regardless of how tests are started.
+
+**Setup guides**:
+- [GitHub Actions Integration](/configuration/github-actions)
+- [Direct API Reference](/api-reference/start-run)
