@@ -19,64 +19,10 @@ Looking to manually trigger tests from CI/CD workflows? See [GitHub Actions](/co
 | ✅ **Persistent Test Suite** | Auto-generated tests become permanent regression tests for future PRs |
 | ✅ **Preview Environment Testing** | Tests against PR preview deployments |
 | ✅ **Approval/Rejection** | Posts reviews with pass/fail verdicts |
-| ❌ **Manual Control** | No control over which tests run (use Actions for that) |
-| ❌ **Custom Workflows** | No YAML workflows needed or supported |
-
-<Steps>
-  <Step title="Install GitHub App">
-    Go to [Settings → Organization → Connections](https://app.qa.tech/current-project/settings/organization/connections) and add the GitHub App connection. Follow the OAuth flow to grant access to your repositories.
-  </Step>
-
-  <Step title="Select Repository">
-    Navigate to [Settings → Integrations](https://app.qa.tech/current-project/settings/integrations?focus=github-app) and select the repository you want to enable PR reviews for.
-    
-    **PR reviews are enabled automatically** once you select a repository. 
-  </Step>
-
-  <Step title="Create a Pull Request">
-    Once enabled, the agent automatically:
-    1. Detects code changes when PRs are opened or updated
-    2. Determines which tests are relevant
-    3. Creates new tests for untested functionality
-    4. Runs all relevant tests against the PR preview
-    5. Posts a review with approval or decline based on results
-  </Step>
-</Steps>
-
-## Understanding GitHub Deployments
-
-GitHub Deployments are GitHub's native way of tracking when code is deployed to an environment. When your CI/CD deploys a PR, it can create a deployment record that includes the environment name and URL.
-
-**Platforms with automatic GitHub deployment integration:**
-- **Vercel** - Creates GitHub deployments automatically for every PR
-- **Netlify** - Auto-registers deployments when configured
-- **Render, Railway, Fly.io** - Most modern platforms support this
-
-**For other platforms:** You'll need to manually create GitHub deployment records in your CI/CD pipeline. Need help setting this up? Contact us at support@qa.tech.
-
-<Note>
-Without GitHub deployments, QA.tech won't know which URL to test your PR against. Environment mapping only works when your CI/CD creates these deployment records.
-</Note>
-
-## Environment Mapping
-
-Map GitHub deployment environments to QA.tech Applications so tests run against the correct preview URLs.
-
-**When to use:**
-- You have multiple Applications (frontend, backend, etc.)
-- Your CI/CD creates GitHub deployment environments
-- You want tests to run against PR-specific URLs
-
-**How it works:**
-1. Your CI/CD deploys a PR and creates a GitHub environment (e.g., "Preview" or "pr-123")
-2. QA.tech detects the deployment
-3. Tests run using the mapped Application's URL from that environment
-
-**Location:** Settings → Integrations → GitHub App → Map Environments
+| ❌ **Manual Control** | Fully autonomous - use GitHub Actions for manual test selection |
+| ❌ **Backend-Only Testing** | Requires UI access - can't test microservices without frontend |
 
 ## How PR Reviews Work
-
-### Agent Workflow
 
 ```
 PR opened/updated
@@ -103,9 +49,19 @@ PR opened/updated
    → ℹ️ Informational if untestable
 ```
 
-## Understanding Test Selection & Creation
+The agent posts reviews with:
+- **Verdict:** Pass/fail/unable to verify
+- **What was tested:** Description of coverage
+- **Results summary:** Patterns and themes
+- **Test details:** Table with individual test results
 
-The PR Review agent uses AI to intelligently select and create tests. It matches PR changes to test goals semantically, not through keyword matching.
+**Reviews focus on test results only** - no code quality opinions, implementation suggestions, or references to other bot comments.
+
+## Test Selection and Creation
+
+### How Tests Are Selected
+
+The agent uses AI to semantically match PR changes to test goals - not keyword matching.
 
 **Example: PR changes checkout payment flow**
 ```
@@ -121,13 +77,14 @@ Agent analyzes:
 Selected: 12 tests covering payment & checkout flows
 ```
 
-**Key mechanics:**
-- AI semantically matches changed files to test goals
+**Selection mechanics:**
 - Runs ALL tests it determines are relevant (no arbitrary limits)
-- Only considers tests with `status='enabled'` (skips draft/error tests)
-- More intelligent than fixed CI that runs all existing tests every time
+- Only considers tests with `status='enabled'`
+- More intelligent than running all tests every time
 
-### Typical Test Counts
+### When Tests Are Created
+
+Tests are created only when coverage gaps exist, such as when you're developing a new feature not yet covered by your testing suite.
 
 | PR Type | Existing Tests Selected | New Tests Created | Total |
 |:--------|:-----------------------|:------------------|:------|
@@ -136,12 +93,6 @@ Selected: 12 tests covering payment & checkout flows
 | Major feature | 15-25 | 3-5 (new functionality) | 18-30 |
 | Refactor | 10-20 | 0 (no new behavior) | 10-20 |
 | Docs/infra only | 0 | 0 (untestable via UI) | 0 |
-
-**No upper limit** - the agent runs as many tests as needed for confidence, optimized for coverage not speed.
-
-### Creating Tests for Coverage Gaps
-
-Tests are created **only when gaps exist** - not for every PR.
 
 **Example: PR adds Apple Pay to checkout**
 ```
@@ -154,152 +105,120 @@ Decision: Create 1 new test
 → "Complete checkout with Apple Pay"
 ```
 
-**When tests ARE created:**
-- New features with zero coverage
-- New user flows not tested before
-- New payment methods, auth methods, etc.
+**Created tests:**
+- Stay in your suite labeled 'ephemeral'
+- Available for future PRs
+- Manage in Settings → Test Cases (filter by 'ephemeral' to find them)
 
-**When tests are NOT created (most common):**
-- Bug fixes (existing tests already cover the flow)
-- Refactors (no new user-facing behavior)
-- Code improvements (same functionality)
-- Documentation/infrastructure changes
-
-### Auto-Generated Test Lifecycle
-
-Tests created during PR review stay in the system labeled 'ephemeral' and can be enabled for future runs. This way you're automatically getting new functionality in your app covered by tests and you have full control over it.
-
-**The Journey:**
+**Example lifecycle:**
 ```
 PR #42: Add Apple Pay
-├─ Agent identifies gap
-├─ Creates "Complete checkout with Apple Pay"  
+├─ Agent creates "Complete checkout with Apple Pay"
 ├─ Test runs on PR #42 ✅
-├─ Test persists in your suite (labeled 'ephemeral')
-└─ Available for future PRs
+└─ Test persists with 'ephemeral' label
 
 PR #58: Refactor checkout UI
-├─ Agent finds "Complete checkout with Apple Pay" exists
-├─ Runs existing test (no new test created) ✅
-└─ Your suite protects against Apple Pay regressions
+├─ Agent finds existing test
+├─ Runs it (no new test created) ✅
+└─ Your suite now protects against Apple Pay regressions
 ```
 
-**Managing auto-generated tests:**
-- Review tests in UI (Settings → Test Cases, filter by 'ephemeral')
-- Enable/refine tests removes 'ephemeral' label
-- Delete tests you don't want
+**The agent prevents duplicates** by reading all existing tests first and using semantic deduplication. If one slips through, simply delete it in the UI.
 
+**Self-limiting:** As your test suite grows, fewer tests are created automatically - better coverage means fewer gaps. Most PRs (bug fixes, refactors) create zero new tests.
 
-### Preventing Test Overlap
+## How to Set It Up
 
-The agent actively prevents duplicate tests through semantic understanding. It checks all your enabled test cases before creating any new tests, reviews all existing test names, goals, and coverage areas, practically understanding functional overlap (not just name matching).
+<Steps>
+  <Step title="Install GitHub App">
+    Go to [Settings → Organization → Connections](https://app.qa.tech/current-project/settings/organization/connections) and add the GitHub App connection. Follow the OAuth flow to grant access to your repositories.
+  </Step>
 
-**Example - Avoiding Duplicates:**
+  <Step title="Configure Repository">
+    Navigate to [Settings → Integrations](https://app.qa.tech/current-project/settings/integrations?focus=github-app) and select the repository you want to enable PR reviews for.
+    
+    **PR reviews are enabled automatically** once you select a repository.
+    
+    **Optional:** Add review context to guide the agent (e.g., "Focus on security vulnerabilities" or "Validate accessibility standards"). This appears in the integration settings.
+  </Step>
 
-| Existing Test | PR Change | Agent Decision |
-|:-------------|:----------|:---------------|
-| "User login with credentials" | Add OAuth | Create "User login with Google OAuth" (different method) |
-| "Complete checkout flow" | Fix checkout bug | Skip creation (already covered) |
-| "Test payment processing" | Add refunds | Create "Process refund" (new functionality) |
+  <Step title="Configure Preview Deployments (if needed)">
+    If you use Vercel, Netlify, Render, Railway, or Fly.io, your preview deployments are detected automatically - skip to step 4.
+    
+    **For CircleCI, Jenkins, GitLab CI, or custom CI/CD:**
+    
+    QA.tech detects preview deployments using GitHub's [Deployments API](https://docs.github.com/en/rest/deployments/deployments). Your CI/CD needs to create deployment records after deploying.
+    
+    **What QA.tech expects:**
+    1. GitHub deployment created for the PR commit SHA
+    2. Deployment status set to `success` 
+    3. Status includes `target_url` field with your preview URL
+    
+    **How to set this up:**
+    
+    Your CI/CD makes two GitHub API calls after deployment:
+    1. [Create deployment](https://docs.github.com/en/rest/deployments/deployments#create-a-deployment) with commit SHA and environment name
+    2. [Create deployment status](https://docs.github.com/en/rest/deployments/statuses#create-a-deployment-status) with `state: "success"` and `target_url: "https://your-preview-url.com"`
+    
+    **CI/CD platform docs for environment variables:**
+    - [CircleCI Environment Variables](https://circleci.com/docs/env-vars/) - Use `$CIRCLE_SHA1`, `$CIRCLE_PROJECT_USERNAME`, `$CIRCLE_PROJECT_REPONAME`
+    - [GitLab CI/CD Variables](https://docs.gitlab.com/ee/ci/variables/) - Use `$CI_COMMIT_SHA`, `$CI_PROJECT_NAMESPACE`, `$CI_PROJECT_NAME`
+    - [Jenkins Credentials](https://www.jenkins.io/doc/book/using/using-credentials/) - Use `$GIT_COMMIT` and custom variables
+    - [GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/variables) - Use `${{ github.sha }}`, `${{ github.repository_owner }}`
+    
+    Need help? Contact support@qa.tech with your CI/CD platform.
+  </Step>
 
-### Self-Limiting Growth
+  <Step title="Map Environments (optional)">
+    If you have multiple Applications (e.g., frontend + backend), map GitHub deployment environments to the correct QA.tech Applications.
+    
+    **How it works:**
+    1. Your CI/CD deploys a PR and creates a GitHub environment (e.g., "Preview" or "pr-123")
+    2. QA.tech detects the deployment
+    3. Tests run using the mapped Application's URL from that environment
+    
+    **Location:** Settings → Integrations → GitHub App → Map Environments
+    
+    <Note>
+    Without GitHub deployments, QA.tech can't test against PR-specific URLs and will use your default environment.
+    </Note>
+  </Step>
 
-As your test suite grows, the system creates fewer tests automatically:
+  <Step title="Create a Pull Request">
+    Once configured, the agent automatically runs on PRs:
+    1. Detects code changes when PRs are opened or updated
+    2. Determines which tests are relevant
+    3. Creates new tests for untested functionality
+    4. Runs all relevant tests against the PR preview
+    5. Posts a review with approval or decline based on results
+  </Step>
+</Steps>
 
-```
-Early PRs:
-├─ Small test suite = Many gaps
-└─ More test generation
+## Common Questions
 
-Later PRs:
-├─ Large test suite = Better coverage
-└─ Mostly reuses existing tests
+**Will auto-generated tests pollute my test suite?**
 
-Result: Test creation naturally slows as coverage improves
-```
+No. The agent only creates tests for coverage gaps - most PRs (bug fixes, refactors) create zero new tests. Even major features typically add 3-5 focused tests. The system is self-limiting: better coverage → fewer gaps → less generation.
 
-### Review Format
+**Can I control which tests run?**
 
-The agent posts a review with:
+The GitHub App is fully autonomous. For manual test selection, use [GitHub Actions](/configuration/github-actions) instead. You can use both: automatic PR reviews + manual deep testing on-demand.
 
-- **Verdict:** ✅ Tests passing / ❌ Tests failing / ℹ️ Unable to verify
-- **What was tested:** Description of coverage in prose
-- **Results summary:** Patterns and themes from test outcomes
-- **Test details:** Automatic table with individual test results
+**PR reviews aren't posting - what should I check?**
+- Verify GitHub App is installed and has repository access
+- Check repository is configured in QA.tech Settings → Integrations
+- Ensure PR has user-facing changes (docs/infra-only PRs are skipped)
 
-**What reviews DON'T include:**
-- Code quality opinions
-- Implementation suggestions
-- References to other bot comments
+**Tests running against wrong URL?**
+- Map GitHub environments to Applications in Settings → Integrations → GitHub App
+- Verify your CI/CD creates GitHub deployment records
+- Check environment names match between GitHub and QA.tech
 
-
-
-
-## Frequently Asked Questions
-
-### Will auto-generated tests pollute my test suite?
-
-No. The agent only creates tests for coverage gaps - most PRs (bug fixes, refactors) create zero new tests. Even major feature PRs typically add 3-5 focused tests, not hundreds. The system is self-limiting: better coverage means fewer gaps, which means less test generation over time.
-
-### Can I control which tests run?
-
-No - the GitHub App is fully autonomous for speed and simplicity. For manual test selection and control, use [GitHub Actions](/configuration/github-actions) instead. You can use both: GitHub App for automatic PR reviews + Actions for manual deep testing.
-
-### How do I review or delete auto-generated tests?
-
-Go to Settings → Test Cases and filter by 'ephemeral' label. You can enable (removes label), edit, disable, or delete any test. Tests work fine as-is - review is optional.
-
-### What if the agent creates duplicate tests?
-
-The agent actively prevents duplicates by reading all existing tests first and using semantic deduplication. If a duplicate slips through (AI isn't perfect), simply disable or delete it in the UI. Better to occasionally have slight redundancy than miss coverage gaps.
-
-## Troubleshooting
-
-### PR reviews aren't posting
-
-**Check:**
-- GitHub App installed and granted repository access
-- Repository integration configured in QA.tech
-- PR reviews are enabled for this repository 
-- PR has user-facing changes (not docs/infra only)
-
-### Tests running against wrong URL
-
-**Solutions:**
-- Map your GitHub environments to Applications (Settings → Integrations → GitHub App → Map Environments)
-- Verify your CI/CD creates GitHub deployment environments
-- Check that environment names match between GitHub and QA.tech
-
-### Agent created irrelevant tests
-
-**Solutions:**
-- Add review context with specific testing guidelines
-- Update existing tests to cover the functionality better
+**Agent created irrelevant tests?**
+- Add review context with specific guidelines in integration settings
+- Update existing tests to better cover the functionality
 - The agent learns from your existing test patterns
 
-### Review says "Unable to verify through end-to-end testing"
+---
 
-**This is expected for:**
-- Documentation-only changes (.md, .txt, README)
-- Infrastructure changes (CI/CD, Docker, deployment scripts)
-- Build configuration (package.json without functional changes)
-
-**The agent can only test changes accessible through the UI.**
-
-## Limitations
-
-- **Fully autonomous:** Cannot manually select specific tests (use GitHub Actions for control)
-- **Requires preview deployments:** Cannot test without accessible PR environment
-- **UI-testable changes only:** Backend-only microservices without UI access can't be tested
-- **No workflow customization:** Unlike GitHub Actions, there's no YAML configuration
-
-## Need Manual Control?
-
-If you need to:
-- Choose specific test plans to run
-- Trigger tests from custom CI/CD steps
-- Control test execution timing
-- Run deep exploratory testing on-demand
-
-See [GitHub Actions](/configuration/github-actions) for manual CI/CD integration and on-demand exploratory testing via `@qatech` mentions. You can use both approaches for comprehensive coverage.
-
+**Need manual control?** See [GitHub Actions](/configuration/github-actions) for triggering specific test plans, testing preview deployments with environment overrides, or on-demand exploratory testing via `@qatech` mentions.
