@@ -10,7 +10,7 @@ The Start Run API allows you to programmatically trigger test runs for your proj
 
 The Start Run API provides a single endpoint to create new test runs:
 
-- **Endpoint**: `POST /projects/{projectId}/runs`
+- **Endpoint**: `POST /projects/{projectUuid}/runs`
 - **Authentication**: Bearer token (JWT)
 - **Content-Type**: `application/json`
 
@@ -24,13 +24,23 @@ Authorization: Bearer YOUR_API_TOKEN
 
 You can obtain your project's API token through the QA.tech dashboard in the project settings under "API & Integrations".
 
+## Finding Your Project UUID
+
+Your project UUID is required in the URL path. Find it in your dashboard:
+
+**Settings → Integrations → API** - Look at the code examples, your UUID is embedded in the URL between `/projects/` and `/runs` (36-character UUID format)
+
+**Or** if using GitHub Actions: **Settings → Integrations → GitHub Actions** - Copy from the **QATECH_PROJECT_ID** field
+
+For detailed instructions, see [Finding Your Project UUID](/api-reference/introduction#finding-your-project-uuid).
+
 ## Request Parameters
 
 ### Path Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `projectId` | string | Yes | The unique identifier of your QA.tech project |
+| `projectUuid` | string (UUID) | Yes | Your project's UUID (36-character format, NOT the short ID from URLs) |
 
 ### Headers
 
@@ -52,7 +62,7 @@ The request body is optional and can contain the following fields:
 #### Optional Fields
 
 - **`integrationName`** (string): Human-readable name of what triggered this test (defaults to "API")
-- **`testPlanShortId`** (string): The short ID of the test plan to execute
+- **`testPlanShortId`** (string): The **short ID** of the test plan to execute (this is the 6-character ID visible in test plan URLs)
 - **`applications`** (object): Optional application environment overrides for testing specific environments. Each application can specify either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`).
 
 ## Example Requests
@@ -60,8 +70,8 @@ The request body is optional and can contain the following fields:
 ### Basic Test Run
 
 ```bash
-curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "testPlanShortId": "abc123"
@@ -71,8 +81,8 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
 ### Test Run with Preview Environment
 
 ```bash
-curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_ID/runs \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "integrationName": "Vercel Preview",
@@ -167,12 +177,12 @@ jobs:
     steps:
       - name: Trigger QA.tech Test
         run: |
-          curl -X POST https://app.qa.tech/api/projects/${{ secrets.QA_PROJECT_ID }}/runs \
+          curl -X POST https://app.qa.tech/api/projects/${{ secrets.QA_PROJECT_UUID }}/runs \
             -H "Authorization: Bearer ${{ secrets.QA_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
               "integrationName": "GitHub Actions",
-              "testPlanShortId": "${{ secrets.QA_TEST_PLAN_ID }}",
+              "testPlanShortId": "${{ secrets.QA_TEST_PLAN_SHORT_ID }}",
               "applications": {
                 "frontend": {
                   "environment": {

@@ -1,0 +1,163 @@
+---
+title: 'Create Test Case API'
+description: 'API endpoint for programmatically creating test cases'
+icon: 'flask'
+---
+
+This endpoint is useful for importing tests from external systems, generating tests from custom logic, or integrating test creation into your CI/CD workflows.
+
+## Endpoint
+
+- **Path**: `POST /projects/{projectUuid}/test-cases`
+- **Authentication**: Bearer token (JWT)
+- **Content-Type**: `application/json`
+
+## Authentication
+
+The Create Test Case API uses Bearer token authentication. Include your project's API token in the `Authorization` header:
+
+```
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+You can obtain your project's API token from the QA.tech dashboard in **Settings → Integrations → API**.
+
+## Finding Your Project UUID
+
+Your project UUID is required in the URL path. For detailed instructions on locating your project UUID, see [Finding Your Project UUID](/api-reference/introduction#finding-your-project-uuid).
+
+## Path Parameters
+
+| Parameter | Type | Required |
+|-----------|------|----------|
+| `projectUuid` | string (UUID) | Yes | 
+
+## Request Body
+
+The request body must be a JSON object with the following fields:
+
+### Required Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Test case name (1-80 characters) |
+| `goal` | string | The goal/objective of the test case |
+| `applicationId` | string (UUID) | The UUID of the application this test belongs to |
+
+### Optional Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `expectedResult` | string | Expected result description |
+| `configIds` | array of UUIDs | Array of configuration IDs (e.g., login credentials, API keys) |
+| `scenarioId` | string (UUID) | Scenario ID if grouping tests into scenarios |
+| `resumeFromDependencyProjectTestCaseId` | string (UUID) | ID of a test case to resume browser state from (Resume From dependency) |
+| `waitForDependenciesProjectTestCaseIds` | array of UUIDs | Array of test case IDs that must complete before this test runs (Wait For dependencies) |
+
+<Note>
+All ID fields (`applicationId`, `configIds`, `scenarioId`, and dependency IDs) require full UUIDs, not short IDs.
+</Note>
+
+## Response Format
+
+### Success Response (200)
+
+```json
+{
+  "success": true,
+  "testCase": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Login Test",
+    "url": "https://app.qa.tech/p/project_slug/test-cases/550e8400-e29b-41d4-a716-446655440000/edit"
+  }
+}
+```
+
+The test case is created with `generationStatus: 'GENERATING'` and automatically undergoes a "burn-in" process to generate test steps based on your goal.
+
+<Note>
+**Test cases created via API are disabled by default** (`isEnabled: false`). Enable them in the QA.tech UI before they run in test plans. The `createdBy` field is automatically set to the QA.tech system user.
+</Note>
+
+### Error Responses
+
+| Status Code | Description |
+|-------------|-------------|
+| 400 | Bad request - Invalid request data, validation errors, or invalid IDs for this project |
+| 401 | Unauthorized - Invalid or missing API token |
+| 403 | Forbidden - Organization is suspended or access denied |
+| 404 | Not Found - Project not found |
+| 500 | Internal Server Error - Server error during test creation |
+
+## Example Requests
+
+### Basic Test Case Creation
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/test-cases \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -d '{
+    "name": "Login Test",
+    "goal": "Verify that users can log in successfully with valid credentials",
+    "expectedResult": "User should be redirected to dashboard after successful login",
+    "applicationId": "550e8400-e29b-41d4-a716-446655440000"
+  }'
+```
+
+### Test Case with Configurations
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/test-cases \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -d '{
+    "name": "Checkout Flow Test",
+    "goal": "Complete a purchase from cart to order confirmation",
+    "applicationId": "550e8400-e29b-41d4-a716-446655440000",
+    "configIds": [
+      "config-uuid-1",
+      "config-uuid-2"
+    ]
+  }'
+```
+
+### Test Case with Resume From Dependency
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/test-cases \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -d '{
+    "name": "Update Profile Test",
+    "goal": "Update user profile information",
+    "applicationId": "550e8400-e29b-41d4-a716-446655440000",
+    "resumeFromDependencyProjectTestCaseId": "login-test-case-uuid"
+  }'
+```
+
+This creates a test that will resume browser state from the login test, skipping the need to log in again.
+
+### Test Case with Wait For Dependencies
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/test-cases \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -d '{
+    "name": "Final Verification Test",
+    "goal": "Verify all setup steps completed successfully",
+    "applicationId": "550e8400-e29b-41d4-a716-446655440000",
+    "waitForDependenciesProjectTestCaseIds": [
+      "setup-test-1-uuid",
+      "setup-test-2-uuid"
+    ]
+  }'
+```
+
+This test will wait for both setup tests to complete before starting execution.
+
+## Related Endpoints
+
+- [Start Run API](/api-reference/start-run) - Trigger test execution after creating tests
+- [API Introduction](/api-reference/introduction) - Authentication and general API information

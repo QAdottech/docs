@@ -1,8 +1,109 @@
 ---
 title: 'API Introduction'
 description: 'Learn how to interact with QA.tech programmatically using our REST API'
+icon: 'code'
 ---
+
+The QA.tech REST API allows you to programmatically control test runs, create test cases, check results, and integrate QA.tech into your CI/CD pipelines and automation workflows.
+
+## What Can You Do?
+
+- **Start test runs** programmatically from CI/CD pipelines or scripts
+- **Create test cases** via API for importing tests or generating them dynamically
+- **Check run status** and retrieve test results
+- **Create environments** for preview deployments or dynamic test environments
+- **View metrics** and test execution data
+
+## Quick Start
+
+Here's a complete example to start a test run:
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "testPlanShortId": "abc123"
+  }'
+```
+
+**What you need:**
+1. **API Token** - Found in Settings → Integrations → API
+2. **Project UUID** - Your project's 36-character UUID (see finding instructions below)
+3. **Test Plan Short ID** - The 6-character ID from your test plan URL
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens, which you find under Project / Configuration in your dashboard.
+All API endpoints require Bearer token authentication. Include your API token in the `Authorization` header:
+
+```bash
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+**Where to find your API token:**
+1. Navigate to **Settings → Integrations → API** in your project dashboard
+2. Your API token is displayed on the API integration page
+3. Copy the token and use it in the `Authorization` header
+
+<Note>
+  Your API token is project-specific. Each project has its own token. Keep your token secure and never commit it to version control.
+</Note>
+
+## Finding Your Project UUID
+
+Your project UUID is required for all API requests. It appears in code examples but is not shown as a separate labeled field in the API integration page.
+
+### Option 1: From API Integration Page
+
+<Steps>
+  <Step title="Go to Settings">
+    Navigate to **Settings → Integrations** in your project
+  </Step>
+  <Step title="Select API Integration">
+    Click on the **API** integration card
+  </Step>
+  <Step title="Find UUID in Code Examples">
+    Look at the curl code examples on the page. Your project UUID is embedded in the URL path:
+    
+    `/api/projects/YOUR-PROJECT-UUID/runs`
+    
+    It's the long UUID string between `/projects/` and `/runs` (36 characters with dashes)
+  </Step>
+</Steps>
+
+### Option 2: From GitHub Actions Integration
+
+If you're using GitHub Actions integration:
+
+<Steps>
+  <Step title="Go to GitHub Actions Integration">
+    Navigate to **Settings → Integrations → GitHub Actions**
+  </Step>
+  <Step title="Copy QATECH_PROJECT_ID">
+    You'll see a labeled field **QATECH_PROJECT_ID** with a copy button - this is your project UUID
+  </Step>
+</Steps>
+
+## Understanding Different IDs
+
+QA.tech uses three different types of identifiers. Make sure you use the correct one:
+
+| ID Type | Format | Where You See It | Use In API | Example |
+|---------|--------|------------------|------------|---------|
+| **Project UUID** | 36-character UUID | Code examples, GitHub Actions settings | Path parameter: `/api/projects/{projectUuid}/runs` | `550e8400-e29b-41d4-a716-446655440000` |
+| **Short ID** | 6-character alphanumeric | Browser URLs, test result pages | Request body: `"testPlanShortId": "abc123"` | `abc123` |
+| **API Token** | UUID string | API settings page | Header: `Authorization: Bearer {token}` | `32fc11c3-9be4-4bb9-a220-7a4ca4427335` |
+
+## Next Steps
+
+- **[Start a Run](/api-reference/start-run)** - Trigger test runs programmatically
+- **[Create Test Cases](/api-reference/test-cases)** - Create tests via API
+- **[View OpenAPI Spec](/api-reference/api.json)** - Complete API reference with all endpoints
+
+## Base URL
+
+All API requests are made to:
+
+```
+https://app.qa.tech/api
+```

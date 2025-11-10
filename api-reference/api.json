@@ -11,19 +11,19 @@
     }
   ],
   "paths": {
-    "/projects/{projectId}/runs": {
+    "/projects/{projectUuid}/runs": {
       "post": {
         "summary": "Start the tests",
         "description": "This endpoint triggers a new test run for the specified project.",
         "parameters": [
           {
             "in": "path",
-            "name": "projectId",
+            "name": "projectUuid",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "description": "The ID of the project"
+            "description": "The UUID of your project (found embedded in code examples at Settings → Integrations → API)"
           },
           {
             "in": "header",

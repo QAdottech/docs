@@ -1,106 +1,169 @@
 ---
-title: 'API Calls'
+title: 'Testing API Calls'
 description: 'Make HTTP requests during test execution to integrate with external APIs'
 icon: 'plug'
 ---
 
-The API Calls feature allows your AI agent to make HTTP requests to external APIs during test execution. This enables integration with customer systems, data validation, fetching test data, and other API-based workflows.
+The API Calls feature allows your AI agent to make HTTP requests to external APIs during test execution. This enables data fetching, authentication workflows, integration testing, and API validation.
 
-## What are API Calls?
+## What Can You Do With API Calls?
 
-API Calls are configurable HTTP requests that your AI agent can execute as part of test steps. They're useful for:
+- **Fetch test data or credentials** from your backend before testing UI workflows
+- **Authenticate via API** to get tokens or sessions for protected pages
+- **Validate data** by checking API responses match what you expect
 
-- **Data Validation**: Verify API responses match expected data
-- **Test Data Fetching**: Retrieve data from external systems before or during tests
-- **Integration Testing**: Test workflows that require API interactions
-- **Authentication**: Fetch tokens or credentials from authentication services
-- **Webhook Testing**: Trigger webhooks or verify webhook responses
+## Setup: Creating an API Call Config
 
-## Configuration
-
-API Calls are configured as **Configs** in your project settings:
+API Calls are configured as **Configs** in your project settings. Here's how to create one:
 
 <Steps>
-  <Step title="Navigate to Settings">
-    Go to **Settings → Configs** in your project dashboard
+  <Step title="Open Config Settings">
+    Navigate to **Settings → Configs** in your project dashboard, then click **Add config** and select **API Call Configuration**
   </Step>
-  <Step title="Create API Call Config">
-    Click **Add config** and select **API Call Configuration**
+  
+  <Step title="Fill the Configuration Form">
+    You'll see a form with these fields:
+    
+    - **Config Name**: A descriptive name for this API configuration (e.g., "Get Test User")
+    - **URL**: The complete API endpoint URL (e.g., `https://api.example.com/v1/users`)
+    - **Method**: Select HTTP method from dropdown (GET, POST, PUT, DELETE, PATCH) - defaults to GET
+    - **Headers**: A textarea where you paste JSON with HTTP headers
+    - **Body**: A textarea where you paste JSON for POST/PUT/PATCH request bodies
   </Step>
-  <Step title="Configure Request">
-    Fill in the required fields:
-    - **Config Name**: A descriptive name for this API call configuration
-    - **URL**: The complete URL to make the request to (e.g., `https://api.example.com/v1/users`)
-    - **Method**: HTTP method (GET, POST, PUT, DELETE, PATCH)
-    - **Headers** (optional): JSON object with HTTP headers (e.g., `{"Authorization": "Bearer token"}`)
-    - **Body** (optional): JSON string for POST/PUT/PATCH requests
-  </Step>
-  <Step title="Save and Assign">
-    Save the configuration and assign it to your test cases in the test settings
+  
+  <Step title="Save and Assign to Tests">
+    Click **Save** to create the configuration, then assign it to your test cases under test Settings → Configs
   </Step>
 </Steps>
 
-### Configuration Example
+<Note>
+  The **Headers** and **Body** fields are textareas where you paste JSON strings (such as from the examples below). The UI will validate that your JSON is properly formatted before saving.
+</Note>
+
+<Warning>
+**Security: Use Test Credentials Only**
+
+API call configurations (including headers, tokens, and request bodies) are:
+- Stored in your project settings
+- Passed directly to AI language models during test execution
+- **Not encrypted and not hidden from the AI**
+
+**Always use test credentials with limited permissions.** Never use production API keys or credentials with sensitive access.
+</Warning>
+
+## Configuration Examples
+
+### Example 1: GET Request with Authentication
+
+This example shows how to fetch user data with an API key.
+
+**Fill the form fields:**
+
+| Field | Enter This |
+|-------|-----------|
+| **Config Name** | `Get User Data` |
+| **URL** | `https://api.example.com/v1/users/123` |
+| **Method** | Select **GET** from dropdown |
+
+**In the Headers textarea, paste this JSON:**
 
 ```json
 {
-  "configName": "Get User API",
-  "url": "https://api.example.com/v1/users/123",
-  "method": "GET",
-  "headers": {
-    "Authorization": "Bearer your-token-here",
-    "Content-Type": "application/json"
-  }
+  "Authorization": "Bearer your-test-token-here",
+  "Content-Type": "application/json"
 }
 ```
 
-For POST requests with a body:
+<Accordion title="Understanding the Headers field">
+  The Headers field is a textarea where you paste a JSON object. Each key-value pair becomes an HTTP header in the request.
+  
+  Common headers:
+  - `Authorization`: For API keys, bearer tokens, or basic auth
+  - `Content-Type`: Usually `application/json` for JSON APIs
+  - `Accept`: Tells the API what format you want back
+  - Custom headers: Any header your API requires (e.g., `X-API-Key`, `X-Tenant-ID`)
+</Accordion>
+
+### Example 2: POST Request with Body
+
+This example shows how to send data to your API (e.g., creating a new user, submitting a form, or posting a record).
+
+**Fill the form fields:**
+
+| Field | Enter This |
+|-------|-----------|
+| **Config Name** | `Create Test User` |
+| **URL** | `https://api.example.com/v1/users` |
+| **Method** | Select **POST** from dropdown |
+
+**In the Headers textarea:**
 
 ```json
 {
-  "configName": "Create User API",
-  "url": "https://api.example.com/v1/users",
-  "method": "POST",
-  "headers": {
-    "Authorization": "Bearer your-token-here"
-  },
-  "body": "{\"name\": \"John Doe\", \"email\": \"john@example.com\"}"
+  "Authorization": "Bearer your-test-token-here",
+  "Content-Type": "application/json"
 }
 ```
+
+**In the Body textarea:**
+
+```json
+{
+  "name": "Test User",
+  "email": "testuser@example.com",
+  "role": "standard"
+}
+```
+
+<Note>
+  The **Body** field is only used for POST, PUT, and PATCH requests. It's ignored for GET and DELETE.
+</Note>
+
+### Example 3: Minimal Configuration
+
+If your test needs to check whether an API endpoint is responding (e.g., verify your backend is up before testing UI features), you only need URL and method:
+
+| Field | Enter This |
+|-------|-----------|
+| **Config Name** | `Health Check` |
+| **URL** | `https://api.example.com/health` |
+| **Method** | **GET** |
+
+Leave Headers and Body empty. During the test, the agent will call this endpoint, receive the response (e.g., `{"status": "ok"}`), and can verify the service is available before proceeding with UI interactions.
 
 ## How It Works
 
-1. **Config Selection**: The AI agent checks if a valid API Call configuration is available in the test's assigned configs
-2. **Tool Invocation**: The agent uses the `callApi` tool with parameters from the configuration
-3. **HTTP Request**: The agent makes the HTTP request using Node.js `fetch` API
-4. **Response Handling**: The agent receives and processes the API response
-5. **Test Continuation**: The agent uses the response data to continue the test workflow
+Once you create and assign an API Call config to a test:
+
+1. The agent detects the config is available
+2. During the test, the agent makes the HTTP request
+3. The agent receives the response (status code, headers, and data)
+4. The agent uses the response to continue the test
 
 <Note>
-  **Important**: The agent will only use the API call tool if there is a valid API Call configuration available in the test's assigned configs. If no configuration is available, the agent will not attempt to make API calls.
+  The agent can only make API calls if you've assigned an API Call config to the test under Settings → Configs.
 </Note>
 
-## Supported HTTP Methods
+## Overriding Config Values in Test Steps
 
-| Method | Description | Body Support |
-| ------ | ----------- | ------------ |
-| GET    | Retrieve data | ❌ No        |
-| POST   | Create new resources | ✅ Yes |
-| PUT    | Update existing resources | ✅ Yes |
-| PATCH  | Partial updates | ✅ Yes |
-| DELETE | Remove resources | ❌ No |
+**Why override?** If you need to call the same API with different parameters in different test steps (e.g., fetching different user IDs, different query parameters, or different request bodies), you can override values without creating multiple configs.
 
-## Response Handling
+**Example scenario:** You have one "Get User" config, but your test needs to fetch multiple users.
 
-The API call tool automatically handles:
+Your base configuration:
+- **URL**: `https://api.example.com/users`
+- **Method**: `GET`
+- **Headers**: `{"Authorization": "Bearer token123"}`
 
-- **JSON Responses**: Automatically parsed as JSON objects
-- **Text Responses**: Returned as plain text
-- **Status Codes**: Full HTTP status code and message are returned
-- **Response Headers**: All response headers are captured and available
-- **Error Handling**: Network errors and parsing errors are captured and reported
+In your test steps, you can instruct the agent:
+- Step 1: "Call the API with URL `https://api.example.com/users/123`" → Fetches user 123
+- Step 2: "Call the API with URL `https://api.example.com/users/456`" → Fetches user 456
 
-The agent receives the response in this format:
+The agent uses the overridden URLs while keeping the configured headers and method. This saves you from creating separate "Get User 123" and "Get User 456" configs.
+
+## Response Format & Using Response Data
+
+The agent receives API responses in this format:
 
 ```json
 {
@@ -108,115 +171,47 @@ The agent receives the response in this format:
   "statusText": "OK",
   "data": {
     "userId": 123,
-    "name": "John Doe"
+    "name": "John Doe",
+    "email": "john@example.com"
   }
 }
 ```
+
+The response includes:
+- **Status Code**: HTTP status (200, 404, 500, etc.)
+- **Status Text**: Status message ("OK", "Not Found", etc.)
+- **Data**: Parsed JSON response body (or raw text for non-JSON responses)
+- **Headers**: All response headers are captured and available
+
+### What the Agent Does With Responses
+
+The AI agent can use the API response data to continue the test workflow:
+
+**Example 1: Use response data in the browser**
+- API returns: `{"email": "testuser@example.com", "password": "temp123"}`
+- Agent extracts the email and password from the response
+- Agent then enters these credentials into the login form in the browser
+
+**Example 2: Verify response data**
+- API returns: `{"orderId": "ORD-456", "status": "pending"}`
+- Agent checks that the order was created successfully (status code 200)
+- Agent can verify the orderId exists and status is correct
+- Then proceeds with the rest of the test
+
+**Example 3: Check API errors**
+- API returns: `{"statusCode": 404, "statusText": "Not Found"}`
+- Agent detects the failure and reports it in the test results
+- Test can fail if the expected API is not available
 
 ## Limitations
 
-### SSH Tunnel Proxy Not Supported
+- API calls do not respect SSH Tunnel Proxy and instead go directly from our servers, not through your SSH tunnel.
+- Headers and request bodies must be manually configured (no variables or templating)
+- Failed requests are not automatically retried
+- APIs must be publicly accessible or allow QA.tech IPs
 
-<Warning>
-  **Current Limitation**: API calls **do not work** when SSH Tunnel Proxy is configured for your project. The API requests are made directly from the agent runner, not through the SSH tunnel that is configured for browser sessions.
-  
-  **Workaround**: If you need to test APIs behind a firewall or VPN, you'll need to either:
-  - Disable SSH Tunnel Proxy for tests that use API calls, or
-  - Configure your firewall to allow direct access from QA.tech IP addresses (see [IP Access Control](/configuration/ip-access-control))
-</Warning>
+## Related Documentation
 
-### Other Limitations
-
-- **No Authentication UI**: Headers must be manually configured in the config (e.g., Bearer tokens, API keys)
-- **No Request Body Templates**: Request bodies must be provided as complete JSON strings
-- **No Response Validation**: The agent doesn't automatically validate response schemas
-- **No Retry Logic**: Failed requests are not automatically retried (network errors are reported)
-
-## Use Cases
-
-### 1. Fetching Test Data
-
-Configure an API call to fetch test data before starting browser interactions:
-
-```json
-{
-  "configName": "Get Test User",
-  "url": "https://api.example.com/v1/test-users/random",
-  "method": "GET",
-  "headers": {
-    "X-API-Key": "your-test-api-key"
-  }
-}
-```
-
-The agent can then use the response data (e.g., user credentials) in subsequent test steps.
-
-### 2. Authentication Token Retrieval
-
-Fetch authentication tokens before testing protected endpoints:
-
-```json
-{
-  "configName": "Get Auth Token",
-  "url": "https://api.example.com/auth/login",
-  "method": "POST",
-  "headers": {
-    "Content-Type": "application/json"
-  },
-  "body": "{\"username\": \"testuser\", \"password\": \"testpass\"}"
-}
-```
-
-### 3. Data Validation
-
-Verify API responses match expected values as part of your test workflow:
-
-The agent can call an API, check the response, and then proceed with browser-based validation.
-
-## Best Practices
-
-1. **Use Test Credentials**: Never use production API keys or credentials in configurations
-2. **Keep Configs Scoped**: Create separate configs for different API endpoints or environments
-3. **Document Headers**: Include clear comments in config names about what each header is for
-4. **Test Configuration**: Verify your API call config works manually before assigning to tests
-5. **Error Handling**: Ensure your APIs return meaningful error messages for debugging
-
-<Note>
-  **Security Notice**: API call configurations (including headers, tokens, and request bodies) are stored unencrypted and are passed directly to AI language models during test execution. Always use test credentials with limited permissions.
-</Note>
-
-## Troubleshooting
-
-### API Call Not Executed
-
-**Problem**: The agent doesn't make the API call even though it's configured.
-
-**Solutions**:
-- Verify the API Call configuration is assigned to the test case in Settings
-- Check that the config name matches what's expected
-- Ensure the URL is valid and accessible
-
-### Connection Errors
-
-**Problem**: Network errors or timeouts when making API calls.
-
-**Solutions**:
-- Verify the API endpoint is accessible from QA.tech servers
-- Check if your API requires IP whitelisting (see [IP Access Control](/configuration/ip-access-control))
-- Ensure the API endpoint supports HTTPS (required for secure connections)
-
-### Authentication Failures
-
-**Problem**: API returns 401 Unauthorized or 403 Forbidden.
-
-**Solutions**:
-- Verify API keys or tokens in headers are valid and not expired
-- Check that the authentication method matches what the API expects
-- Ensure bearer tokens include the "Bearer " prefix if required
-
-### SSH Tunnel Proxy Conflicts
-
-**Problem**: API calls fail when SSH Tunnel Proxy is enabled.
-
-**Solution**: This is a known limitation. See the [Limitations section](#limitations) above for workarounds.
-
+- [Configs Overview](/core-concepts/configs) - How to create and manage configs
+- [IP Access Control](/configuration/ip-access-control) - Whitelist QA.tech IPs if needed
+- [SSH Tunnel Proxy](/configuration/ssh-tunnel) - Understanding the SSH tunnel limitation
