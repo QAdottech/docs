@@ -64,6 +64,50 @@ The request body is optional and can contain the following fields:
 - **`integrationName`** (string): Human-readable name of what triggered this test (defaults to "API")
 - **`testPlanShortId`** (string): The **short ID** of the test plan to execute (this is the 6-character ID visible in test plan URLs)
 - **`applications`** (object): Optional application environment overrides for testing specific environments. Each application can specify either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`).
+- **`notifications`** (array): Slack notification overrides for this run. Provide one or more channel objects to send run updates to specific channels instead of the project's default Slack channel. Details below.
+
+### Slack Notification Overrides
+
+Use the `notifications` array to send per-run Slack updates without changing your default integration settings. Each object must describe a Slack destination:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | string | Yes | Must be `slack` (currently the only supported notification type) |
+| `channel` | string | Yes | Slack channel ID (e.g., `C0478ABCDEF`) that the QA.tech bot already has access to |
+| `notifyOn` | string | No | `always` (default) sends a “run started” message plus the final result summary. `failure` only sends the summary if the run result is not `PASSED`. |
+
+<Warning>
+Slack overrides currently do not work for projects that rely on an `sshTunnelProxy`. Keep using the default Slack channel until QAT-4475 is resolved.
+</Warning>
+
+<Steps>
+  <Step title="Connect Slack to the project">
+    Go to <strong>Project Settings → Integrations → Slack</strong>, connect your workspace, and invite the QA.tech bot to every channel you plan to target.
+  </Step>
+  <Step title="Send per-run overrides">
+    Include a <code>notifications</code> array in the Start Run API request body:
+    ```json
+    {
+      "notifications": [
+        { "type": "slack", "channel": "C0478ABCDEF", "notifyOn": "always" },
+        { "type": "slack", "channel": "C0123FAIL42", "notifyOn": "failure" }
+      ]
+    }
+    ```
+  </Step>
+</Steps>
+
+**Behavior**
+
+- When at least one override uses `notifyOn: "always"`, QA.tech emits the `slack/run-created` event and posts `Run #<shortId> started` as soon as the API call succeeds.
+- Finish notifications respect `notifyOn`. Channels set to `failure` only receive messages if the run result is `FAILED`, `ERROR`, or `CANCELLED`.
+- As soon as overrides are provided, QA.tech skips the default Slack channel configured in the integration and only uses the channels listed in the request.
+
+**Validation & Errors**
+
+- The API rejects overrides (`400 Bad Request`) if Slack is not connected for the project.
+- QA.tech fetches your accessible channel IDs and returns `400 Bad Request` when a requested channel is not found or the bot is not a member.
+- The `notifications` array must contain at least one object; send multiple entries to mix `always` and `failure` behaviors.
 
 ## Example Requests
 
@@ -100,6 +144,22 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
         }
       }
     }
+  }'
+```
+
+### Test Run with Slack Notification Override
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "integrationName": "GitHub Actions",
+    "testPlanShortId": "abc123",
+    "notifications": [
+      { "type": "slack", "channel": "C0478ABCDEF", "notifyOn": "always" },
+      { "type": "slack", "channel": "C0123FAIL42", "notifyOn": "failure" }
+    ]
   }'
 ```
 

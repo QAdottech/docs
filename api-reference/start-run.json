@@ -96,6 +96,32 @@
                         }
                       }
                     }
+                  },
+                  "notifications": {
+                    "type": "array",
+                    "description": "Override the default Slack notification target for this run by listing one or more Slack channel objects",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": ["slack"],
+                          "description": "Notification type. Only Slack is currently supported."
+                        },
+                        "channel": {
+                          "type": "string",
+                          "description": "Slack channel ID (e.g., C0478ABCDEF) the QA.tech bot can post to."
+                        },
+                        "notifyOn": {
+                          "type": "string",
+                          "enum": ["always", "failure"],
+                          "default": "always",
+                          "description": "When to send the notification. Use \"failure\" to only post if the run does not pass."
+                        }
+                      },
+                      "required": ["type", "channel"]
+                    }
                   }
                 }
               },
@@ -124,6 +150,25 @@
                         }
                       }
                     }
+                  }
+                },
+                "slack-overrides": {
+                  "summary": "Test run with Slack notification overrides",
+                  "value": {
+                    "integrationName": "GitHub Actions",
+                    "testPlanShortId": "abc123",
+                    "notifications": [
+                      {
+                        "type": "slack",
+                        "channel": "C0478ABCDEF",
+                        "notifyOn": "always"
+                      },
+                      {
+                        "type": "slack",
+                        "channel": "C0123FAIL42",
+                        "notifyOn": "failure"
+                      }
+                    ]
                   }
                 }
               }
