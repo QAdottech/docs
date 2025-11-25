@@ -34,6 +34,26 @@
               "example": "application/json"
             },
             "description": "The media type of the request body. Should be set to application/json"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "Bearer YOUR_API_TOKEN"
+            },
+            "description": "Bearer token authentication. Required if not using X-Webhook-Signature header."
+          },
+          {
+            "in": "header",
+            "name": "X-Webhook-Signature",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "YOUR_SIGNED_JWT_TOKEN"
+            },
+            "description": "Netlify webhook signature authentication (JWT token). Required if not using Authorization Bearer token. Either Authorization or X-Webhook-Signature header is required."
           }
         ],
         "requestBody": {
@@ -117,7 +137,7 @@
                           "type": "string",
                           "enum": ["always", "failure"],
                           "default": "always",
-                          "description": "When to send the notification. Use \"failure\" to only post if the run does not pass."
+                          "description": "When to send the notification. Use \"failure\" to only post if the run does not pass (i.e., when result is FAILED, SKIPPED, or null). \"always\" (default) sends both start and finish notifications regardless of result."
                         }
                       },
                       "required": ["type", "channel"]
@@ -213,7 +233,17 @@
                         },
                         "testPlan": {
                           "type": "object",
-                          "description": "The test plan that was executed"
+                          "description": "The test plan that was executed",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "The name of the test plan"
+                            },
+                            "short_id": {
+                              "type": "string",
+                              "description": "The short ID of the test plan"
+                            }
+                          }
                         }
                       },
                       "required": ["id", "shortId", "url", "testCount"]
@@ -229,8 +259,8 @@
                     "url": "https://app.qa.tech/projects/project-123/results/abc123",
                     "testCount": 5,
                     "testPlan": {
-                      "id": "plan_xyz789",
-                      "name": "API Integration Tests"
+                      "name": "API Integration Tests",
+                      "short_id": "xyz789"
                     }
                   }
                 }
@@ -244,25 +274,35 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
+                    "statusText": {
                       "type": "string",
                       "example": "Invalid test plan ID or malformed applications config"
                     }
                   }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - invalid or missing authentication token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "example": "Invalid API token"
+                },
+                "examples": {
+                  "emptyNotifications": {
+                    "summary": "Empty notifications array",
+                    "value": {
+                      "statusText": "Failed to parse notifications in request: Array must contain at least 1 element(s)"
+                    }
+                  },
+                  "slackNotConfigured": {
+                    "summary": "Slack integration not configured",
+                    "value": {
+                      "statusText": "Slack integration is not configured for this project. Configure Slack before overriding notification channels."
+                    }
+                  },
+                  "inaccessibleChannels": {
+                    "summary": "Inaccessible Slack channels",
+                    "value": {
+                      "statusText": "Slack channel override failed. Ensure the QA.tech bot has access to: C0478ABCDEF, C0123FAIL42"
+                    }
+                  },
+                  "invalidRequest": {
+                    "summary": "Invalid test plan or malformed request",
+                    "value": {
+                      "statusText": "Invalid test plan ID or malformed applications config"
                     }
                   }
                 }
@@ -276,7 +316,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
+                    "statusText": {
                       "type": "string",
                       "example": "Organization has reached usage limit. Upgrade your account to continue."
                     }
@@ -286,15 +326,29 @@
             }
           },
           "403": {
-            "description": "Forbidden - organization is suspended or access denied",
+            "description": "Forbidden - invalid or expired authentication token, Netlify webhook signature verification failed, or organization is suspended",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
+                    "statusText": {
                       "type": "string",
-                      "example": "Organization is suspended"
+                      "example": "Unknown Error"
+                    }
+                  }
+                },
+                "examples": {
+                  "invalidToken": {
+                    "summary": "Invalid token",
+                    "value": {
+                      "statusText": "Unknown Error"
+                    }
+                  },
+                  "suspended": {
+                    "summary": "Organization suspended",
+                    "value": {
+                      "statusText": "Organization is suspended"
                     }
                   }
                 }
@@ -308,9 +362,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
+                    "statusText": {
                       "type": "string",
-                      "example": "Project not found"
+                      "example": "Unknown Error"
                     }
                   }
                 }
@@ -324,7 +378,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
+                    "statusText": {
                       "type": "string",
                       "example": "API Error"
                     }

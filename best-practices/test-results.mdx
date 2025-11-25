@@ -35,10 +35,10 @@ Test plans help you run the right tests at the right time. Organize tests strate
 
 **Common test plan patterns:**
 
-- **Smoke tests plan** — 5-10 critical tests, runs on every PR (~5 min)
-- **Regression plan** — Full suite, runs nightly (~30-60 min)
-- **Production monitoring plan** — Key flows, runs every 4 hours
-- **Preview environment plan** — Dynamic URLs, runs on deploy
+- **Smoke tests plan** - 5-10 critical tests, runs on every PR (~5 min)
+- **Regression plan** - Full suite, runs nightly (~30-60 min)
+- **Production monitoring plan** - Key flows, runs every 4 hours
+- **Preview environment plan** - Dynamic URLs, runs on deploy
 
 <Note>
 Test plans enable parallel execution - 20 tests complete in ~3 minutes instead of 60 minutes sequential. See [Test Plans](/core-concepts/test-plans#performance--parallel-execution).
@@ -71,9 +71,9 @@ Use test plans to:
 
 Configure notifications based on your testing approach:
 
-- **PR tests** — GitHub comments post automatically (see [GitHub Actions](/configuration/github-actions))
-- **Scheduled runs** — Slack/email for failures (see [Notifications](/core-concepts/notifications))
-- **Production monitoring** — Immediate alerts for critical failures
+- **PR tests** - GitHub comments post automatically (see [GitHub Actions](/configuration/github-actions))
+- **Scheduled runs** - Slack/email for failures (see [Notifications](/core-concepts/notifications))
+- **Production monitoring** - Immediate alerts for critical failures
 
 **Tip:** Set up different notification channels for different severity levels (Slack for critical, email for nightly)
 

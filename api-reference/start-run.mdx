@@ -11,18 +11,32 @@ The Start Run API allows you to programmatically trigger test runs for your proj
 The Start Run API provides a single endpoint to create new test runs:
 
 - **Endpoint**: `POST /projects/{projectUuid}/runs`
-- **Authentication**: Bearer token (JWT)
+- **Authentication**: Bearer token (JWT) or Netlify webhook signature
 - **Content-Type**: `application/json`
 
 ## Authentication
 
-The Start Run API uses Bearer token authentication. Include your project's API token in the `Authorization` header:
+The Start Run API supports two authentication methods:
+
+### Bearer Token Authentication
+
+Include your project's API token in the `Authorization` header:
 
 ```
 Authorization: Bearer YOUR_API_TOKEN
 ```
 
 You can obtain your project's API token through the QA.tech dashboard in the project settings under "API & Integrations".
+
+### Netlify Webhook Authentication
+
+For Netlify webhook integrations, you can use webhook signature authentication instead of a Bearer token. Include the signed JWT token in the `X-Webhook-Signature` header:
+
+```
+X-Webhook-Signature: YOUR_SIGNED_JWT_TOKEN
+```
+
+The token is verified using your project's API token as the secret. Either authentication method is valid - use Bearer token for general API access or Netlify signature for webhook integrations.
 
 ## Finding Your Project UUID
 
@@ -47,6 +61,10 @@ For detailed instructions, see [Finding Your Project UUID](/api-reference/introd
 | Header | Value | Required | Description |
 |--------|-------|----------|-------------|
 | `Content-Type` | `application/json` | Yes | Media type of the request body |
+| `Authorization` | `Bearer YOUR_API_TOKEN` | Yes* | Bearer token authentication (required if not using Netlify webhook signature) |
+| `X-Webhook-Signature` | `YOUR_SIGNED_JWT_TOKEN` | Yes* | Netlify webhook signature authentication (required if not using Bearer token) |
+
+\* Either `Authorization` Bearer token OR `X-Webhook-Signature` header is required for authentication.
 
 ### Request Body
 
@@ -73,11 +91,18 @@ Use the `notifications` array to send per-run Slack updates without changing you
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `type` | string | Yes | Must be `slack` (currently the only supported notification type) |
-| `channel` | string | Yes | Slack channel ID (e.g., `C0478ABCDEF`) that the QA.tech bot already has access to |
-| `notifyOn` | string | No | `always` (default) sends a “run started” message plus the final result summary. `failure` only sends the summary if the run result is not `PASSED`. |
+| `channel` | string | Yes | Slack channel ID (e.g., `C0478ABCDEF`). The QA.tech bot must already have access to this channel. |
+| `notifyOn` | string | No | Controls when notifications are sent for this channel. See options below. |
+
+**`notifyOn` options:**
+
+- **`always`** (default): Sends both a "run started" message when the run begins and the final result summary when it completes
+- **`failure`**: Only sends the final summary when the run result is not `PASSED` (i.e., when result is `FAILED`, `SKIPPED`, or `null`)
+
+The run result values (`PASSED`, `FAILED`, `SKIPPED`, or `null`) are determined when the run completes.
 
 <Warning>
-Slack overrides currently do not work for projects that rely on an `sshTunnelProxy`. Keep using the default Slack channel until QAT-4475 is resolved.
+Slack notification overrides currently do not work for projects with SSH Tunnel Proxy enabled.
 </Warning>
 
 <Steps>
@@ -99,15 +124,18 @@ Slack overrides currently do not work for projects that rely on an `sshTunnelPro
 
 **Behavior**
 
-- When at least one override uses `notifyOn: "always"`, QA.tech emits the `slack/run-created` event and posts `Run #<shortId> started` as soon as the API call succeeds.
-- Finish notifications respect `notifyOn`. Channels set to `failure` only receive messages if the run result is `FAILED`, `ERROR`, or `CANCELLED`.
-- As soon as overrides are provided, QA.tech skips the default Slack channel configured in the integration and only uses the channels listed in the request.
+- **Start notifications**: When at least one override uses `notifyOn: "always"` (or omits `notifyOn`, which defaults to `always`), QA.tech emits the `slack/run-created` event and posts `Run #<shortId> started` to all channels in the override list as soon as the API call succeeds. If all channels have `notifyOn: "failure"`, no start notification event is triggered.
+- **Finish notifications**: Each channel is evaluated independently based on its own `notifyOn` value:
+  - Channels with `notifyOn: "always"` (or default) receive finish notifications regardless of run result.
+  - Channels with `notifyOn: "failure"` only receive finish notifications when the run result is not `PASSED` (i.e., when result is `FAILED`, `SKIPPED`, or `null`).
+- **Default channel override**: As soon as overrides are provided, QA.tech skips the default Slack channel configured in the integration and only uses the channels listed in the request.
 
 **Validation & Errors**
 
-- The API rejects overrides (`400 Bad Request`) if Slack is not connected for the project.
-- QA.tech fetches your accessible channel IDs and returns `400 Bad Request` when a requested channel is not found or the bot is not a member.
-- The `notifications` array must contain at least one object; send multiple entries to mix `always` and `failure` behaviors.
+- The `notifications` array must contain at least one object. Empty arrays are rejected with `400 Bad Request` and a schema validation error message.
+- The API rejects overrides (`400 Bad Request`) if Slack is not connected for the project. Error message: `"Slack integration is not configured for this project. Configure Slack before overriding notification channels."`
+- QA.tech fetches your accessible channel IDs and returns `400 Bad Request` when a requested channel is not found or the bot is not a member. The error message includes the specific inaccessible channel IDs: `"Slack channel override failed. Ensure the QA.tech bot has access to: C0478ABCDEF, C0123FAIL42"` (channel IDs are listed in the error).
+- Schema validation errors include detailed Zod error messages when the request structure is invalid (e.g., missing required fields, invalid enum values).
 
 ## Example Requests
 
@@ -176,8 +204,8 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
     "url": "https://app.qa.tech/projects/project-123/results/abc123",
     "testCount": 5,
     "testPlan": {
-      "id": "plan_xyz789",
-      "name": "API Integration Tests"
+      "name": "API Integration Tests",
+      "short_id": "xyz789"
     }
   }
 }
@@ -186,22 +214,86 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
 ### Error Responses
 
 #### Bad Request (400)
-Returned when the request body is malformed or missing required fields.
+Returned when the request body is malformed, missing required fields, or validation fails.
 
-#### Unauthorized (401)
-Returned when the bearer token is invalid or expired.
+**Examples:**
+
+Empty notifications array:
+```json
+{
+  "statusText": "Failed to parse notifications in request: Array must contain at least 1 element(s)"
+}
+```
+
+Slack integration not configured:
+```json
+{
+  "statusText": "Slack integration is not configured for this project. Configure Slack before overriding notification channels."
+}
+```
+
+Inaccessible Slack channels:
+```json
+{
+  "statusText": "Slack channel override failed. Ensure the QA.tech bot has access to: C0478ABCDEF, C0123FAIL42"
+}
+```
+
+Invalid test plan or malformed request:
+```json
+{
+  "statusText": "Invalid test plan ID or malformed applications config"
+}
+```
+
+#### Forbidden (403)
+Returned when the bearer token is invalid or expired, when Netlify webhook signature verification fails, or when the organization is suspended.
+
+**Examples:**
+
+Invalid token:
+```json
+{
+  "statusText": "Unknown Error"
+}
+```
+
+Organization suspended:
+```json
+{
+  "statusText": "Organization is suspended"
+}
+```
 
 #### Payment Required (402)
 Returned when the organization has reached its usage limit.
 
-#### Forbidden (403)
-Returned when the organization is suspended or access is denied.
+**Example:**
+```json
+{
+  "statusText": "Organization has reached usage limit. Upgrade your account to continue."
+}
+```
 
 #### Not Found (404)
 Returned when the specified project ID doesn't exist.
 
+**Example:**
+```json
+{
+  "statusText": "Unknown Error"
+}
+```
+
 #### Internal Server Error (500)
 Returned when there's an internal server error.
+
+**Example:**
+```json
+{
+  "statusText": "API Error"
+}
+```
 
 ## Use Cases
 

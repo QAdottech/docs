@@ -52,7 +52,7 @@ Looking for automatic AI-powered PR reviews? See [GitHub App](/configuration/git
 </Steps>
 
 <Note>
-Tests triggered via GitHub Actions automatically send [notifications](/core-concepts/notifications) to configured Slack channels when complete.
+Tests triggered via GitHub Actions automatically send [notifications](/core-concepts/notifications) to configured Slack channels when complete. When using the [direct API integration](#direct-api-integration), you can override notification destinations on a per-run basis to send results to specific Slack channels. See [Per-Run Notification Overrides](/core-concepts/notifications#per-run-notification-overrides) for details.
 </Note>
 
 ## Basic Usage
@@ -206,6 +206,26 @@ curl -X POST \
   }' \
   https://app.qa.tech/api/projects/$QATECH_PROJECT_ID/runs
 ```
+
+### With Notification Overrides
+
+Send notifications to specific Slack channels for this run:
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $QATECH_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "testPlanShortId": "your-test-plan-id",
+    "notifications": [
+      { "type": "slack", "channel": "C0478ABCDEF", "notifyOn": "always" },
+      { "type": "slack", "channel": "C0123FAIL42", "notifyOn": "failure" }
+    ]
+  }' \
+  https://app.qa.tech/api/projects/$QATECH_PROJECT_ID/runs
+```
+
+This overrides the default project Slack channel and sends notifications to the specified channels instead. See the [Start Run API Reference](/api-reference/start-run#slack-notification-overrides) for complete details.
 
 **Response format:**
 ```json

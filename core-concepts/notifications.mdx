@@ -21,7 +21,7 @@ Configure Slack notifications in two steps:
 1. **Connect Slack** at Organization Settings → Connections
 2. **Select channel** at Project Settings → Integrations → Slack
 
-Each project can send notifications to one public Slack channel. You get one notification per run of the testing suite.
+Each project has a default Slack channel configured in project settings. By default, all run notifications go to this channel. However, when triggering runs via the API, you can override the notification destination on a per-run basis to send notifications to different channels or multiple channels. See [Per-Run Notification Overrides](#per-run-notification-overrides) below for details.
 
 ### What You Get
 
@@ -34,6 +34,37 @@ Each notification includes:
 - **Results link** - Direct access to full test report
 
 You'll receive a notification for every completed run, whether you trigger it manually, through CI/CD, or via schedule.
+
+### Per-Run Notification Overrides
+
+When triggering test runs via the [Start Run API](/api-reference/start-run), you can override the default Slack channel and send notifications to specific channels for that run. This is useful for:
+
+- **PR-specific channels**: When testing a pull request, send notifications to a dedicated Slack channel for that PR (e.g., `#pr-123-frontend-tests`) instead of the default project channel
+- **Team-specific notifications**: Route test results to team-specific channels (e.g., send frontend test results to `#frontend-team` and backend tests to `#backend-team`) so each team only sees relevant notifications
+- **Failure-only channels**: Set up channels that only receive notifications when tests fail (e.g., `#alerts-critical-failures`), reducing noise while ensuring failures are immediately visible
+
+**How it works:**
+
+Include a `notifications` array in your API request to specify which Slack channels should receive notifications for that run:
+
+```json
+{
+  "testPlanShortId": "abc123",
+  "notifications": [
+    { "type": "slack", "channel": "C0478ABCDEF", "notifyOn": "always" },
+    { "type": "slack", "channel": "C0123FAIL42", "notifyOn": "failure" }
+  ]
+}
+```
+
+**Key points:**
+
+- Each channel can be configured with `notifyOn: "always"` (default) to receive both start and finish notifications, or `notifyOn: "failure"` to only receive finish notifications when the run result is not `PASSED` (i.e., `FAILED`, `SKIPPED`, or `null`)
+- When overrides are provided, the default project channel is skipped - only the specified channels receive notifications
+- The QA.tech bot must already have access to all channels you specify
+- Requires [Slack integration](/core-concepts/notifications#slack-notifications) to be configured for the project
+
+For complete API documentation, see the [Start Run API Reference](/api-reference/start-run#slack-notification-overrides).
 
 ## Email Reports
 

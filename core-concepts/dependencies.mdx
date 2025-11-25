@@ -28,7 +28,7 @@ In practice you will have to use both - independent tests and tests with various
 **Use when:** You want to avoid repeated logins or expensive setup by reusing browser state from a previous test in the chain.
 
 ### Wait For
-**What it does:** Test waits for dependency to complete before starting. Receives output data (user IDs, resource names, URLs) from the dependency test, but starts with a fresh browser session—no shared cookies, localStorage, or login state.
+**What it does:** Test waits for dependency to complete before starting. Receives output data (user IDs, resource names, URLs) from the dependency test, but starts with a fresh browser session-no shared cookies, localStorage, or login state.
 
 **Use when:** You need execution order and data passing between different user contexts, or when tests need created data but not browser state. For workflows with the same user, use Resume From instead to avoid repeated logins.
 
