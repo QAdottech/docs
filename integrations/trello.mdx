@@ -1,31 +1,49 @@
 ---
 title: Trello
-description: 'Create Trello Cards for Issues found in QA.tech'
-icon: 'Trello'
+description: 'Export QA.tech-detected issues to Trello'
+icon: 'trello'
 ---
 
-## Trello
+The Trello integration allows you to manually export QA.tech issues to your Trello board. Issues are **not automatically synced** - you choose which issues to send to Trello.
 
-Trello is a web-based project management tool that helps individuals and teams organize tasks and workflows visually. It uses boards, lists, and cards to represent projects, to-do items, and progress. With features like due dates, labels, checklists, and integrations, Trello makes collaboration simple and intuitive for users.
+<Note>
+  **Prerequisites:** QA.tech automatically detects issues during test runs. You can set up the integration without any issues, but you'll need at least one detected issue before you can export. See [Issues](/core-concepts/issues) to learn what types of issues are detected.
+</Note>
 
-## Trello Integration
-
-Connecting QA.tech to your Trello account is simple. Follow these steps.
+## Setup
 
 <Steps>
   <Step title="Connect to Trello">
-    Go to [**Settings →
-    Connections**](https://app.qa.tech/current-project/settings/organization/connections),
-    and add the Trello integration. Follow the OAuth flow to grant access and
-    set your preferred permissions.
+    Go to **Settings → Integrations** in your project settings. Click **"Manage Connections"** at the top, then add the Trello integration. Follow the OAuth flow to grant QA.tech access to your Trello workspace.
   </Step>
   <Step title="Configure the Project">
-    Navigate to [**Settings →
-    Integrations**](https://app.qa.tech/current-project/settings/integrations?focus=trello).
-    Select the Trello board and list where you want created cards to appear.
-  </Step>
-  <Step title="Export an Issue">
-    In the Issues section, select an issue and click the Send to Trello button
-    to export it.
+    Return to **Settings → Integrations** and click on the Trello integration. Select the **Trello board** and **list** where you want exported cards to appear, then click **"Save Trello Settings"**.
   </Step>
 </Steps>
+
+## Exporting Issues
+
+Once configured, you can export any QA.tech issue to Trello:
+
+<Steps>
+  <Step title="Go to Issues">
+    Click **Issues** in the sidebar to see detected issues.
+  </Step>
+  <Step title="Select an Issue">
+    Click on an issue to view its details.
+  </Step>
+  <Step title="Click Export">
+    In the **Link** section, click **"Create Card in Trello"**. A card will be created in your configured Trello list.
+  </Step>
+</Steps>
+
+## What Gets Exported
+
+When you export an issue, Trello receives:
+
+- **Card Title:** The issue title from QA.tech
+- **Description:** Full issue details with a link back to QA.tech
+
+<Tip>
+  Exported cards include a direct link back to QA.tech, so your team can easily access test results and occurrence details.
+</Tip>

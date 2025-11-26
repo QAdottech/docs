@@ -1,31 +1,55 @@
 ---
 title: Linear
-description: 'Trigger your test from a GitHub repo'
+description: 'Export QA.tech-detected issues to Linear'
 icon: 'bug'
 ---
 
-## Linear
+The Linear integration allows you to manually export QA.tech issues to your Linear workspace. Issues are **not automatically synced** - you choose which issues to send to Linear.
 
-Linear is a modern project management tool designed for software teams to track issues, manage tasks, and streamline workflows. It offers a clean interface, keyboard shortcuts, and integrations with tools like GitHub and Slack. With features like sprints, roadmaps, and automation, Linear helps teams stay focused and efficient.
+<Note>
+  **Prerequisites:** QA.tech automatically detects issues during test runs. You can set up the integration without any issues, but you'll need at least one detected issue before you can export. See [Issues](/core-concepts/issues) to learn what types of issues are detected.
+</Note>
 
-## Linear Integration
-
-Connecting QA.tech to your Linear account is simple. Follow these steps.
+## Setup
 
 <Steps>
   <Step title="Connect to Linear">
-    Go to [**Settings →
-    Connections**](https://app.qa.tech/current-project/settings/organization/connections),
-    and add the Linear integration. Follow the OAuth flow to grant access and
-    set your preferred permissions.
+    Go to **Settings → Integrations** in your project settings. Click **"Manage Connections"** at the top, then add the Linear integration. Follow the OAuth flow to grant QA.tech access to your Linear workspace.
   </Step>
   <Step title="Configure the Project">
-    Navigate to [**Settings →
-    Integrations**](https://app.qa.tech/current-project/settings/integrations?focus=linear).
-    Select the Linear Team where you want created issues to appear.
-  </Step>
-  <Step title="Export an Issue">
-    In the Issues section, select an issue and click the Send to Linear button
-    to export it.
+    Return to **Settings → Integrations** and click on the Linear integration. Select the **Linear Team** where you want exported issues to appear, then click **"Save Linear Integration"**.
   </Step>
 </Steps>
+
+## Exporting Issues
+
+Once configured, you can export any QA.tech issue to Linear:
+
+<Steps>
+  <Step title="Go to Issues">
+    Click **Issues** in the sidebar to see detected issues.
+  </Step>
+  <Step title="Select an Issue">
+    Click on an issue to view its details.
+  </Step>
+  <Step title="Click Export">
+    In the **Link** section, click **"Create Issue in Linear"**. The issue will be created in your configured Linear team.
+  </Step>
+</Steps>
+
+## What Gets Exported
+
+When you export an issue, Linear receives:
+
+- **Title:** The issue title from QA.tech
+- **Description:** Includes:
+  - Issue type
+  - First seen date
+  - Issue description
+  - Help/hint information (if available)
+  - Link back to QA.tech
+  - Console error details (for console errors: error level, file location, line numbers, messages)
+
+<Tip>
+  Exported issues include a direct link back to QA.tech, so your team can easily access test results and occurrence details.
+</Tip>

@@ -1,31 +1,51 @@
 ---
 title: Jira
-description: 'Create Jira Issues for issues found in QA.tech'
-icon: 'Jira'
+description: 'Export QA.tech-detected issues to Jira'
+icon: 'jira'
 ---
 
-## Jira
+The Jira integration allows you to manually export QA.tech issues to your Jira board. Issues are **not automatically synced** - you choose which issues to send to Jira.
 
-Jira is a software tool developed by Atlassian used for project management, issue tracking, and team collaboration. Initially designed as a bug-tracking tool, it has evolved into a versatile platform used by teams across industries to plan, track, and manage their work.
+<Note>
+  **Prerequisites:** QA.tech automatically detects issues during test runs. You need at least one detected issue before you can export. See [Issues](/core-concepts/issues) to learn what types of issues are detected.
+</Note>
 
-## Jira Integration
-
-Connecting QA.tech to your Jira account is simple. Follow these steps.
+## Setup
 
 <Steps>
   <Step title="Connect to Jira">
-    Go to [**Settings →
-    Connections**](https://app.qa.tech/current-project/settings/organization/connections),
-    and add the Jira integration. Follow the OAuth flow to grant access and set
-    your preferred permissions.
+    Go to **Settings → Integrations** in your project settings. Click **"Manage Connections"** at the top, then add the Jira integration. Follow the OAuth flow to grant QA.tech access to your Jira instance.
   </Step>
   <Step title="Configure the Project">
-    Navigate to [**Settings →
-    Integrations**](https://app.qa.tech/current-project/settings/integrations?focus=jira).
-    Select the Jira board and list where you want created issues to appear.
-  </Step>
-  <Step title="Export an Issue">
-    In the Issues section, select an issue and click the "Send to Jira" button
-    to export it.
+    Return to **Settings → Integrations** and click on the Jira integration. Select the **Jira project** and **issue type** where you want exported issues to appear, then click **"Save Jira Integration"**.
   </Step>
 </Steps>
+
+## Exporting Issues
+
+Once configured, you can export any QA.tech issue to Jira:
+
+<Steps>
+  <Step title="Go to Issues">
+    Click **Issues** in the sidebar to see detected issues.
+  </Step>
+  <Step title="Select an Issue">
+    Click on an issue to view its details.
+  </Step>
+  <Step title="Click Export">
+    In the **Link** section, click **"Create Issue in Jira"**. The issue will be created in your configured Jira project.
+  </Step>
+</Steps>
+
+## What Gets Exported
+
+When you export an issue, Jira receives:
+
+- **Summary:** The issue title from QA.tech
+- **Description:** Full issue details including type, first seen date, and help information
+- **Labels:** `qatech` label for easy filtering
+- **Link:** Direct URL back to the issue in QA.tech
+
+<Tip>
+  Exported issues include a direct link back to QA.tech, so your team can easily access test results and occurrence details.
+</Tip>

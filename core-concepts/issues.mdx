@@ -1,24 +1,18 @@
 ---
 title: Issues
-description: Issues are things we take note of while running your tests. It collects bugs, improvements and things you might want to look over in your application.
+description: QA.tech automatically detects issues during test runs, including failed tests, JavaScript console errors, and WCAG accessibility violations.
 icon: 'bug'
 ---
 
 ## What types of issues does QA.tech detect?
 
-We continuously improve our issue detection and can export issues to Linear, Jira, and Trello. Some examples of issues we detect:
+QA.tech automatically detects issues during test runs. You can export any detected issue to Linear, Jira, or Trello.
 
-### Failed tests
+- **Failed tests** - When a test cannot be completed, QA.tech creates a failed test issue. This often indicates a UX problem or functional issue in your application that needs investigation.
 
-When a test cannot be completed, we create a failed test issue. This often indicates a UX problem or functional issue in your application that needs investigation.
+- **Console errors** - QA.tech captures JavaScript console errors that occur during test execution. These are typically filed as low-severity issues but can indicate bugs or misconfigurations.
 
-### Console errors
-
-We capture JavaScript console errors that occur during test execution. These are typically filed as low-severity issues but can indicate bugs or misconfigurations.
-
-### Accessibility issues
-
-We automatically check for WCAG 2.0, 2.1, and 2.2 violations using [axe-core](https://github.com/dequelabs/axe-core) on every page your tests visit.
+- **Accessibility issues** - QA.tech automatically checks for WCAG 2.0, 2.1, and 2.2 violations using [axe-core](https://github.com/dequelabs/axe-core) on every page your tests visit.
 
 #### How it works
 
@@ -34,30 +28,94 @@ We automatically check for WCAG 2.0, 2.1, and 2.2 violations using [axe-core](ht
 
 #### Limitations
 
+**Accessibility scanning:**
+
 - Maximum 10 issues captured per test session ([see limits](/core-concepts/limits))
 - Color contrast not checked (use browser DevTools for this)
 - Content in iframes not scanned
 - Certain rules disabled: `region`, `landmark-one-main`
 
-**To maximize coverage:** Create tests that visit all important pages in your app. Tests provide deeper coverage than crawlers because they can authenticate, fill forms, and navigate complex flows.
-
-<Note>
-  Accessibility scans are integrated into test execution. To schedule regular accessibility checks, create a test plan and schedule it to run daily/weekly.
-</Note>
-
-### What we don't detect
+**What we don't detect:**
 
 Because we interact with your product as a user through a browser:
 
 - **Server-side errors:** Use a monitoring tool like Sentry or BugSnag for backend exceptions
 - **Network request failures:** We log these for debugging but don't create issues for them
 
-## Issue Statuses
+<Note>
+  **Automatic scanning:** Accessibility checks run automatically whenever you execute a test - no setup needed.
 
-You can mark issues as resolved or choose to ignore them to not be notified again.
+  **Schedule regular checks:** To get ongoing accessibility monitoring, create a [test plan](/core-concepts/test-plans) with your test cases and add a schedule (daily, weekly, etc.), or run tests from your [CI/CD pipeline](/configuration/ci-cd-integration).
+</Note>
 
-Ignored issues do not count towards your statistics and insights.
+## Issues Dashboard
 
-## Export Issues
+### Filtering Issues
 
-Issues can easily be exported to Linear, Jira, or Trello. Configure integrations in [Settings → Integrations](/integrations/linear).
+Use filters to find specific issues:
+
+| Filter | Options |
+|--------|---------|
+| **Severity** | Minor, Major, Critical |
+| **Type** | Accessibility, Console, Failed Test, Hosting |
+| **Status** | Active, Ignored, Resolved (by default, only Active issues are shown) |
+
+You can also use the search bar to find issues by title or description.
+
+### Viewing Issue Details
+
+Click on any issue to see:
+
+- **Severity and Status** - How critical the issue is and its current state
+- **First/Last Seen** - When the issue was first and most recently detected
+- **Occurrences** - Every time this issue was encountered during test runs, including which test run and URL
+- **Help Information** - Guidance on how to fix the issue (accessibility issues include WCAG documentation links)
+
+## Export to Issue Trackers
+
+QA.tech integrates with popular issue tracking tools so you can manage bugs in your existing workflow. Issues are **not automatically synced** - you choose which issues to export.
+
+### Supported Integrations
+
+| Integration | What Gets Created | Configuration |
+|-------------|-------------------|---------------|
+| [Jira](/integrations/jira) | Jira Issue | Select project and issue type |
+| [Linear](/integrations/linear) | Linear Issue | Select team |
+| [Trello](/integrations/trello) | Trello Card | Select board and list |
+
+### How to Export an Issue
+
+<Steps>
+  <Step title="Navigate to Issues">
+    Click **Issues** in the sidebar to see all detected issues for your project.
+  </Step>
+  <Step title="Find Your Issue">
+    Use filters to narrow down by severity, type, or status. Search for specific issues by title.
+  </Step>
+  <Step title="Open Issue Details">
+    Click on an issue to view its full details, occurrences, and help information.
+  </Step>
+  <Step title="Export to Your Tracker">
+    In the issue detail view, find the **Link** section at the top. Click the export button for your configured integration:
+    - **"Create Issue in Jira"** - Creates a Jira issue with `qatech` label
+    - **"Create Issue in Linear"** - Creates a Linear issue in your team
+    - **"Create Card in Trello"** - Creates a Trello card in your list
+  </Step>
+</Steps>
+
+<Note>
+  If you see **"Add Integration"** instead of export buttons, you need to configure an integration first. Go to **Settings → Integrations** in your project to set up Jira, Linear, or Trello.
+</Note>
+
+### What Gets Exported
+
+When you export an issue, QA.tech sends:
+
+- **Title:** The issue title from QA.tech
+- **Description:** Issue type, first seen date, full description, and help hints
+- **Link:** Direct URL back to the issue in QA.tech for easy reference
+- **Console Details:** For console errors, includes the error level, file location, and messages
+
+<Tip>
+  After exporting, the issue detail page shows a direct link to the created ticket, so you can quickly jump to it in Jira, Linear, or Trello.
+</Tip>
