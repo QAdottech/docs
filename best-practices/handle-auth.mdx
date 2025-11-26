@@ -1,11 +1,15 @@
 ---
-title: Auth
+title: Authentication
 icon: key
 ---
 
-# Authentication Support for QA.tech
+To enable authentication in your tests, you'll need to create **Configs** in your project settings. Configs store authentication credentials (like usernames, passwords, and 2FA secrets) that the AI agent uses automatically during test execution. Our AI needs to access your website and act as a registered user to interact with protected features and test user-specific functionality.
 
-QA.tech supports most common authentication setups. If your preferred authentication method isn't listed below, let us know, and we'll consider adding it to our roadmap.
+If your preferred authentication method isn't listed below, let us know, and we'll consider adding it to our roadmap.
+
+<Note>
+For detailed information about all config types and their settings, see the [Configs documentation](/core-concepts/configs).
+</Note>
 
 <Warning>
   **Security Notice: Use Test Credentials Only**
@@ -13,7 +17,7 @@ QA.tech supports most common authentication setups. If your preferred authentica
   Authentication credentials stored in [Configs](/core-concepts/configs) are **not encrypted** and are passed to AI language models during test execution. Always use dedicated test accounts - never real user credentials or production passwords.
 </Warning>
 
-## What We Support
+## Authentication Support for QA.tech AI Bots
 
 | Authentication Method | Description | Setup Required |
 | --------------------- | ----------- | -------------- |
@@ -42,7 +46,7 @@ For standard login forms, create a config in your project settings:
 
 1. Go to **Project Settings** → **Configs**
 2. Click **Add Config**
-3. Select **Username + Password Credentials** or **Email + Password Credentials**
+3. Select **Username + Password Credentials** or **Valid Email + Password Login Credentials**
 4. Fill in your test account credentials
 5. Click **Save**
 
@@ -114,7 +118,7 @@ otpauth://totp/YourApp:test.user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Your
   <Step title="Create the Config in QA.tech">
     Now, let's add the credentials and the secret URI to QA.tech.
 
-1. Navigate to your QA.tech project, go to **Settings**, and click on the **Configs** tab.
+1. Go to **Project Settings** → **Configs**
 2. Click the **Add Config** button.
 3. From the list of types, select **Username + Password Credentials - with Two-Factor Authentication**.
 4. Fill in the form:
