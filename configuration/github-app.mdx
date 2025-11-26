@@ -4,10 +4,14 @@ description: 'Automatic AI-powered pull request testing and reviews'
 icon: 'robot'
 ---
 
-Get autonomous AI-powered test coverage and reviews on every pull request. The QA.tech GitHub App analyzes code changes, creates missing tests, and posts comprehensive reviews based on test results.
+Get autonomous AI-powered test coverage and reviews on every pull request. The QA.tech GitHub App uses **AI exploratory testing** to analyze code changes, create missing tests, and post comprehensive reviews based on test results.
 
 <Note>
-Looking to manually trigger tests from CI/CD workflows? See [GitHub Actions](/configuration/github-actions) instead.
+**Integration modes:**
+- **AI exploratory** (this page): Automatic AI-powered PR reviews - GitHub only
+- **API-driven**: Manual test plan triggers via [GitHub Actions](/configuration/github-actions) or [GitLab CI](/configuration/gitlab)
+
+See [CI/CD Integration Overview](/configuration/ci-cd-integration) to understand both modes and choose the right approach for your needs.
 </Note>
 
 ## What It Does
@@ -219,6 +223,8 @@ The GitHub App is fully autonomous. For manual test selection, use [GitHub Actio
 - Update existing tests to better cover the functionality
 - The agent learns from your existing test patterns
 
----
+## Related Documentation
 
-**Need manual control?** See [GitHub Actions](/configuration/github-actions) for triggering specific test plans, testing preview deployments with environment overrides, or on-demand exploratory testing via `@qatech` mentions.
+- **[CI/CD Integration Overview](/configuration/ci-cd-integration)** - Learn about integration modes and capabilities
+- **[GitHub Actions](/configuration/github-actions)** - API-driven testing with manual control over test plans
+- **[Test Plans](/core-concepts/test-plans)** - Organize tests for API-driven runs

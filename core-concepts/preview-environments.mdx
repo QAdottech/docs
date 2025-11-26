@@ -43,12 +43,17 @@ You can trigger test runs against preview environments using the [**Start Run AP
 
 ## Integration with CI/CD
 
-Use the [QA.tech GitHub Action](https://github.com/QAdottech/run-action) to automatically test preview environments. The action supports:
+You can test preview environments from any CI/CD pipeline using the QA.tech REST API. The API supports:
 
-- **Dynamic URL configuration** - Override environment URLs using `applications_config`
+- **Dynamic URL configuration** - Override environment URLs using `applications` parameter
 - **Multiple application testing** - Test frontend, backend, and other apps simultaneously
-- **Blocking mode** - Wait for test completion before proceeding
-- **PR-based deployments** - Automatic testing on pull requests
-- **Custom deployment integrations** - Works with Vercel, Netlify, AWS, and other platforms
+- **Blocking mode** - Wait for test completion before proceeding (poll run status)
+- **PR/MR-based deployments** - Automatic testing on pull requests or merge requests
+- **Any CI/CD platform** - Works with GitLab, GitHub Actions, Bitbucket, Azure DevOps, CircleCI, Jenkins, and more
 
-For complete setup examples and configuration options, see the [GitHub Action documentation](https://github.com/QAdottech/run-action).
+**Platform guides:**
+- [CI/CD Integration Overview](/configuration/ci-cd-integration) - Learn about integration modes and capabilities
+- [GitHub Actions](/configuration/github-actions) - Official GitHub Action with built-in blocking support
+- [GitLab CI](/configuration/gitlab) - GitLab CI/CD pipeline examples
+
+For complete API documentation, see the [Start Run API Reference](/api-reference/start-run).

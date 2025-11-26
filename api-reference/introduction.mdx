@@ -23,6 +23,7 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
+    "integrationName": "API",
     "testPlanShortId": "abc123"
   }'
 ```

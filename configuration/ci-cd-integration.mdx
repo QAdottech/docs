@@ -1,0 +1,83 @@
+---
+title: 'CI/CD Integration'
+description: 'Integrate QA.tech into your CI/CD workflows to automatically test your applications on every deployment, pull request, or scheduled run.'
+icon: 'rotate'
+---
+
+## Two Ways to Integrate
+
+QA.tech offers two integration modes for CI/CD:
+
+| Feature | API-Driven Testing | AI Exploratory Testing |
+|:--------|:-------------------|:----------------------|
+| **How it works** | You define test plans, trigger via API | AI analyzes PR, creates & runs tests |
+| **CI/CD Support** | Any system (GitLab, GitHub, Bitbucket, Azure DevOps, CircleCI, Jenkins) | GitHub only |
+| **Test Selection** | You choose which test plan to run | AI selects relevant tests automatically |
+| **Test Creation** | You create tests in QA.tech UI | AI creates tests for new functionality |
+| **Best For** | Regression testing, scheduled runs, deployment gates | Exploratory testing of new features |
+
+<Note>
+**Which mode should you use?**
+- **API-driven**: Use for regression testing, scheduled test runs, or when you want full control over which tests run
+- **AI exploratory**: Use for GitHub PRs when you want AI to discover and test new functionality automatically
+</Note>
+
+## API-Driven Testing
+
+Works with any CI/CD system that can make HTTP requests. You create test plans in QA.tech, then trigger them programmatically from your pipeline using a simple REST API call. This approach gives you full control over which tests run, when they run, and which environments to test - perfect for regression testing, deployment gates, and scheduled test suites.
+
+### How It Works
+
+1. **Create test plans** in QA.tech - organize your test cases into logical groups
+2. **Trigger via REST API** from your CI/CD pipeline
+3. **Test runs execute** against your configured environments
+4. **Results available** in QA.tech dashboard and via API
+
+### What You Can Do
+
+- **Test preview/staging environments** - Override application URLs dynamically when testing Vercel, Netlify, or custom preview deployments. See [Preview Environments](/core-concepts/preview-environments).
+
+- **Block deployments until tests pass** - Wait for test results before proceeding with your pipeline. The GitHub Action has built-in blocking support; other platforms can poll the run status API.
+
+- **Schedule recurring test runs** - Set up nightly regression suites or periodic smoke tests using your CI/CD system's cron functionality.
+
+- **Custom Slack notifications** - Send test results to specific Slack channels per-run, separate from your project's default channel. See [Notifications](/core-concepts/notifications).
+
+- **Run specific test plans** - Target regression suites, smoke tests, or full test suites by specifying the test plan short ID.
+
+### Get Started
+
+QA.tech works with any CI/CD platform that can make HTTP requests. We provide detailed guides for:
+
+- **[GitHub Actions](/configuration/github-actions)** - Official GitHub Action with built-in blocking mode
+- **[GitLab CI](/configuration/gitlab)** - GitLab CI/CD pipeline integration via API
+
+**Other platforms** (Bitbucket Pipelines, Azure DevOps, CircleCI, Jenkins, and more) can integrate using the REST API directly. See the [Start Run API Reference](/api-reference/start-run) for complete API documentation and examples.
+
+## AI Exploratory Testing
+
+The QA.tech GitHub App automatically analyzes your pull requests, identifies user-facing changes, and creates tests for new functionality. It runs these tests against your PR's preview deployment and posts results directly as a PR review comment. This helps catch issues before merge without requiring you to manually write tests for every feature.
+
+### How It Works
+
+1. **Analyzes PR changes** - Examines code diff and identifies user-facing changes
+2. **Selects relevant tests** - Finds existing tests that apply to the changes
+3. **Creates missing tests** - Generates tests for untested functionality
+4. **Runs tests** - Executes against PR preview deployment
+5. **Posts review** - Comments on PR with test results and approval/rejection
+
+### Requirements
+
+- GitHub App installed on your repository
+- Preview deployments configured (Vercel, Netlify, Render, Railway, Fly.io supported)
+- GitHub Actions enabled (for test execution)
+
+<Note>
+AI exploratory testing is currently available for GitHub only. For other platforms, use API-driven testing. See [GitHub App](/configuration/github-app) for installation and configuration.
+</Note>
+
+## Related Documentation
+
+- **[Test Plans](/core-concepts/test-plans)** - Create and organize test plans to run via API
+- **[API Reference](/api-reference/start-run)** - Complete API documentation with all parameters
+- **[Preview Environments](/core-concepts/preview-environments)** - Testing dynamic preview deployments

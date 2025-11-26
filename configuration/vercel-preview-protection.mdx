@@ -8,6 +8,10 @@ icon: 'shield-check'
 
 When testing Vercel preview deployments that are protected with Password Protection, Vercel Authentication, or Trusted IPs, you need to configure QA.tech to bypass these protection mechanisms. This guide shows you how to set up automated testing with Vercel's Protection Bypass for Automation feature.
 
+<Note>
+This guide is for testing protected Vercel preview deployments from CI/CD pipelines. See [CI/CD Integration](/configuration/ci-cd-integration) for an overview of integrating QA.tech with CI/CD systems.
+</Note>
+
 ## Overview
 
 Vercel's Protection Bypass for Automation allows automated tools like QA.tech to access protected deployments using a special secret. This bypasses all deployment protection methods including:

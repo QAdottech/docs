@@ -146,6 +146,7 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
+    "integrationName": "API",
     "testPlanShortId": "abc123"
   }'
 ```
@@ -324,22 +325,34 @@ on:
     types: [opened, synchronize]
 
 jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      preview_url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Deploy to Preview
+        id: deploy
+        run: |
+          # Your deployment logic
+          echo "url=https://preview-${{ github.event.pull_request.number }}.vercel.app" >> $GITHUB_OUTPUT
+
   test:
     runs-on: ubuntu-latest
+    needs: deploy
     steps:
       - name: Trigger QA.tech Test
         run: |
-          curl -X POST https://app.qa.tech/api/projects/${{ secrets.QA_PROJECT_UUID }}/runs \
-            -H "Authorization: Bearer ${{ secrets.QA_API_TOKEN }}" \
+          curl -X POST https://app.qa.tech/api/projects/${{ secrets.QATECH_PROJECT_ID }}/runs \
+            -H "Authorization: Bearer ${{ secrets.QATECH_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
               "integrationName": "GitHub Actions",
-              "testPlanShortId": "${{ secrets.QA_TEST_PLAN_SHORT_ID }}",
+              "testPlanShortId": "abc123",
               "applications": {
-                "frontend": {
+                "frontend-app": {
                   "environment": {
-                    "url": "${{ steps.deploy.outputs.preview-url }}",
-                    "name": "PR-${{ github.event.number }}"
+                    "url": "${{ needs.deploy.outputs.preview_url }}",
+                    "name": "PR-${{ github.event.pull_request.number }}"
                   }
                 }
               }
@@ -347,7 +360,10 @@ jobs:
 ```
 
 <Note>
-For a complete guide to GitHub Actions integration including the official QA.tech action and additional examples, see [GitHub Actions](/configuration/github-actions).
+This API endpoint works with any CI/CD system. For platform-specific guides and examples:
+- [CI/CD Integration Overview](/configuration/ci-cd-integration) - Learn about integration modes
+- [GitHub Actions](/configuration/github-actions) - Official GitHub Action and examples
+- [GitLab CI](/configuration/gitlab) - GitLab CI/CD examples
 </Note>
 
 ## OpenAPI Specification

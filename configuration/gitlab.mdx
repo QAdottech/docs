@@ -1,45 +1,174 @@
 ---
-title: GitLab
-description: 'Trigger your tests from a GitLab repo'
+title: GitLab CI/CD
+description: 'Integrate QA.tech testing into GitLab pipelines'
 icon: 'gitlab'
 ---
 
-# Gitlab Integration
+Trigger QA.tech test runs from your GitLab CI/CD pipelines using the REST API.
 
-Automate your QA process by integrating QA.tech with your GitLab CI/CD pipelines. You can trigger test runs automatically on stages, after deployments, on merge requests.
+<Note>
+AI-powered exploratory testing is currently GitHub-only via the [GitHub App](/configuration/github-app). For GitLab, use API-driven testing as described below.
+</Note>
 
-You can trigger an external API as part of your GitLab CI/CD pipeline using a curl command inside your `.gitlab-ci.yml` file.
+## Setup
 
-## Example: Triggering an API with a POST Request
+### Prerequisites
 
-This example demonstrates how to send a JSON payload to an external API from a pipeline job.
+You need three values from your [project settings](https://app.qa.tech/current-project/settings/integrations):
+
+- **API Token** - Your QA.tech API token
+- **Project UUID** - 36-character project identifier
+- **Test Plan Short ID** - 6-character ID from your test plan URL
+
+### Configure CI/CD Variables
+
+Store your API token securely:
+
+1. Go to **Settings → CI/CD → Variables**
+2. Add variable:
+   - **Key**: `QA_TECH_API_TOKEN`
+   - **Value**: Your API token
+   - **Protected**: ✅
+   - **Masked**: ✅
+
+## Implementation Patterns
+
+### Basic Setup
 
 ```yaml
 trigger_qatech:
-  stage: deploy
+  stage: test
   variables:
-    QATECH_REQUEST_BODY: '{"integrationName": "Gitlab"}'
-    API_TOKEN: $QA_TECH_API_TOKEN # Use GitLab secret variable
+    API_TOKEN: $QA_TECH_API_TOKEN
+    QATECH_REQUEST_BODY: '{"integrationName": "GitLab", "testPlanShortId": "abc123"}'
   script: >
-    curl --request POST --url "https://app.qa.tech/api/projects/<PROJECT_ID>/runs"
+    curl --request POST
+    --url "https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs"
     --header "Authorization: Bearer $API_TOKEN"
+    --header "Content-Type: application/json"
     --data "${QATECH_REQUEST_BODY}"
 ```
 
-### Instructions
+Replace `YOUR_PROJECT_UUID` and `abc123` with your values.
 
-Update the URL and QA_TECH_API_TOKEN for your project.
-You can find these values in your [project settings](https://app.qa.tech/current-project/settings/integrations).
+### Run on Merge Requests
 
-### Use a Secret Token
+```yaml
+test_mr:
+  stage: test
+  only:
+    - merge_requests
+  variables:
+    API_TOKEN: $QA_TECH_API_TOKEN
+    QATECH_REQUEST_BODY: '{"integrationName": "GitLab MR", "testPlanShortId": "smoke-tests"}'
+  script: >
+    curl --request POST
+    --url "https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs"
+    --header "Authorization: Bearer $API_TOKEN"
+    --header "Content-Type: application/json"
+    --data "${QATECH_REQUEST_BODY}"
+```
 
-Store your API token securely in GitLab CI/CD variables under Settings > CI/CD > Variables.
-Name it QA_TECH_API_TOKEN and use it as shown above to avoid hardcoding secrets.
+### Test Preview Deployments
 
-### Optional Fields
+Pass dynamic URLs between jobs using dotenv artifacts:
 
-For more information about our API and other integration options, check out our [API Reference](/api-reference/start-the-tests).
+```yaml
+stages:
+  - deploy
+  - test
 
-## Notes
+deploy_preview:
+  stage: deploy
+  script:
+    - echo "PREVIEW_URL=https://preview-${CI_MERGE_REQUEST_IID}.yourdomain.com" >> deploy.env
+  artifacts:
+    reports:
+      dotenv: deploy.env
 
-Make sure the job runs in a stage that suits your pipeline (e.g., deploy, test, etc.).
+test_preview:
+  stage: test
+  dependencies:
+    - deploy_preview
+  variables:
+    API_TOKEN: $QA_TECH_API_TOKEN
+  before_script:
+    - |
+      echo '{"integrationName":"GitLab Preview","testPlanShortId":"regression-suite","applications":{"frontend-app":{"environment":{"url":"'$PREVIEW_URL'","name":"MR-'$CI_MERGE_REQUEST_IID'"}}}}' > /tmp/request.json
+  script: >
+    curl --request POST
+    --url "https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs"
+    --header "Authorization: Bearer $API_TOKEN"
+    --header "Content-Type: application/json"
+    --data @/tmp/request.json
+```
+
+### Scheduled Testing
+
+```yaml
+nightly_tests:
+  stage: test
+  only:
+    - schedules
+  variables:
+    API_TOKEN: $QA_TECH_API_TOKEN
+    QATECH_REQUEST_BODY: '{"integrationName": "GitLab Scheduled", "testPlanShortId": "full-regression"}'
+  script: >
+    curl --request POST
+    --url "https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs"
+    --header "Authorization: Bearer $API_TOKEN"
+    --header "Content-Type: application/json"
+    --data "${QATECH_REQUEST_BODY}"
+```
+
+Set up schedules at **CI/CD → Schedules → New schedule**.
+
+<Accordion title="GitLab Schedules vs QA.tech Schedules">
+**Use GitLab schedules when:**
+- Tests should run as part of your CI/CD pipeline
+- You need GitLab context (branch, commit SHA)
+- You want to gate deployments on scheduled test results
+
+**Use QA.tech schedules when:**
+- Tests should run independently of CI/CD infrastructure
+- You prefer managing schedules in QA.tech UI
+- You want to avoid consuming GitLab runner minutes
+
+See [Test Plans](/core-concepts/test-plans#scheduled-execution) for QA.tech scheduling.
+</Accordion>
+
+## GitLab Tips
+
+### Finding Your Test Plan Short ID
+
+1. Go to [Test Plans](https://app.qa.tech/current-project/test-plans)
+2. Click on a test plan
+3. Check the URL: `https://app.qa.tech/.../test-plans/abc123`
+4. The short ID is `abc123`
+
+### Building JSON Payloads
+
+For complex payloads with dynamic values, write to a file first:
+
+```yaml
+before_script:
+  - |
+    echo '{"key": "'$VARIABLE'"}' > /tmp/request.json
+script:
+  - curl ... --data @/tmp/request.json
+```
+
+### Custom Slack Notifications
+
+Override notification channels per-run. See [Notifications](/core-concepts/notifications#per-run-notification-overrides) for details.
+
+### Blocking Mode
+
+To wait for results, poll the run status endpoint. See [API Reference](/api-reference/start-run) for the status endpoint.
+
+## Related Documentation
+
+- **[CI/CD Integration](/configuration/ci-cd-integration)** - Overview of integration modes
+- **[API Reference](/api-reference/start-run)** - Complete API documentation
+- **[Test Plans](/core-concepts/test-plans)** - Create and organize test plans
+- **[Preview Environments](/core-concepts/preview-environments)** - Dynamic preview testing
