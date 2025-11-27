@@ -1,0 +1,201 @@
+---
+title: Get Run Status API
+description: 'Check test run status and retrieve results programmatically'
+icon: 'clock'
+---
+
+Check test run status and retrieve detailed results programmatically. This endpoint enables **blocking mode** in CI/CD pipelines, custom post-run automation, and integration with your existing tooling.
+
+## When to Use This API
+
+- **Test result analysis** - Build dashboards or generate reports from test results
+- **Custom post-run automation** - Trigger webhooks, custom alerting, or auto-create tickets
+- **CI/CD blocking mode** - Wait for test completion before proceeding with deployments (GitLab, CircleCI, Jenkins, etc.)
+
+For detailed examples, see:
+- **[GitLab CI Blocking Mode](/configuration/gitlab#blocking-mode)** - Complete GitLab CI/CD example
+- **[CI/CD Integration](/configuration/ci-cd-integration)** - Advanced use cases including webhooks and custom automation
+
+## Quick Example: Polling Script
+
+Basic polling example:
+
+```bash
+RESPONSE=$(curl -s "https://app.qa.tech/api/projects/$QATECH_PROJECT_UUID/runs/$SHORT_ID" \
+  -H "Authorization: Bearer $QATECH_API_TOKEN")
+
+STATUS=$(echo "$RESPONSE" | jq -r '.status')
+
+if [[ "$STATUS" == "COMPLETED" || "$STATUS" == "ERROR" || "$STATUS" == "CANCELLED" ]]; then
+  RESULT=$(echo "$RESPONSE" | jq -r '.result')
+  if [[ "$RESULT" == "PASSED" ]]; then
+    echo "Tests passed!"
+  else
+    echo "Tests failed: $RESULT"
+  fi
+else
+  echo "Status: $STATUS - still running"
+fi
+```
+
+**Variables:**
+- `$QATECH_PROJECT_UUID` - Your project's 36-character UUID (see [Finding Your Project UUID](/api-reference/introduction#finding-your-project-uuid))
+- `$SHORT_ID` - The 6-character run short ID (returned from [Start Run API](/api-reference/start-run) response: `run.shortId`)
+- `$QATECH_API_TOKEN` - Your project's API token (found in **Settings → Integrations → API**)
+
+
+## API Reference
+
+### Endpoint
+
+```
+GET /projects/{projectUuid}/runs/{shortId}
+```
+
+### Authentication
+
+The Get Run Status API uses Bearer token authentication. Include your project's API token in the `Authorization` header:
+
+```
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+You can obtain your project's API token from the QA.tech dashboard in **Settings → Integrations → API**.
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `projectUuid` | string (UUID) | Yes | Your project's UUID (36-character format) |
+| `shortId` | string | Yes | The 6-character short ID of the run (returned from Start Run API) |
+
+### Response Format
+
+#### Success Response (200)
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "shortId": "abc123",
+  "status": "COMPLETED",
+  "result": "FAILED",
+  "failedTestCases": [
+    {
+      "id": "test-case-uuid",
+      "shortId": "xyz789",
+      "name": "Login flow test",
+      "status": "COMPLETED",
+      "result": "FAILED",
+      "resultTitle": "Could not find login button",
+      "evaluationThought": "The test failed because the login button was not visible on the page.",
+      "promptGoal": "Test the login flow",
+      "promptExamples": null
+    }
+  ]
+}
+```
+
+#### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string (UUID) | Internal run identifier |
+| `shortId` | string | 6-character short ID used in URLs |
+| `status` | string | Current run status (see Status Values below) |
+| `result` | string \| null | Test result when status is `COMPLETED` (see Result Values below) |
+| `failedTestCases` | array | Array of failed test cases (only populated when `result` is `FAILED`) |
+
+#### Failed Test Case Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string (UUID) | Test case identifier |
+| `shortId` | string | 6-character short ID |
+| `name` | string | Test case name |
+| `status` | string | Test case status |
+| `result` | string | Always `"FAILED"` in this array |
+| `resultTitle` | string | Brief failure summary |
+| `evaluationThought` | string | Detailed failure explanation |
+| `promptGoal` | string \| null | Original test goal |
+| `promptExamples` | string \| null | Example scenarios used |
+
+### Status Values
+
+| Status | Description |
+|--------|-------------|
+| `INITIATED` | Run has been created but not started |
+| `RUNNING` | Tests are currently executing |
+| `COMPLETED` | All tests have finished |
+| `ERROR` | Run encountered an error |
+| `CANCELLED` | Run was cancelled |
+
+### Result Values
+
+| Result | Description |
+|--------|-------------|
+| `PASSED` | All tests passed |
+| `FAILED` | One or more tests failed |
+| `SKIPPED` | Tests were skipped |
+| `null` | Run is still in progress (status is `INITIATED` or `RUNNING`) |
+
+## Understanding the Response
+
+### Status Lifecycle
+
+The `status` field tracks the run lifecycle:
+
+1. **`INITIATED`** → Run created, queued for execution
+2. **`RUNNING`** → Tests are executing
+3. **`COMPLETED`** / **`ERROR`** / **`CANCELLED`** → Run finished
+
+### Result Field
+
+The `result` field is only meaningful when `status` is `COMPLETED`:
+
+- **`PASSED`** - All tests succeeded
+- **`FAILED`** - At least one test failed (check `failedTestCases` array for details)
+- **`SKIPPED`** - Tests were skipped
+- **`null`** - Run is still in progress (status is `INITIATED` or `RUNNING`)
+
+### Failed Test Cases
+
+When `result` is `FAILED`, the `failedTestCases` array contains details about each failed test:
+
+- `resultTitle` - Quick summary (e.g., "Could not find login button")
+- `evaluationThought` - Detailed explanation of why the test failed
+- `promptGoal` - The original test objective
+
+## Error Handling
+
+### Not Found (404)
+
+Returned when:
+- Invalid project UUID
+- Invalid run shortId
+- Invalid API token
+
+**Response:**
+
+```json
+{
+  "statusText": "Unknown Error"
+}
+```
+
+### Forbidden (403)
+
+Returned when the organization is suspended.
+
+**Response:**
+
+```json
+{
+  "statusText": "Organization is suspended"
+}
+```
+
+## Related Documentation
+
+- **[Start Run API](/api-reference/start-run)** - Trigger test runs programmatically
+- **[CI/CD Integration](/configuration/ci-cd-integration)** - Overview of integration modes and advanced use cases
+- **[GitLab CI](/configuration/gitlab)** - GitLab-specific integration examples with blocking mode

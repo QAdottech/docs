@@ -164,7 +164,40 @@ Override notification channels per-run. See [Notifications](/core-concepts/notif
 
 ### Blocking Mode
 
-To wait for results, poll the run status endpoint. See [API Reference](/api-reference/start-run) for the status endpoint.
+Wait for test completion before proceeding with deployments:
+
+```yaml
+trigger_qatech:
+  stage: test
+  variables:
+    API_TOKEN: $QA_TECH_API_TOKEN
+    PROJECT_UUID: "your-project-uuid"
+  script:
+    # Start run and capture shortId
+    - |
+      RESPONSE=$(curl -s -X POST \
+        "https://app.qa.tech/api/projects/$PROJECT_UUID/runs" \
+        -H "Authorization: Bearer $API_TOKEN" \
+        -H "Content-Type: application/json" \
+        -d "{\"integrationName\": \"GitLab CI\", \"testPlanShortId\": \"abc123\"}")
+      SHORT_ID=$(echo "$RESPONSE" | jq -r '.run.shortId')
+    
+    # Poll until completion (see Run Status API for details)
+    - |
+      while true; do
+        RESPONSE=$(curl -s \
+          "https://app.qa.tech/api/projects/$PROJECT_UUID/runs/$SHORT_ID" \
+          -H "Authorization: Bearer $API_TOKEN")
+        STATUS=$(echo "$RESPONSE" | jq -r '.status')
+        if [[ "$STATUS" == "COMPLETED" || "$STATUS" == "ERROR" || "$STATUS" == "CANCELLED" ]]; then
+          RESULT=$(echo "$RESPONSE" | jq -r '.result')
+          [[ "$RESULT" == "PASSED" ]] && exit 0 || exit 1
+        fi
+        sleep 30
+      done
+```
+
+See [Run Status API](/api-reference/run-status) for polling logic details and error handling.
 
 ## Related Documentation
 

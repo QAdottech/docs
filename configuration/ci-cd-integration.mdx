@@ -37,13 +37,15 @@ Works with any CI/CD system that can make HTTP requests. You create test plans i
 
 - **Test preview/staging environments** - Override application URLs dynamically when testing Vercel, Netlify, or custom preview deployments. See [Preview Environments](/core-concepts/preview-environments).
 
-- **Block deployments until tests pass** - Wait for test results before proceeding with your pipeline. The GitHub Action has built-in blocking support; other platforms can poll the run status API.
+- **Block deployments until tests pass** - Wait for test results before proceeding with your pipeline. The GitHub Action has built-in blocking support; other platforms can poll the [Run Status API](/api-reference/run-status) to wait for completion.
 
 - **Schedule recurring test runs** - Set up nightly regression suites or periodic smoke tests using your CI/CD system's cron functionality.
 
 - **Custom Slack notifications** - Send test results to specific Slack channels per-run, separate from your project's default channel. See [Notifications](/core-concepts/notifications).
 
 - **Run specific test plans** - Target regression suites, smoke tests, or full test suites by specifying the test plan short ID.
+
+- **Custom post-run automation** - Use the [Run Status API](/api-reference/run-status) to trigger webhooks, update status pages, or send custom alerts when runs complete.
 
 ### Get Started
 

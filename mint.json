@@ -131,6 +131,7 @@
       "pages": [
         "api-reference/introduction",
         "api-reference/start-run",
+        "api-reference/run-status",
         "api-reference/test-cases"
       ]
     }
