@@ -4,59 +4,103 @@ description: 'API endpoint for programmatically creating test cases'
 icon: 'flask'
 ---
 
-This endpoint is useful for importing tests from external systems, generating tests from custom logic, or integrating test creation into your CI/CD workflows.
 
-## Endpoint
+The Create Test Case API allows you to programmatically create new test cases for your projects. Use this endpoint to import tests from external systems, generate tests dynamically based on code analysis or custom logic, or automate test creation as part of your CI/CD workflows. For more examples and integration ideas, see [CI/CD Integration](/configuration/ci-cd-integration).
 
-- **Path**: `POST /projects/{projectUuid}/test-cases`
-- **Authentication**: Bearer token (JWT)
+The Create Test Case API provides a single endpoint to create new test cases:
+
+- **Endpoint**: `POST /projects/{projectUuid}/test-cases`
+- **Authentication**: Bearer token
 - **Content-Type**: `application/json`
 
-## Authentication
+## Request Parameters
 
-The Create Test Case API uses Bearer token authentication. Include your project's API token in the `Authorization` header:
+### Path Parameters
 
-```
-Authorization: Bearer YOUR_API_TOKEN
-```
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `projectUuid` | string (UUID) | Yes | Your project's UUID (36-character format, NOT the short ID from URLs) |
 
-You can obtain your project's API token from the QA.tech dashboard in **Settings → Integrations → API**.
+### Headers
 
-## Finding Your Project UUID
+| Header | Value | Required | Description |
+|--------|-------|----------|-------------|
+| `Content-Type` | `application/json` | Yes | Media type of the request body |
+| `Authorization` | `Bearer YOUR_API_TOKEN` | Yes | Bearer token authentication |
 
-Your project UUID is required in the URL path. For detailed instructions on locating your project UUID, see [Finding Your Project UUID](/api-reference/introduction#finding-your-project-uuid).
-
-## Path Parameters
-
-| Parameter | Type | Required |
-|-----------|------|----------|
-| `projectUuid` | string (UUID) | Yes | 
-
-## Request Body
+### Request Body
 
 The request body must be a JSON object with the following fields:
 
-### Required Fields
+#### Required Fields
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `name` | string | Test case name (1-80 characters) |
-| `goal` | string | The goal/objective of the test case |
-| `applicationId` | string (UUID) | The UUID of the application this test belongs to |
+| `goal` | string | The goal/objective of the test case. This describes what the test should accomplish. |
+| `applicationId` | string (UUID) | The UUID of the application this test belongs to. Must belong to the specified project. |
 
-### Optional Fields
+#### Optional Fields
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `expectedResult` | string | Expected result description |
-| `configIds` | array of UUIDs | Array of configuration IDs (e.g., login credentials, API keys) |
-| `scenarioId` | string (UUID) | Scenario ID if grouping tests into scenarios |
-| `resumeFromDependencyProjectTestCaseId` | string (UUID) | ID of a test case to resume browser state from (Resume From dependency) |
-| `waitForDependenciesProjectTestCaseIds` | array of UUIDs | Array of test case IDs that must complete before this test runs (Wait For dependencies) |
+| `expectedResult` | string | Expected result description. Provides additional context about what success looks like for this test. |
+| `configIds` | array of UUIDs | Array of configuration IDs (e.g., login credentials, API keys). These configs will be available to the test during execution. |
+| `scenarioId` | string (UUID) | Scenario ID if grouping tests into scenarios. Must belong to the specified project. |
+| `resumeFromDependencyProjectTestCaseId` | string (UUID) | ID of a test case to resume browser state from (Resume From dependency). See Dependencies Deep Dive section below. |
+| `waitForDependenciesProjectTestCaseIds` | array of UUIDs | Array of test case IDs that must complete before this test runs (Wait For dependencies). See Dependencies Deep Dive section below. |
 
 <Note>
-All ID fields (`applicationId`, `configIds`, `scenarioId`, and dependency IDs) require full UUIDs, not short IDs.
+All ID fields (`applicationId`, `configIds`, `scenarioId`, and dependency IDs) require full UUIDs, not short IDs. All IDs must belong to the specified project.
 </Note>
+
+## Authentication & Setup
+
+This endpoint requires Bearer token authentication and your project UUID. For detailed instructions on authentication and finding your project UUID, see [API Introduction](/api-reference/introduction#authentication) and [Finding Your Project UUID](/api-reference/introduction#finding-your-project-uuid).
+
+## Test Dependencies in API
+
+Test cases can depend on other test cases to control execution order and share browser state. Dependencies enable you to build test workflows where tests run in sequence, reuse expensive setup like authentication, and pass data between tests. The API supports two dependency types:
+
+- **Resume From**: Continues the browser session from another test, preserving cookies, localStorage, and sessionStorage. Use this for sequential workflows that build on each other (e.g., login → create → edit).
+- **Wait For**: Waits for other tests to complete before starting, but uses a fresh browser session. Use this when you need execution order and data passing but want isolated browser state.
+
+For detailed information about how dependencies work, execution order, browser isolation, and multi-user testing scenarios, see [Test Dependencies](/core-concepts/dependencies).
+
+### Resume From Dependency
+
+The `resumeFromDependencyProjectTestCaseId` field creates a **Resume From** dependency. This allows your test to resume browser state from a previous test case, effectively continuing the browser session.
+
+**How it works:**
+- The test resumes browser state (cookies, localStorage, sessionStorage) from the dependency test
+- Skips login/setup steps that were already completed
+- Use case: Sequential tests that build on each other (e.g., login test → profile update test → logout test)
+
+**Example:** A "Update Profile" test can resume from a "Login" test, skipping the login step and starting directly at the profile page.
+
+### Wait For Dependencies
+
+The `waitForDependenciesProjectTestCaseIds` field creates **Wait For** dependencies. This ensures your test waits for one or more other tests to complete before starting execution.
+
+**How it works:**
+- The test waits for all specified dependency tests to complete successfully (status: COMPLETED, result: PASSED)
+- If any dependency fails, the dependent test will not run
+- Tests can run in parallel, but this test waits for all dependencies to pass
+- Use case: Parallel setup tests, then sequential verification (e.g., setup test A and B run in parallel, verification test C waits for both to pass)
+
+**Example:** A "Final Verification" test can wait for multiple setup tests to complete before running its checks.
+
+### Resume From vs Wait For
+
+| Feature | Resume From | Wait For |
+|---------|-------------|----------|
+| **Purpose** | Continue browser session | Wait for completion |
+| **Browser State** | Resumes from dependency | Fresh browser session |
+| **Execution Order** | Sequential (runs after dependency) | Parallel setup, sequential execution |
+| **Use Case** | Multi-step flows in same session | Parallel setup, then verification |
+| **Number of Dependencies** | Single test case | Multiple test cases |
+
+You can use both dependency types together. For example, a test can wait for multiple setup tests to complete, then resume browser state from one of them.
 
 ## Response Format
 
@@ -68,12 +112,12 @@ All ID fields (`applicationId`, `configIds`, `scenarioId`, and dependency IDs) r
   "testCase": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
     "name": "Login Test",
-    "url": "https://app.qa.tech/p/project_slug/test-cases/550e8400-e29b-41d4-a716-446655440000/edit"
+    "url": "https://app.qa.tech/p/project-slug_abc123/test-cases/550e8400-e29b-41d4-a716-446655440000/edit"
   }
 }
 ```
 
-The test case is created with `generationStatus: 'GENERATING'` and automatically undergoes a "burn-in" process to generate test steps based on your goal.
+The test case is created with `generationStatus: 'GENERATING'` and automatically undergoes a burn-in process to generate test steps. During burn-in, QA.tech executes the test against your application to discover and record the steps needed to accomplish your goal. The AI agent navigates your application, performs actions, and captures the sequence of steps that achieve the test objective. Once burn-in completes, the test steps are saved and the test case status changes to `COMPLETED`.
 
 <Note>
 **Test cases created via API are disabled by default** (`isEnabled: false`). Enable them in the QA.tech UI before they run in test plans. The `createdBy` field is automatically set to the QA.tech system user.
@@ -81,13 +125,65 @@ The test case is created with `generationStatus: 'GENERATING'` and automatically
 
 ### Error Responses
 
-| Status Code | Description |
-|-------------|-------------|
-| 400 | Bad request - Invalid request data, validation errors, or invalid IDs for this project |
-| 401 | Unauthorized - Invalid or missing API token |
-| 403 | Forbidden - Organization is suspended or access denied |
-| 404 | Not Found - Project not found |
-| 500 | Internal Server Error - Server error during test creation |
+All error responses use the same format with a `statusText` field containing the error message.
+
+#### Bad Request (400)
+Returned when the request body is malformed, missing required fields, validation fails, or invalid IDs are provided.
+
+**Examples:**
+
+Validation error:
+```json
+{
+  "statusText": "Validation error: Test name is required"
+}
+```
+
+Invalid application ID:
+```json
+{
+  "statusText": "Invalid application ID for this project"
+}
+```
+
+#### Forbidden (403)
+Returned when the bearer token is invalid or when the organization is suspended.
+
+**Examples:**
+
+Invalid token:
+```json
+{
+  "statusText": "Unknown Error"
+}
+```
+
+Organization suspended:
+```json
+{
+  "statusText": "Organization is suspended"
+}
+```
+
+#### Not Found (404)
+Returned when the specified project UUID doesn't exist.
+
+**Example:**
+```json
+{
+  "statusText": "Project not found"
+}
+```
+
+#### Internal Server Error (500)
+Returned when there's an internal server error during test creation.
+
+**Example:**
+```json
+{
+  "statusText": "Failed to create test case"
+}
+```
 
 ## Example Requests
 
@@ -114,10 +210,11 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/test-cases \
   -d '{
     "name": "Checkout Flow Test",
     "goal": "Complete a purchase from cart to order confirmation",
+    "expectedResult": "Order should be placed successfully and confirmation email sent",
     "applicationId": "550e8400-e29b-41d4-a716-446655440000",
     "configIds": [
-      "config-uuid-1",
-      "config-uuid-2"
+      "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+      "b2c3d4e5-f6a7-4890-b123-456789abcdef"
     ]
   }'
 ```
@@ -131,8 +228,9 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/test-cases \
   -d '{
     "name": "Update Profile Test",
     "goal": "Update user profile information",
+    "expectedResult": "Profile should be updated and changes reflected immediately",
     "applicationId": "550e8400-e29b-41d4-a716-446655440000",
-    "resumeFromDependencyProjectTestCaseId": "login-test-case-uuid"
+    "resumeFromDependencyProjectTestCaseId": "a1b2c3d4-e5f6-4789-a012-3456789abcde"
   }'
 ```
 
@@ -147,15 +245,25 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/test-cases \
   -d '{
     "name": "Final Verification Test",
     "goal": "Verify all setup steps completed successfully",
+    "expectedResult": "All setup tests passed and system is ready",
     "applicationId": "550e8400-e29b-41d4-a716-446655440000",
     "waitForDependenciesProjectTestCaseIds": [
-      "setup-test-1-uuid",
-      "setup-test-2-uuid"
+      "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+      "b2c3d4e5-f6a7-4890-b123-456789abcdef"
     ]
   }'
 ```
 
-This test will wait for both setup tests to complete before starting execution.
+This test will wait for both setup tests to complete successfully before starting execution.
+
+
+## CI/CD Integration
+
+This API endpoint works with any CI/CD system. For platform-specific guides and examples on integrating QA.tech into your CI/CD workflows:
+
+- [CI/CD Integration Overview](/configuration/ci-cd-integration) - Learn about integration modes and patterns
+- [GitHub Actions](/configuration/github-actions) - Official GitHub Action for running tests
+- [GitLab CI](/configuration/gitlab) - GitLab CI/CD examples
 
 ## Related Endpoints
 

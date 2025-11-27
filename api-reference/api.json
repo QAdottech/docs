@@ -638,7 +638,7 @@
             }
           },
           "400": {
-            "description": "Bad request - Invalid request data or validation errors",
+            "description": "Bad request - Invalid request data, validation errors, or invalid IDs for this project",
             "content": {
               "application/json": {
                 "schema": {
@@ -647,6 +647,50 @@
                     "statusText": {
                       "type": "string",
                       "example": "Validation error: Test name is required"
+                    }
+                  }
+                },
+                "examples": {
+                  "validationError": {
+                    "summary": "Validation error - missing required field",
+                    "value": {
+                      "statusText": "Validation error: Test name is required"
+                    }
+                  },
+                  "nameTooLong": {
+                    "summary": "Validation error - name exceeds limit",
+                    "value": {
+                      "statusText": "Validation error: Test name may not exceed 80 characters"
+                    }
+                  },
+                  "invalidJson": {
+                    "summary": "Invalid JSON in request body",
+                    "value": {
+                      "statusText": "Invalid JSON in request body"
+                    }
+                  },
+                  "invalidApplicationId": {
+                    "summary": "Invalid application ID",
+                    "value": {
+                      "statusText": "Invalid application ID for this project"
+                    }
+                  },
+                  "invalidScenarioId": {
+                    "summary": "Invalid scenario ID",
+                    "value": {
+                      "statusText": "Invalid scenario ID for this project"
+                    }
+                  },
+                  "invalidResumeDependency": {
+                    "summary": "Invalid resume dependency ID",
+                    "value": {
+                      "statusText": "Invalid resume dependency ID for this project"
+                    }
+                  },
+                  "invalidWaitDependency": {
+                    "summary": "Invalid wait dependency ID",
+                    "value": {
+                      "statusText": "Invalid wait dependency ID 550e8400-e29b-41d4-a716-446655440000 for this project"
                     }
                   }
                 }
@@ -692,7 +736,7 @@
                   "properties": {
                     "statusText": {
                       "type": "string",
-                      "example": "Unknown Error"
+                      "example": "Project not found"
                     }
                   }
                 }
@@ -700,7 +744,7 @@
             }
           },
           "500": {
-            "description": "Internal Server Error - Server error",
+            "description": "Internal Server Error - Server error during test creation",
             "content": {
               "application/json": {
                 "schema": {
