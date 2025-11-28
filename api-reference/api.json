@@ -84,11 +84,15 @@
                               "description": "Human readable name for the environment"
                             }
                           },
-                          "required": ["url"],
+                          "required": [
+                            "url"
+                          ],
                           "description": "Environment configuration for the application"
                         }
                       },
-                      "required": ["environment"]
+                      "required": [
+                        "environment"
+                      ]
                     },
                     "example": {
                       "app-short-id-1": {
@@ -106,32 +110,14 @@
                     }
                   }
                 },
-                "required": ["testPlanShortId"]
+                "required": [
+                  "testPlanShortId"
+                ]
               }
             }
           }
         },
         "responses": {
-          "201": {
-            "description": "Successfully created run",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "runId": {
-                      "type": "string",
-                      "example": "abc123"
-                    },
-                    "status": {
-                      "type": "string",
-                      "example": "created"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "400": {
             "description": "Bad request"
           },
@@ -140,6 +126,73 @@
           },
           "404": {
             "description": "Project not found"
+          },
+          "200": {
+            "description": "Successfully created run",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true,
+                      "description": "Indicates if the request was successful"
+                    },
+                    "run": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "run_abc123def456",
+                          "description": "The unique identifier of the created run"
+                        },
+                        "shortId": {
+                          "type": "string",
+                          "example": "abc123",
+                          "description": "The short identifier of the run"
+                        },
+                        "url": {
+                          "type": "string",
+                          "example": "https://app.qa.tech/projects/project-123/results/abc123",
+                          "description": "The URL to view the test results"
+                        },
+                        "testCount": {
+                          "type": "integer",
+                          "example": 5,
+                          "description": "The number of tests in this run"
+                        },
+                        "testPlan": {
+                          "type": "object",
+                          "nullable": true,
+                          "description": "The test plan that was executed, or null if no test plan was specified",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "The name of the test plan"
+                            },
+                            "short_id": {
+                              "type": "string",
+                              "description": "The short ID of the test plan"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "shortId",
+                        "url",
+                        "testCount"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "run"
+                  ]
+                }
+              }
+            }
           }
         },
         "security": [
@@ -233,7 +286,10 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "example": ["config-uuid-1", "config-uuid-2"],
+                    "example": [
+                      "config-uuid-1",
+                      "config-uuid-2"
+                    ],
                     "description": "Configuration IDs"
                   },
                   "applicationId": {
@@ -249,7 +305,11 @@
                     "description": "Scenario ID"
                   }
                 },
-                "required": ["name", "goal", "applicationId"]
+                "required": [
+                  "name",
+                  "goal",
+                  "applicationId"
+                ]
               }
             }
           }
@@ -303,6 +363,204 @@
           },
           "500": {
             "description": "Internal Server Error - Server error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/projects/{projectUuid}/runs/{shortId}": {
+      "get": {
+        "summary": "Get run status",
+        "description": "Check the status and results of a test run. Use this endpoint to poll for run completion in CI/CD pipelines.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectUuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The UUID of your project (found embedded in code examples at Settings → Integrations → API)"
+          },
+          {
+            "in": "path",
+            "name": "shortId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The 6-character short ID of the run (returned from Start Run API response: run.shortId)"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Bearer your-api-token"
+            },
+            "description": "Bearer token for API authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved run status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "example": "550e8400-e29b-41d4-a716-446655440000",
+                      "description": "Internal run identifier"
+                    },
+                    "shortId": {
+                      "type": "string",
+                      "example": "abc123",
+                      "description": "6-character short ID used in URLs"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "INITIATED",
+                        "RUNNING",
+                        "COMPLETED",
+                        "ERROR",
+                        "CANCELLED"
+                      ],
+                      "example": "COMPLETED",
+                      "description": "Current run status"
+                    },
+                    "result": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "PASSED",
+                        "FAILED",
+                        "SKIPPED"
+                      ],
+                      "example": "FAILED",
+                      "description": "Test result when status is COMPLETED, null otherwise"
+                    },
+                    "failedTestCases": {
+                      "type": "array",
+                      "description": "Array of failed test cases (only populated when result is FAILED)",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "Test case identifier"
+                          },
+                          "shortId": {
+                            "type": "string",
+                            "description": "6-character short ID"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Test case name"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Test case status"
+                          },
+                          "result": {
+                            "type": "string",
+                            "enum": [
+                              "FAILED"
+                            ],
+                            "description": "Always FAILED in this array"
+                          },
+                          "resultTitle": {
+                            "type": "string",
+                            "description": "Brief failure summary"
+                          },
+                          "evaluationThought": {
+                            "type": "string",
+                            "description": "Detailed failure explanation"
+                          },
+                          "promptGoal": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Original test goal"
+                          },
+                          "promptExamples": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Example scenarios used"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "shortId",
+                    "status",
+                    "result",
+                    "failedTestCases"
+                  ]
+                },
+                "example": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "shortId": "abc123",
+                  "status": "COMPLETED",
+                  "result": "FAILED",
+                  "failedTestCases": [
+                    {
+                      "id": "test-case-uuid",
+                      "shortId": "xyz789",
+                      "name": "Login flow test",
+                      "status": "COMPLETED",
+                      "result": "FAILED",
+                      "resultTitle": "Could not find login button",
+                      "evaluationThought": "The test failed because the login button was not visible on the page.",
+                      "promptGoal": "Test the login flow",
+                      "promptExamples": null
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Organization is suspended",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusText": {
+                      "type": "string",
+                      "example": "Organization is suspended"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Invalid project UUID, run shortId, or API token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusText": {
+                      "type": "string",
+                      "example": "Unknown Error"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
