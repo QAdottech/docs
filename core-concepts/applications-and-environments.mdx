@@ -6,43 +6,27 @@ icon: "grid"
 
 QA.tech uses a hierarchical structure of **projects**, **applications**, and **environments** to organize your testing infrastructure. Understanding when to use each level helps you maximize test reuse and build efficient CI/CD workflows.
 
-## Decision Guide
+## Understanding the Hierarchy
 
-```mermaid
-flowchart TD
-    START(["I have a testing plan"]) --> Q1{Can tests be reused?}
-    
-    Q1 -->|"No - different product"| NEW_PROJECT["Create new Project"]
-    Q1 -->|"Yes - similar functionality"| Q2{Same domain/URL?}
-    
-    Q2 -->|"Yes - different server"| NEW_ENV["Add Environment<br/>to existing Application"]
-    Q2 -->|"No - different domain"| NEW_APP["Add Application<br/>to existing Project"]
-    
-    NEW_ENV --> EX1["Examples:<br/>Staging vs Production<br/>EU vs US region<br/>PR preview deployments"]
-    
-    NEW_APP --> EX2["Examples:<br/>Frontend + Admin panel<br/>Regional version<br/>Multiple storefronts"]
-    
-    NEW_PROJECT --> EX3["Examples:<br/>Separate product line<br/>Different team/billing"]
+```
+Organizations (billing, team management)
+└── Projects (team access, complete isolation)
+    └── Applications (distinct apps with own test suites)
+        └── Environments (same app, different deployments)
 ```
 
-<Note>
-**Golden rule:** Create a new project only if you cannot or do not want to reuse tests from existing applications.
+### Organizations
 
-**Test reuse across applications:** Tests can be reused across different applications in the same project. You can create dependencies between tests in different applications using [Wait For dependencies](/core-concepts/dependencies#application-environment-and-domain-constraints), which pass output data (like user IDs or resource names) between tests. 
-
-Browser state (login sessions, cookies) can be shared via Resume From dependencies across applications, but only when both tests use the same Environment. See [Test Dependencies](/core-concepts/dependencies#application-environment-and-domain-constraints) for details on cross-application testing patterns.
-</Note>
-
-## Understanding the Hierarchy
+**Organizations** are the top-level container for your company or team. They contain multiple projects and manage billing and team access at the organization level.
 
 ### Projects
 
-**Projects** are the top-level container for billing, team access, and organization. 
+**Projects** are containers for team access and complete isolation between product lines.
 
-Use separate projects when:
-- Products are completely different (no shared test logic)
-- Different teams need separate billing
-- You want complete isolation between product lines
+Use separate projects only when there are no possible shared user flows between the things being tested. For example:
+- Completely separate product lines with no shared functionality
+- Different teams that need complete isolation
+- A consultant working with completely separate clients
 
 <Tip>
 **Adding team members:** QA.tech doesn't charge per user, so adding more team members is encouraged. Invite developers, QA engineers, and project managers to the same project so everyone can view test results, create tests, and act on failed tests.
@@ -50,25 +34,50 @@ Use separate projects when:
 
 ### Applications
 
-**Applications** represent distinct apps or services you want to test. **Test cases belong to applications** - each test is associated with one application. 
+**Applications** represent distinct apps or services you want to test. **Test cases belong to applications** - each test is associated with one application.
 
-Use separate applications when:
-- Apps run on different domains and have slightly different functionality
-- You need cross-app test flows (e.g., frontend + backend)
-- Different apps share similar functionality but have separate deployments
+Use separate applications when they have their own set of tests that won't run in other applications. For example:
+- Customer-facing app vs admin panel (different test suites)
+- Web app vs mobile app (different user flows)
+- Frontend vs backoffice (different functionality to test)
 
 ### Environments
 
-**Environments** represent different configurations of the same application - typically different URLs for the same app. 
+**Environments** represent different configurations of the same application - typically different URLs for the same app.
 
-Use separate environments when:
-- Same app, different deployments (staging, production)
-- Same app, different regions or markets
+Use environments when you want to run the same tests against the same application in different stages or markets. For example:
+- Same app, different deployments (dev, staging, production)
+- Same app, different markets (/en, /de, /se)
 - Same app, different preview deployments (PR branches)
 
 **Key benefit:** Tests written for an application can run on any of its environments without modification.
 
 ## Common Patterns
+
+### Complete Hierarchy Example
+
+Here's a comprehensive example showing the full hierarchy:
+
+**Organization: Pet Solutions Ltd**
+
+```
+Project: Veterinary App
+├── Applications:
+│   ├── Customer Web App
+│   ├── Veterinarian Web App
+│   ├── Veterinarian Mobile App
+│   └── Backoffice Web App
+└── Environments: Dev, Staging, Acceptance, Production
+
+Project: Netflix for Pets
+├── Applications:
+│   ├── Web Video Player
+│   ├── Admin App
+│   └── Mobile Video Player
+└── Environments: Dev, Staging, Production
+```
+
+**Why separate projects:** Veterinary App and Netflix for Pets have no shared user flows - they're completely separate products. Different products within the same team should typically be different Applications, not Projects. Only create separate Projects when there's no possible shared user flows (like a consultant working with isolated clients).
 
 ### Staging vs Production
 
@@ -88,11 +97,11 @@ Project: E-commerce Platform
 
 ### Multi-Market/Storefronts
 
-**Use case:** Test the same functionality across different markets or storefronts.
+**Use case:** Test functionality across different markets or storefronts.
 
-**Structure:** If same domain pattern (e.g., `store.com/se`, `store.com/de`), use environments. If completely different domains, use separate applications.
+**Decision factor:** Will the same tests run in both markets? If yes, use environments. If the markets have different features or user flows requiring different test suites, use separate applications.
 
-**Example with environments:**
+**Example with environments (same tests, different markets):**
 ```
 Project: Global Store
 └── Application: Storefront
@@ -101,12 +110,16 @@ Project: Global Store
     └── Environment: US (store.com/us)
 ```
 
-**Example with applications:**
+Same checkout flow, same product catalog - just different markets. The same tests run in all environments.
+
+**Example with applications (different test suites):**
 ```
 Project: Multi-Brand Platform
-├── Application: Germany Storefront (brandname-germany.de)
-└── Application: Sweden Storefront (brandname-sweden.se)
+├── Application: Germany Storefront
+└── Application: Sweden Storefront
 ```
+
+Different brands with different features, product catalogs, or checkout flows. Each requires its own set of tests.
 
 ### Multi-App Flows
 
@@ -162,11 +175,39 @@ Project: E-commerce Platform
 - Use [Wait For dependencies](/core-concepts/dependencies#application-environment-and-domain-constraints) to ensure the third-party configuration completes before testing your app's integration
 - Each test starts with fresh browser state on its target domain (browser state doesn't transfer across domains)
 
+## Decision Guide
+
+If you're unsure which level to use, start by matching your situation to the examples above. If none of the examples fit, use this decision flowchart:
+
+```mermaid
+flowchart TD
+    START(["Need to organize testing"]) --> Q1{Can user flows be shared?}
+    
+    Q1 -->|"No - completely isolated"| NEW_PROJECT["New Project"]
+    Q1 -->|"Yes - same ecosystem"| Q2{Will the same tests run?}
+    
+    Q2 -->|"No - different test suite"| NEW_APP["New Application"]
+    Q2 -->|"Yes - same tests"| NEW_ENV["New Environment"]
+    
+    NEW_PROJECT --> EX1["Examples:<br/>Consultant with separate clients<br/>Completely separate product lines"]
+    
+    NEW_APP --> EX2["Examples:<br/>Customer app vs Admin panel<br/>Web app vs Mobile app<br/>Frontend vs Backoffice"]
+    
+    NEW_ENV --> EX3["Examples:<br/>Dev, Staging, Production<br/>Different markets (/en, /de)<br/>Preview deployments"]
+```
+
+<Note>
+**Golden rule:** Create a new project only when there are no possible shared user flows. Different products within the same team should be different Applications, not Projects.
+
+**Test reuse across applications:** Tests can be reused across different applications in the same project. You can create dependencies between tests in different applications using [Wait For dependencies](/core-concepts/dependencies#application-environment-and-domain-constraints), which pass output data (like user IDs or resource names) between tests. 
+
+Browser state (login sessions, cookies) can be shared via Resume From dependencies across applications, but only when both tests use the same Environment. See [Test Dependencies](/core-concepts/dependencies#application-environment-and-domain-constraints) for details on cross-application testing patterns.
+</Note>
+
 ## Preview Environments
 
 Preview environments are temporary environments automatically created when you trigger test runs with dynamic URLs via the API. They're perfect for testing pull request deployments, feature branches, and ephemeral CI/CD-created environments.
 
-### How They're Created
 
 Preview environments are **automatically created** when you call the [Start Run API](/api-reference/start-run) with a URL override in the `applications` parameter:
 
