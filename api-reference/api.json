@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "QA.tech API",
-    "description": "API for managing project runs and test cases",
+    "description": "API for managing project runs and test cases ",
     "version": "1.0.0"
   },
   "servers": [
@@ -96,7 +96,9 @@
                                   "description": "Human readable name for the environment"
                                 }
                               },
-                              "required": ["url"],
+                              "required": [
+                                "url"
+                              ],
                               "description": "Create a new environment with the provided URL and optional name"
                             },
                             {
@@ -107,14 +109,18 @@
                                   "description": "Existing environment short ID to use instead of creating new one"
                                 }
                               },
-                              "required": ["short_id"],
+                              "required": [
+                                "short_id"
+                              ],
                               "description": "Use an existing environment by its short ID"
                             }
                           ],
                           "description": "Environment configuration for the application. Either short_id or url (with optional name) must be provided."
                         }
                       },
-                      "required": ["environment"]
+                      "required": [
+                        "environment"
+                      ]
                     },
                     "example": {
                       "app-short-id-1": {
@@ -139,7 +145,9 @@
                       "properties": {
                         "type": {
                           "type": "string",
-                          "enum": ["slack"],
+                          "enum": [
+                            "slack"
+                          ],
                           "description": "Notification type. Only Slack is currently supported."
                         },
                         "channel": {
@@ -148,12 +156,18 @@
                         },
                         "notifyOn": {
                           "type": "string",
-                          "enum": ["always", "failure"],
+                          "enum": [
+                            "always",
+                            "failure"
+                          ],
                           "default": "always",
                           "description": "When to send the notification. Use \"failure\" to only post if the run does not pass (i.e., when result is FAILED, SKIPPED, or null). \"always\" (default) sends both start and finish notifications regardless of result."
                         }
                       },
-                      "required": ["type", "channel"]
+                      "required": [
+                        "type",
+                        "channel"
+                      ]
                     }
                   }
                 }
@@ -198,7 +212,10 @@
                           "description": "The number of tests in this run"
                         },
                         "testPlan": {
-                          "type": ["object", "null"],
+                          "type": [
+                            "object",
+                            "null"
+                          ],
                           "description": "The test plan that was executed, or null if no test plan was specified",
                           "properties": {
                             "name": {
@@ -212,10 +229,18 @@
                           }
                         }
                       },
-                      "required": ["id", "shortId", "url", "testCount"]
+                      "required": [
+                        "id",
+                        "shortId",
+                        "url",
+                        "testCount"
+                      ]
                     }
                   },
-                  "required": ["success", "run"]
+                  "required": [
+                    "success",
+                    "run"
+                  ]
                 }
               }
             }
@@ -374,8 +399,16 @@
                       "description": "Current run status"
                     },
                     "result": {
-                      "type": ["string", "null"],
-                      "enum": ["PASSED", "FAILED", "SKIPPED", null],
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "PASSED",
+                        "FAILED",
+                        "SKIPPED",
+                        null
+                      ],
                       "example": "FAILED",
                       "description": "Test result when status is COMPLETED, null otherwise"
                     },
@@ -404,7 +437,9 @@
                           },
                           "result": {
                             "type": "string",
-                            "enum": ["FAILED"],
+                            "enum": [
+                              "FAILED"
+                            ],
                             "description": "Always FAILED in this array"
                           },
                           "resultTitle": {
@@ -416,11 +451,17 @@
                             "description": "Detailed failure explanation"
                           },
                           "promptGoal": {
-                            "type": ["string", "null"],
+                            "type": [
+                              "string",
+                              "null"
+                            ],
                             "description": "Original test goal"
                           },
                           "promptExamples": {
-                            "type": ["string", "null"],
+                            "type": [
+                              "string",
+                              "null"
+                            ],
                             "description": "Example scenarios used"
                           }
                         }
@@ -562,7 +603,10 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "example": ["config-uuid-1", "config-uuid-2"],
+                    "example": [
+                      "config-uuid-1",
+                      "config-uuid-2"
+                    ],
                     "description": "Configuration IDs"
                   },
                   "applicationId": {
@@ -578,7 +622,11 @@
                     "description": "Scenario ID"
                   }
                 },
-                "required": ["name", "goal", "applicationId"]
+                "required": [
+                  "name",
+                  "goal",
+                  "applicationId"
+                ]
               }
             }
           }
