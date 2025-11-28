@@ -34,7 +34,7 @@
     },
     {
       "name": "API Reference",
-      "_openapi": "/api-reference/api.json",
+      "openapi": "/api-reference/api.json",
       "url": "api-reference",
       "icon": "square-terminal"
     },

@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "QA.tech API",
-    "description": "API for managing project runs and test cases ",
+    "description": "API for managing project runs and test cases",
     "version": "1.0.0"
   },
   "servers": [
@@ -38,26 +38,16 @@
           {
             "in": "header",
             "name": "Authorization",
-            "required": false,
+            "required": true,
             "schema": {
               "type": "string",
               "example": "Bearer your-api-token"
             },
-            "description": "Bearer token for API authentication. Required if not using X-Webhook-Signature header."
-          },
-          {
-            "in": "header",
-            "name": "X-Webhook-Signature",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "YOUR_SIGNED_JWT_TOKEN"
-            },
-            "description": "Netlify webhook signature authentication (JWT token). Required if not using Authorization Bearer token. Either Authorization or X-Webhook-Signature header is required."
+            "description": "Bearer token for API authentication"
           }
         ],
         "requestBody": {
-          "required": false,
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -81,46 +71,24 @@
                       "type": "object",
                       "properties": {
                         "environment": {
-                          "oneOf": [
-                            {
-                              "type": "object",
-                              "properties": {
-                                "url": {
-                                  "type": "string",
-                                  "example": "https://preview-123.vercel.app",
-                                  "description": "The URL of the environment to test against"
-                                },
-                                "name": {
-                                  "type": "string",
-                                  "example": "Preview Environment",
-                                  "description": "Human readable name for the environment"
-                                }
-                              },
-                              "required": [
-                                "url"
-                              ],
-                              "description": "Create a new environment with the provided URL and optional name"
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string",
+                              "example": "https://preview-123.vercel.app",
+                              "description": "The URL of the environment to test against"
                             },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "short_id": {
-                                  "type": "string",
-                                  "description": "Existing environment short ID to use instead of creating new one"
-                                }
-                              },
-                              "required": [
-                                "short_id"
-                              ],
-                              "description": "Use an existing environment by its short ID"
+                            "name": {
+                              "type": "string",
+                              "example": "Preview Environment",
+                              "description": "Human readable name for the environment"
                             }
-                          ],
-                          "description": "Environment configuration for the application. Either short_id or url (with optional name) must be provided."
+                          },
+                          "required": ["url"],
+                          "description": "Environment configuration for the application"
                         }
                       },
-                      "required": [
-                        "environment"
-                      ]
+                      "required": ["environment"]
                     },
                     "example": {
                       "app-short-id-1": {
@@ -131,385 +99,47 @@
                       },
                       "app-short-id-2": {
                         "environment": {
-                          "short_id": "existing-env-123"
+                          "url": "https://preview-123-backend.vercel.app",
+                          "name": "PR-123-Backend"
                         }
                       }
                     }
-                  },
-                  "notifications": {
-                    "type": "array",
-                    "description": "Override the default Slack notification target for this run by listing one or more Slack channel objects",
-                    "minItems": 1,
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "type": {
-                          "type": "string",
-                          "enum": [
-                            "slack"
-                          ],
-                          "description": "Notification type. Only Slack is currently supported."
-                        },
-                        "channel": {
-                          "type": "string",
-                          "description": "Slack channel ID (e.g., C0478ABCDEF) the QA.tech bot can post to."
-                        },
-                        "notifyOn": {
-                          "type": "string",
-                          "enum": [
-                            "always",
-                            "failure"
-                          ],
-                          "default": "always",
-                          "description": "When to send the notification. Use \"failure\" to only post if the run does not pass (i.e., when result is FAILED, SKIPPED, or null). \"always\" (default) sends both start and finish notifications regardless of result."
-                        }
-                      },
-                      "required": [
-                        "type",
-                        "channel"
-                      ]
-                    }
                   }
-                }
+                },
+                "required": ["testPlanShortId"]
               }
             }
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successfully created run",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true,
-                      "description": "Indicates if the request was successful"
+                    "runId": {
+                      "type": "string",
+                      "example": "abc123"
                     },
-                    "run": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "example": "run_abc123def456",
-                          "description": "The unique identifier of the created run"
-                        },
-                        "shortId": {
-                          "type": "string",
-                          "example": "abc123",
-                          "description": "The short identifier of the run"
-                        },
-                        "url": {
-                          "type": "string",
-                          "example": "https://app.qa.tech/projects/project-123/results/abc123",
-                          "description": "The URL to view the test results"
-                        },
-                        "testCount": {
-                          "type": "integer",
-                          "example": 5,
-                          "description": "The number of tests in this run"
-                        },
-                        "testPlan": {
-                          "type": [
-                            "object",
-                            "null"
-                          ],
-                          "description": "The test plan that was executed, or null if no test plan was specified",
-                          "properties": {
-                            "name": {
-                              "type": "string",
-                              "description": "The name of the test plan"
-                            },
-                            "short_id": {
-                              "type": "string",
-                              "description": "The short ID of the test plan"
-                            }
-                          }
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "shortId",
-                        "url",
-                        "testCount"
-                      ]
+                    "status": {
+                      "type": "string",
+                      "example": "created"
                     }
-                  },
-                  "required": [
-                    "success",
-                    "run"
-                  ]
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Bad request - invalid parameters or malformed request body",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Invalid test plan ID or malformed applications config"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Bad request"
           },
-          "402": {
-            "description": "Payment required - organization has reached usage limit",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Organization has reached usage limit. Upgrade your account to continue."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden - invalid or expired authentication token, Netlify webhook signature verification failed, or organization is suspended",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Unknown Error"
-                    }
-                  }
-                }
-              }
-            }
+          "401": {
+            "description": "Unauthorized"
           },
           "404": {
-            "description": "Project not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Unknown Error"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "API Error"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/projects/{projectUuid}/runs/{shortId}": {
-      "get": {
-        "summary": "Get run status",
-        "description": "Check the status and results of a test run. Use this endpoint to poll for run completion in CI/CD pipelines.",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "projectUuid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The UUID of your project (found embedded in code examples at Settings → Integrations → API)"
-          },
-          {
-            "in": "path",
-            "name": "shortId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The 6-character short ID of the run (returned from Start Run API response: run.shortId)"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "Bearer your-api-token"
-            },
-            "description": "Bearer token for API authentication"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved run status",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid",
-                      "example": "550e8400-e29b-41d4-a716-446655440000",
-                      "description": "Internal run identifier"
-                    },
-                    "shortId": {
-                      "type": "string",
-                      "example": "abc123",
-                      "description": "6-character short ID used in URLs"
-                    },
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "INITIATED",
-                        "RUNNING",
-                        "COMPLETED",
-                        "ERROR",
-                        "CANCELLED"
-                      ],
-                      "example": "COMPLETED",
-                      "description": "Current run status"
-                    },
-                    "result": {
-                      "type": [
-                        "string",
-                        "null"
-                      ],
-                      "enum": [
-                        "PASSED",
-                        "FAILED",
-                        "SKIPPED",
-                        null
-                      ],
-                      "example": "FAILED",
-                      "description": "Test result when status is COMPLETED, null otherwise"
-                    },
-                    "failedTestCases": {
-                      "type": "array",
-                      "description": "Array of failed test cases (only populated when result is FAILED)",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid",
-                            "description": "Test case identifier"
-                          },
-                          "shortId": {
-                            "type": "string",
-                            "description": "6-character short ID"
-                          },
-                          "name": {
-                            "type": "string",
-                            "description": "Test case name"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "Test case status"
-                          },
-                          "result": {
-                            "type": "string",
-                            "enum": [
-                              "FAILED"
-                            ],
-                            "description": "Always FAILED in this array"
-                          },
-                          "resultTitle": {
-                            "type": "string",
-                            "description": "Brief failure summary"
-                          },
-                          "evaluationThought": {
-                            "type": "string",
-                            "description": "Detailed failure explanation"
-                          },
-                          "promptGoal": {
-                            "type": [
-                              "string",
-                              "null"
-                            ],
-                            "description": "Original test goal"
-                          },
-                          "promptExamples": {
-                            "type": [
-                              "string",
-                              "null"
-                            ],
-                            "description": "Example scenarios used"
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "shortId",
-                    "status",
-                    "result",
-                    "failedTestCases"
-                  ]
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden - Organization is suspended",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Organization is suspended"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found - Invalid project UUID, run shortId, or API token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Unknown Error"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Project not found"
           }
         },
         "security": [
@@ -603,10 +233,7 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "example": [
-                      "config-uuid-1",
-                      "config-uuid-2"
-                    ],
+                    "example": ["config-uuid-1", "config-uuid-2"],
                     "description": "Configuration IDs"
                   },
                   "applicationId": {
@@ -622,11 +249,7 @@
                     "description": "Scenario ID"
                   }
                 },
-                "required": [
-                  "name",
-                  "goal",
-                  "applicationId"
-                ]
+                "required": ["name", "goal", "applicationId"]
               }
             }
           }
@@ -667,126 +290,19 @@
             }
           },
           "400": {
-            "description": "Bad request - Invalid request data, validation errors, or invalid IDs for this project",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Validation error: Test name is required"
-                    }
-                  }
-                },
-                "examples": {
-                  "validationError": {
-                    "summary": "Validation error - missing required field",
-                    "value": {
-                      "statusText": "Validation error: Test name is required"
-                    }
-                  },
-                  "nameTooLong": {
-                    "summary": "Validation error - name exceeds limit",
-                    "value": {
-                      "statusText": "Validation error: Test name may not exceed 80 characters"
-                    }
-                  },
-                  "invalidJson": {
-                    "summary": "Invalid JSON in request body",
-                    "value": {
-                      "statusText": "Invalid JSON in request body"
-                    }
-                  },
-                  "invalidApplicationId": {
-                    "summary": "Invalid application ID",
-                    "value": {
-                      "statusText": "Invalid application ID for this project"
-                    }
-                  },
-                  "invalidScenarioId": {
-                    "summary": "Invalid scenario ID",
-                    "value": {
-                      "statusText": "Invalid scenario ID for this project"
-                    }
-                  },
-                  "invalidResumeDependency": {
-                    "summary": "Invalid resume dependency ID",
-                    "value": {
-                      "statusText": "Invalid resume dependency ID for this project"
-                    }
-                  },
-                  "invalidWaitDependency": {
-                    "summary": "Invalid wait dependency ID",
-                    "value": {
-                      "statusText": "Invalid wait dependency ID 550e8400-e29b-41d4-a716-446655440000 for this project"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Bad request - Invalid request data or validation errors"
+          },
+          "401": {
+            "description": "Unauthorized - User not authenticated"
           },
           "403": {
-            "description": "Forbidden - Invalid or expired authentication token, or organization is suspended",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Unknown Error"
-                    }
-                  }
-                },
-                "examples": {
-                  "invalidToken": {
-                    "summary": "Invalid token",
-                    "value": {
-                      "statusText": "Unknown Error"
-                    }
-                  },
-                  "suspended": {
-                    "summary": "Organization suspended",
-                    "value": {
-                      "statusText": "Organization is suspended"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Forbidden - User doesn't have access to the project"
           },
           "404": {
-            "description": "Not Found - Project not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Project not found"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Not Found - Project not found"
           },
           "500": {
-            "description": "Internal Server Error - Server error during test creation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Failed to create test case"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Internal Server Error - Server error"
           }
         },
         "security": [
