@@ -147,4 +147,5 @@ This means that while a single test case may take several minutes to execute, ru
 
 4. **Managing Different Versions and Releases**:
    - Use Test Scenarios to define the specific test cases to run for a given version or release
-   - The same Test Plan can be reused across different environments by updating its parameters (applications and environments)
+   - The same Test Plan can be reused across different environments by overriding environment URLs via API (see [Start Run API](/api-reference/start-run)) or updating test plan parameters in the UI
+   - **Note:** Environment overrides are supported via API, but device preset changes require separate test plans with different device preset settings

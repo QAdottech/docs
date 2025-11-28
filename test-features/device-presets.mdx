@@ -9,12 +9,27 @@ Device presets allow you to configure browser sessions with predefined device se
 
 ## Overview
 
-Device presets provide a way to:
+Device presets let you configure browser sessions with predefined device settings, making it easy to test your application across different device configurations. Use device presets to:
 
-- Test your application on different devices and screen sizes
-- Ensure consistent device settings across test runs
-- Simulate real device characteristics accurately
-- Manage device configurations centrally
+- Test responsive design across mobile, tablet, and desktop layouts
+- Test localization with different locales and timezones (e.g., EU vs US users)
+- Test accessibility preferences like dark mode and reduced motion
+- Test browser-specific behavior (e.g., Safari mobile quirks)
+- Add custom authentication headers for staging environments
+
+## When to Create Separate Presets
+
+Create separate device presets when you need to:
+
+| Use Case | Example | What to Configure |
+|----------|---------|-------------------|
+| Test responsive design | Mobile vs desktop layouts | Device type, resolution |
+| Test localization | EU vs US users | Locale, timezone |
+| Test accessibility preferences | Dark mode, reduced motion | Accessibility settings |
+| Test browser-specific behavior | Safari mobile quirks | User agent, device type |
+| Add authentication headers | Staging with basic auth | Custom headers |
+
+See [Applications and Environments](/core-concepts/applications-and-environments) for how device presets fit into the overall test configuration hierarchy.
 
 ## Available Settings
 
@@ -70,19 +85,35 @@ Each device type comes with an appropriate default user agent. You can override 
 
 ### Custom Headers
 
-You can add custom HTTP headers to be sent with requests from this device:
+You can add custom HTTP headers to be sent with **all requests** from this device (navigation, resources, API calls, redirects). This is useful for:
 
-1. Click "Custom Headers"
-2. Select a header name from common options or type your own
+- Adding authentication headers (e.g., `Authorization: Bearer token`)
+- Bypassing bot protection (e.g., `X-Vercel-Code: your-code`)
+- Adding API keys (e.g., `X-API-Key: your-key`)
+- Custom request identification
+
+**How to add headers:**
+
+1. Expand the "Custom Headers" accordion section
+2. Select a header name from the autocomplete dropdown (47 common headers available) or type your own
 3. Enter the header value
-4. Click the plus icon to add more headers
+4. Click the plus icon (+) to add the header
+5. Repeat to add multiple headers
+6. Click the trash icon to remove a header
+
+**Header validation:**
+
+- Header names must follow RFC 7230: letters, numbers, hyphens, underscores, and periods only (e.g., `X-API-Key`, `Authorization`)
+- Header values can contain printable ASCII characters
+- Both name and value are validated before saving
+
+<Warning>
+**CORS Considerations:** Custom headers may cause CORS errors if the target server doesn't include them in `Access-Control-Allow-Headers`. This could prevent requests that would otherwise succeed.
+</Warning>
 
 ### Default Presets
 
-Each project can have one default device preset. When set, this preset will be used for all tests unless overridden by:
-
-1. Test case setting
-2. Test plan setting
+Each project can have one default device preset. When set, this preset will be used for all tests unless overridden by higher-priority settings. See [Priority Order](#priority-order) for the complete hierarchy of how device presets are selected.
 
 ## Using Device Presets in AI Chat
 
@@ -120,10 +151,11 @@ This makes it easy to explore your device options and work with device-specific 
 
 Device preset selection follows this priority order:
 
-1. Test case setting (highest priority)
-2. Test plan setting (see [Test Plans](/core-concepts/test-plans))
-3. Project default preset
-4. QA Tech default preset (fallback)
+1. AI Chat runtime override (when specified)
+2. Test case setting (configured when editing a test case)
+3. Test plan setting (see [Test Plans](/core-concepts/test-plans))
+4. Project default preset
+5. QA Tech default preset (fallback)
 
 ## Integration with Test Plans
 
@@ -150,6 +182,16 @@ When a test plan has a device preset configured, it takes precedence over projec
 </Steps>
 
 All test runs initiated from this test plan will now use the selected device preset unless overridden by test case settings.
+
+### Multi-Device Testing Strategy
+
+To test the same functionality across different devices:
+
+1. Create device presets for each target device (e.g., "iPhone 14", "Galaxy Tab", "Desktop Chrome")
+2. Create separate test plans that use different device presets
+3. Run the appropriate test plan in your pipeline or schedule
+
+The [GitHub App](/configuration/github-app) can automatically select device presets based on PR content - for example, testing on mobile when a PR mentions "responsive design".
 
 ## Accessibility Emulation
 
@@ -197,3 +239,10 @@ If you encounter issues with device presets:
 - Custom headers are preserved across test runs
 - Locale and timezone settings affect date/time handling in tests
 - Device preset information is stored in test results and can be used for analysis
+
+## Related Documentation
+
+- [Test Plans](/core-concepts/test-plans) - Configure device presets per test plan
+- [Applications and Environments](/core-concepts/applications-and-environments) - How device presets fit into the test configuration hierarchy
+- [AI Chat Assistant](/core-concepts/ai-chat-assistant) - Override device presets at runtime
+- [GitHub App](/configuration/github-app) - Automatic device testing for PRs

@@ -81,24 +81,37 @@
                       "type": "object",
                       "properties": {
                         "environment": {
-                          "type": "object",
-                          "properties": {
-                            "short_id": {
-                              "type": "string",
-                              "description": "Existing environment short ID to use instead of creating new one"
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "url": {
+                                  "type": "string",
+                                  "example": "https://preview-123.vercel.app",
+                                  "description": "The URL of the environment to test against"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "example": "Preview Environment",
+                                  "description": "Human readable name for the environment"
+                                }
+                              },
+                              "required": ["url"],
+                              "description": "Create a new environment with the provided URL and optional name"
                             },
-                            "url": {
-                              "type": "string",
-                              "example": "https://preview-123.vercel.app",
-                              "description": "The URL of the environment to test against"
-                            },
-                            "name": {
-                              "type": "string",
-                              "example": "Preview Environment",
-                              "description": "Human readable name for the environment"
+                            {
+                              "type": "object",
+                              "properties": {
+                                "short_id": {
+                                  "type": "string",
+                                  "description": "Existing environment short ID to use instead of creating new one"
+                                }
+                              },
+                              "required": ["short_id"],
+                              "description": "Use an existing environment by its short ID"
                             }
-                          },
-                          "description": "Environment configuration for the application. Either short_id or url+name must be provided."
+                          ],
+                          "description": "Environment configuration for the application. Either short_id or url (with optional name) must be provided."
                         }
                       },
                       "required": ["environment"]

@@ -131,6 +131,10 @@ PR #58: Refactor checkout UI
 
 **Self-limiting:** As your test suite grows, fewer tests are created automatically - better coverage means fewer gaps. Most PRs (bug fixes, refactors) create zero new tests.
 
+<Tip>
+**Mobile and Responsive Testing:** When a PR mentions mobile, tablet, or responsive design changes, the AI agent may automatically test with appropriate device presets. The agent detects keywords like "mobile", "tablet", "responsive", or "Safari mobile" and can override device presets when creating or running tests. See [Device Presets](/test-features/device-presets) for configuring device settings.
+</Tip>
+
 ## How to Set It Up
 
 <Steps>
@@ -148,6 +152,10 @@ PR #58: Refactor checkout UI
 
   <Step title="Configure Preview Deployments (if needed)">
     If you use Vercel, Netlify, Render, Railway, or Fly.io, your preview deployments are detected automatically - skip to step 4.
+    
+    <Note>
+    QA.tech automatically creates preview environment records in your project when it detects your preview deployments (from Vercel, Netlify, etc.). Your CI/CD platform handles the actual deployment - QA.tech just tests against the preview URLs. For more information, see [Preview Environments](/core-concepts/applications-and-environments#preview-environments).
+    </Note>
     
     **For CircleCI, Jenkins, GitLab CI, or custom CI/CD:**
     

@@ -82,6 +82,11 @@ The request body is optional and can contain the following fields:
 - **`integrationName`** (string): Human-readable name of what triggered this test (defaults to "API")
 - **`testPlanShortId`** (string): The **short ID** of the test plan to execute (this is the 6-character ID visible in test plan URLs)
 - **`applications`** (object): Optional application environment overrides for testing specific environments. Each application can specify either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`).
+
+<Warning>
+**Device Preset Limitation:** Environment overrides are supported via API, but device preset overrides are not. To test with different device configurations, create separate test plans with different device preset settings in the UI.
+</Warning>
+
 - **`notifications`** (array): Slack notification overrides for this run. Provide one or more channel objects to send run updates to specific channels instead of the project's default Slack channel. Details below.
 
 ### Slack Notification Overrides
