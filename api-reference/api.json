@@ -216,19 +216,6 @@
                     }
                   },
                   "required": ["success", "run"]
-                },
-                "example": {
-                  "success": true,
-                  "run": {
-                    "id": "run_abc123def456",
-                    "shortId": "abc123",
-                    "url": "https://app.qa.tech/projects/project-123/results/abc123",
-                    "testCount": 5,
-                    "testPlan": {
-                      "name": "API Integration Tests",
-                      "short_id": "xyz789"
-                    }
-                  }
                 }
               }
             }
@@ -446,25 +433,6 @@
                     "status",
                     "result",
                     "failedTestCases"
-                  ]
-                },
-                "example": {
-                  "id": "550e8400-e29b-41d4-a716-446655440000",
-                  "shortId": "abc123",
-                  "status": "COMPLETED",
-                  "result": "FAILED",
-                  "failedTestCases": [
-                    {
-                      "id": "test-case-uuid",
-                      "shortId": "xyz789",
-                      "name": "Login flow test",
-                      "status": "COMPLETED",
-                      "result": "FAILED",
-                      "resultTitle": "Could not find login button",
-                      "evaluationThought": "The test failed because the login button was not visible on the page.",
-                      "promptGoal": "Test the login flow",
-                      "promptExamples": null
-                    }
                   ]
                 }
               }
