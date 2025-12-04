@@ -1,7 +1,7 @@
 ---
 title: Microsoft Teams
-description: 'Receive QA.tech notifications in Microsoft Teams channels'
-icon: 'microsoft'
+description: "Receive QA.tech notifications in Microsoft Teams channels"
+icon: "microsoft"
 ---
 
 The Microsoft Teams integration allows you to receive test run notifications directly in your Teams channels using incoming webhooks. Get notified when test runs complete, with details about pass/fail status and failed tests.
@@ -10,10 +10,10 @@ The Microsoft Teams integration allows you to receive test run notifications dir
 
 <Steps>
   <Step title="Create a Workflow in Microsoft Teams">
-    In Microsoft Teams, right-click on the channel where you want to receive notifications, then select **Workflows** from the menu.
+    In Microsoft Teams, open the option menu on the channel where you want to receive notifications, then select **Workflows** from the menu.
 
     <Frame>
-      <img src="/images/teams-channel-menu.png" alt="Microsoft Teams channel menu showing the Workflows option" />
+      <img src="/images/workflow-teams-example.png" alt="Microsoft Teams channel menu showing the Workflows option" />
     </Frame>
 
     Select the **"Post to a channel when a webhook request is received"** template. This creates a workflow that posts messages to your channel when it receives a webhook request.
@@ -23,11 +23,17 @@ The Microsoft Teams integration allows you to receive test run notifications dir
     <Tip>
       For detailed instructions on creating incoming webhooks in Microsoft Teams, see [Microsoft's official documentation](https://support.microsoft.com/en-us/office/create-incoming-webhooks-with-workflows-for-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498).
     </Tip>
+
+    <Note>
+      If the **Workflows** option is not available in your channel menu, you can also create the webhook workflow from the Microsoft 365 Workflows settings. Access Workflows through the Microsoft 365 app or at [workflows.microsoft.com](https://workflows.microsoft.com), then create a new workflow using the **"Post to a channel when a webhook request is received"** template.
+    </Note>
+
   </Step>
   <Step title="Configure in QA.tech">
     Go to [**Settings → Integrations**](https://app.qa.tech/current-project/settings/integrations) in your QA.tech project. Find the **Microsoft Teams** section and paste the webhook URL you copied from Teams.
 
     Click **Save** to enable the integration.
+
   </Step>
 </Steps>
 
