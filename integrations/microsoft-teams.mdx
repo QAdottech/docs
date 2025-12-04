@@ -1,0 +1,61 @@
+---
+title: Microsoft Teams
+description: 'Receive QA.tech notifications in Microsoft Teams channels'
+icon: 'microsoft'
+---
+
+The Microsoft Teams integration allows you to receive test run notifications directly in your Teams channels using incoming webhooks. Get notified when test runs complete, with details about pass/fail status and failed tests.
+
+## Setup
+
+<Steps>
+  <Step title="Create a Workflow in Microsoft Teams">
+    In Microsoft Teams, right-click on the channel where you want to receive notifications, then select **Workflows** from the menu.
+
+    <Frame>
+      <img src="/images/teams-channel-menu.png" alt="Microsoft Teams channel menu showing the Workflows option" />
+    </Frame>
+
+    Select the **"Post to a channel when a webhook request is received"** template. This creates a workflow that posts messages to your channel when it receives a webhook request.
+
+    Once the workflow is created, you'll see a dialog with a webhook URL. Copy this URL - you'll need it for the next step.
+
+    <Tip>
+      For detailed instructions on creating incoming webhooks in Microsoft Teams, see [Microsoft's official documentation](https://support.microsoft.com/en-us/office/create-incoming-webhooks-with-workflows-for-microsoft-teams-8ae491c7-0394-4861-ba59-055e33f75498).
+    </Tip>
+  </Step>
+  <Step title="Configure in QA.tech">
+    Go to [**Settings → Integrations**](https://app.qa.tech/current-project/settings/integrations) in your QA.tech project. Find the **Microsoft Teams** section and paste the webhook URL you copied from Teams.
+
+    Click **Save** to enable the integration.
+  </Step>
+</Steps>
+
+## What You Get
+
+Each notification includes:
+
+- **Run status** - Pass or fail indication
+- **Test plan name** - If the run was part of a test plan
+- **Timing** - When the run started and total duration
+- **Failed tests** - Breakdown of any failed tests
+- **Results link** - Direct link to the full test report in QA.tech
+
+You'll receive a notification for every completed run, whether triggered manually, through CI/CD, or via schedule.
+
+## Troubleshooting
+
+### Notifications not appearing
+
+- Verify the webhook URL is correct and hasn't expired
+- Check that the workflow in Microsoft Teams is still active
+- Ensure the channel still exists and the workflow has permission to post
+
+### Need to update the webhook URL
+
+If you need to regenerate or change your webhook URL:
+
+1. Open the Workflows app in Microsoft Teams
+2. Find your webhook workflow and select **Edit**
+3. Expand the trigger **"When a Teams webhook request is received"** to copy the URL
+4. Update the URL in QA.tech under **Settings → Integrations**

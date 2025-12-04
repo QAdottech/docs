@@ -115,6 +115,7 @@
       "group": "Integrations",
       "pages": [
         "integrations/slack",
+        "integrations/microsoft-teams",
         "integrations/trello",
         "integrations/linear",
         "integrations/jira",
