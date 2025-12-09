@@ -4,7 +4,7 @@ description: "Receive QA.tech notifications in Microsoft Teams channels"
 icon: "microsoft"
 ---
 
-The Microsoft Teams integration allows you to receive test run notifications directly in your Teams channels using incoming webhooks. Get notified when test runs complete, with details about pass/fail status and failed tests.
+The Microsoft Teams integration sends automated test run notifications directly to your Teams channels using incoming webhooks. This is a notification-only integration - you'll receive alerts when test runs complete, but unlike the Slack Bot, this integration does not support interactive features or API overrides.
 
 ## Setup
 
@@ -34,6 +34,8 @@ The Microsoft Teams integration allows you to receive test run notifications dir
 
     Click **Save** to enable the integration.
 
+    After saving, you can use the **Send Test Notification** button to verify your webhook is working correctly.
+
   </Step>
 </Steps>
 
@@ -44,7 +46,9 @@ Each notification includes:
 - **Run status** - Pass or fail indication
 - **Test plan name** - If the run was part of a test plan
 - **Timing** - When the run started and total duration
-- **Failed tests** - Breakdown of any failed tests
+- **Error tests** - Breakdown of any tests that encountered errors
+- **Failed tests** - Breakdown of any tests that failed
+- **Skipped tests** - Breakdown of any tests that were skipped
 - **Results link** - Direct link to the full test report in QA.tech
 
 You'll receive a notification for every completed run, whether triggered manually, through CI/CD, or via schedule.
