@@ -30,7 +30,7 @@
     {
       "name": "Guides",
       "icon": "book-open-cover",
-      "url": "introduction"
+      "url": "best-practices/creating-tests"
     },
     {
       "name": "API Reference",
