@@ -6,6 +6,7 @@
     "light": "/logo/logo.svg"
   },
   "favicon": "/favicon.svg",
+  "assistant": false,
   "colors": {
     "primary": "#4F46E5",
     "light": "#F672AB",
