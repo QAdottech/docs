@@ -82,6 +82,34 @@ After creating a test, the AI agent automatically attempts to execute it and gen
 
 Update steps as needed and click **"Save & Run"** to test your changes. You can stop execution at any time with the **"Stop"** button.
 
+### Refine Tests via Chat
+
+The fastest way to fix and improve tests: describe changes in the [AI Chat Assistant](/core-concepts/ai-chat-assistant), review the diff, and run immediately.
+
+**Fix after failures** - When a test fails, stay in chat and describe the fix. No context switching - see the failure, fix it, validate.
+
+**Build iteratively** - Create a rough test, watch it run, refine through conversation. The AI remembers what you both just saw.
+
+**Bulk refinement** - Describe what you want across your test suite and let the AI handle the details. It reads your tests, identifies which ones to change, and proposes edits for each.
+
+#### Example Prompts
+
+| You say... | What happens |
+| --- | --- |
+| "Change step 3 to wait for the spinner first" | AI proposes single step edit |
+| "Also verify the success message appears" | AI adds verification to current test |
+| "Make this resume from my Login test" | AI updates dependency |
+| "Add email verification to all checkout tests" | AI finds and edits multiple tests |
+| "Create tests for returns similar to checkout" | AI reads your tests, generates new ones |
+
+<Tip>
+The AI already knows your test suite and remembers your conversation. You can say "that test" or "where it failed" - no need to be overly specific. Describe what you want in plain language and let the AI figure out the details.
+</Tip>
+
+<Note>
+**Only for existing tests:** Editing works on tests that have been created. For suggestions you haven't added yet, keep describing changes and the AI will regenerate the suggestion.
+</Note>
+
 ## Activating and Organizing Tests
 
 After creating and reviewing your test, you'll want to activate it and organize it within your project.
@@ -148,72 +176,4 @@ Tests can depend on other tests to control execution order and reuse browser sta
 
 ## Organizing Tests for Complex Projects
 
-When working on projects with multiple products or versions, it's often beneficial to organize tests into a single project with multiple applications and use Test Scenarios to manage different versions. This approach allows you to:
-
-- **Maintain a single source of truth** for all test cases across your applications.
-- **Easily manage and update test cases** across different product versions.
-- **Scale your testing efforts** by reusing test cases across multiple applications.
-- **Reduce duplication** and ensure consistency across your test suites.
-
-QA.tech's structure is designed to handle this elegantly:
-
-**Project → Application → Environment → Test Cases**
-
-- **Project**: Your overall product or platform
-- **Application**: Each distinct product, major version, or variant
-- **Environment**: Where each application runs (dev, staging, production)
-- **Test Cases**: Belong to specific applications
-- **Test Scenarios**: Organize related tests within or across applications
-- **Test Plans**: Group tests into suites for CI/CD automation (e.g., "PR Smoke Tests", "Nightly Regression"). Test plans are how you integrate QA.tech into your deployment pipeline via the [API](/api-reference/start-run)
-
-#### Example Structure
-
-For a complex project with multiple versions running simultaneously:
-
-```
-PROJECT: "E-commerce Platform"
-├── APP: "Legacy v1.0"
-│   ├── ENV: Production
-│   └── TEST_CASES: [checkout flow, payment processing]
-│
-├── APP: "Current v2.0"
-│   ├── ENV: Production, Staging
-│   └── TEST_CASES: [new checkout, enhanced payments, user dashboard]
-│
-└── APP: "Beta v3.0"
-    ├── ENV: Staging
-    └── TEST_CASES: [experimental features, new architecture tests]
-```
-
-**Key Benefits:**
-- Each version's tests are naturally isolated within their Application
-- Share common infrastructure (configs, knowledge) at the Project level
-- Run the same tests against different environments (staging → production)
-- Test cross-version compatibility when needed
-
-### Using Test Plans for Release Management
-
-**Test Plans** group tests you want to run together and can be reused across different environments by updating their parameters (application and environment settings). For example, run the same "Smoke Tests" plan against staging, then production-no need to duplicate the plan.
-
-<Tip>
-**CI/CD Integration:** Test plans are designed for automation workflows. Use them with the [API](/api-reference/start-run) to trigger specific test suites from your deployment pipeline, GitHub Actions, or scheduled jobs. See [Test Plans](/core-concepts/test-plans) for API execution, scheduling, and environment override details.
-</Tip>
-
-Instead of creating separate plans per version, create plans based on **testing goals**:
-
-- **"Smoke Tests"** - Critical paths across all versions/applications
-- **"v2.0 Full Regression"** - All tests for the v2.0 application
-- **"Cross-Version Integration"** - Tests verifying compatibility between versions
-
-**Example Workflow:**
-
-1. Create a Test Plan called "Critical User Flows"
-2. Add essential tests from all your applications
-3. Run it against staging environments first
-4. Reuse the same plan for production by updating the environment parameters
-
-This approach allows you to:
-- Avoid duplicating Test Plans for each environment
-- Run comprehensive regression tests across multiple versions
-- Maintain consistent test coverage as you promote between environments
-- Schedule plans independently (e.g., smoke tests every hour, full regression nightly)
+For projects with multiple products, versions, or environments, see [Projects, Applications, Environments](/core-concepts/applications-and-environments) for organization patterns and best practices.

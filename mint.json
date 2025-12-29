@@ -29,11 +29,6 @@
 
   "anchors": [
     {
-      "name": "Guides",
-      "icon": "book-open-cover",
-      "url": "best-practices/creating-tests"
-    },
-    {
       "name": "API Reference",
       "openapi": "/api-reference/api.json",
       "url": "api-reference",
@@ -53,7 +48,7 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": ["introduction"]
+      "pages": ["core-concepts/ai-agent-testing"]
     },
     {
       "group": "Best Practices",
@@ -68,7 +63,6 @@
     {
       "group": "Core Concepts",
       "pages": [
-        "core-concepts/ai-agent-testing",
         "core-concepts/ai-chat-assistant",
         "core-concepts/knowledge-graph",
         "core-concepts/knowledge",

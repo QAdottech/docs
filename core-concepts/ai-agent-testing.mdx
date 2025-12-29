@@ -1,7 +1,7 @@
 ---
-title: AI Agent Testing
-description: 'How QA.tech uses specialized AI agents to test your application'
-icon: user-secret
+title: Welcome to QA.tech
+description: 'Autonomous AI testing'
+icon: home
 ---
 
 QA.tech uses specialized AI agents to test your application like humans would, but faster and more thoroughly. Our system automatically routes testing tasks to the right agent based on context-no manual configuration needed.
@@ -111,13 +111,19 @@ PR detected with untested functionality
 
 You don't manage this coordination - it happens automatically based on what you're trying to accomplish.
 
-## Getting Started
+## Get Started
 
-**For Interactive Testing:**
-Open the [Chat Assistant](/core-concepts/ai-chat-assistant) in your project dashboard and start asking questions or requesting tests.
-
-**For Automatic PR Testing:**
-Install the [GitHub App](/configuration/github-app) and select repositories to enable automatic reviews on every PR.
-
-**For On-Demand PR Testing:**
-Set up [GitHub Actions integration](/configuration/github-actions) and mention `@qatech` in PR comments when you want deep exploratory testing.
+<CardGroup cols={2}>
+  <Card title="Create Your First Test" icon="plus" href="/best-practices/creating-tests">
+    Write tests in natural language. The AI generates steps automatically.
+  </Card>
+  <Card title="AI Chat Assistant" icon="message-bot" href="/core-concepts/ai-chat-assistant">
+    Conversational interface to create, edit, and manage tests.
+  </Card>
+  <Card title="Automatic PR Testing" icon="github" href="/configuration/github-app">
+    Install the GitHub App for autonomous reviews on every PR.
+  </Card>
+  <Card title="CI/CD Integration" icon="code" href="/configuration/ci-cd-integration">
+    Trigger tests from your deployment pipeline.
+  </Card>
+</CardGroup>
