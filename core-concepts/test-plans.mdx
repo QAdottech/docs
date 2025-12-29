@@ -41,7 +41,7 @@ Test Plans are the primary way to run tests from CI/CD pipelines. You can trigge
 
 **How it works:**
 1. Create a test plan and add test cases to it
-2. Get the test plan's short ID ([6-character ID](/configuration/gitlab#finding-your-test-plan-short-id) visible in the test plan URL)
+2. Get the test plan's **Test Plan Short ID** ([6-character ID](/configuration/gitlab#finding-your-test-plan-short-id) visible in the test plan URL)
 3. Trigger the test plan via API from your CI/CD pipeline
 
 **Should work with any CI/CD system** - Since QA.tech uses a standard REST API, you can integrate from any CI/CD platform that can make HTTP requests (using curl, HTTP libraries, or built-in HTTP steps). Examples include:
@@ -78,7 +78,7 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
   }'
 ```
 
-The `testPlanShortId` is the [6-character short ID](/configuration/gitlab#finding-your-test-plan-short-id) visible in your test plan URL (e.g., `https://app.qa.tech/.../test-plans/abc123`).
+The `testPlanShortId` is the [6-character Test Plan Short ID](/configuration/gitlab#finding-your-test-plan-short-id) visible in your test plan URL (e.g., `https://app.qa.tech/.../test-plans/abc123`).
 
 ### Scheduled Execution
 

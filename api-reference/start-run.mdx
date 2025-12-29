@@ -1,7 +1,7 @@
 ---
 title: Start Run API
-description: 'API endpoint for programmatically starting test runs'
-icon: 'play-circle'
+description: "API endpoint for programmatically starting test runs"
+icon: "play-circle"
 ---
 
 # Start Run API
@@ -52,17 +52,17 @@ For detailed instructions, see [Finding Your Project UUID](/api-reference/introd
 
 ### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `projectUuid` | string (UUID) | Yes | Your project's UUID (36-character format, NOT the short ID from URLs) |
+| Parameter     | Type          | Required | Description                                                           |
+| ------------- | ------------- | -------- | --------------------------------------------------------------------- |
+| `projectUuid` | string (UUID) | Yes      | Your project's UUID (36-character format, NOT the short ID from URLs) |
 
 ### Headers
 
-| Header | Value | Required | Description |
-|--------|-------|----------|-------------|
-| `Content-Type` | `application/json` | Yes | Media type of the request body |
-| `Authorization` | `Bearer YOUR_API_TOKEN` | Yes* | Bearer token authentication (required if not using Netlify webhook signature) |
-| `X-Webhook-Signature` | `YOUR_SIGNED_JWT_TOKEN` | Yes* | Netlify webhook signature authentication (required if not using Bearer token) |
+| Header                | Value                   | Required | Description                                                                   |
+| --------------------- | ----------------------- | -------- | ----------------------------------------------------------------------------- |
+| `Content-Type`        | `application/json`      | Yes      | Media type of the request body                                                |
+| `Authorization`       | `Bearer YOUR_API_TOKEN` | Yes\*    | Bearer token authentication (required if not using Netlify webhook signature) |
+| `X-Webhook-Signature` | `YOUR_SIGNED_JWT_TOKEN` | Yes\*    | Netlify webhook signature authentication (required if not using Bearer token) |
 
 \* Either `Authorization` Bearer token OR `X-Webhook-Signature` header is required for authentication.
 
@@ -80,11 +80,20 @@ The request body is optional and can contain the following fields:
 #### Optional Fields
 
 - **`integrationName`** (string): Human-readable name of what triggered this test (defaults to "API")
-- **`testPlanShortId`** (string): The **short ID** of the test plan to execute (this is the 6-character ID visible in test plan URLs)
+- **`testPlanShortId`** (string): The **Test Plan Short ID** of the test plan to execute (this is the 6-character ID visible in test plan URLs)
 - **`applications`** (object): Optional application environment overrides for testing specific environments. Each application can specify either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`).
 
+<Tip>
+  The key in the `applications` object is the **Application Short ID**
+  (6-character alphanumeric, e.g., `gXeBl2`). Find it in **Settings ->
+  Applications** (Short ID column or dropdown menu). See [Finding Application
+  Short IDs](/api-reference/introduction#finding-application-short-ids).
+</Tip>
+
 <Warning>
-**Device Preset Limitation:** Environment overrides are supported via API, but device preset overrides are not. To test with different device configurations, create separate test plans with different device preset settings in the UI.
+  **Device Preset Limitation:** Environment overrides are supported via API, but
+  device preset overrides are not. To test with different device configurations,
+  create separate test plans with different device preset settings in the UI.
 </Warning>
 
 - **`notifications`** (array): Slack notification overrides for this run. Provide one or more channel objects to send run updates to specific channels instead of the project's default Slack channel. Details below.
@@ -93,11 +102,11 @@ The request body is optional and can contain the following fields:
 
 Use the `notifications` array to send per-run Slack updates without changing your default integration settings. Each object must describe a Slack destination:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `type` | string | Yes | Must be `slack` (currently the only supported notification type) |
-| `channel` | string | Yes | Slack channel ID (e.g., `C0478ABCDEF`). The QA.tech bot must already have access to this channel. |
-| `notifyOn` | string | No | Controls when notifications are sent for this channel. See options below. |
+| Field      | Type   | Required | Description                                                                                       |
+| ---------- | ------ | -------- | ------------------------------------------------------------------------------------------------- |
+| `type`     | string | Yes      | Must be `slack` (currently the only supported notification type)                                  |
+| `channel`  | string | Yes      | Slack channel ID (e.g., `C0478ABCDEF`). The QA.tech bot must already have access to this channel. |
+| `notifyOn` | string | No       | Controls when notifications are sent for this channel. See options below.                         |
 
 **`notifyOn` options:**
 
@@ -107,7 +116,8 @@ Use the `notifications` array to send per-run Slack updates without changing you
 The run result values (`PASSED`, `FAILED`, `SKIPPED`, or `null`) are determined when the run completes.
 
 <Warning>
-Slack notification overrides currently do not work for projects with SSH Tunnel Proxy enabled.
+  Slack notification overrides currently do not work for projects with SSH
+  Tunnel Proxy enabled.
 </Warning>
 
 <Steps>
@@ -158,6 +168,13 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
 
 ### Test Run with Preview Environment
 
+<Note>
+  Use `short_id` to reference an **existing** environment (find it in
+  Application Settings). Use `url` to create or update a **preview** environment
+  dynamically (creates new preview environment, or updates existing one if it
+  matches the same branch/repository).
+</Note>
+
 ```bash
 curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
@@ -166,15 +183,15 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
     "integrationName": "Vercel Preview",
     "testPlanShortId": "abc123",
     "applications": {
-      "frontend-app": {
+      "gXeBl2": {
         "environment": {
           "url": "https://pr-123-frontend.vercel.app",
           "name": "PR-123-Frontend"
         }
       },
-      "backend-api": {
+      "abc123": {
         "environment": {
-          "short_id": "existing-env-456"
+          "short_id": "aB3xY9"
         }
       }
     }
@@ -220,11 +237,13 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
 ### Error Responses
 
 #### Bad Request (400)
+
 Returned when the request body is malformed, missing required fields, or validation fails.
 
 **Examples:**
 
 Empty notifications array:
+
 ```json
 {
   "statusText": "Failed to parse notifications in request: Array must contain at least 1 element(s)"
@@ -232,6 +251,7 @@ Empty notifications array:
 ```
 
 Slack integration not configured:
+
 ```json
 {
   "statusText": "Slack integration is not configured for this project. Configure Slack before overriding notification channels."
@@ -239,6 +259,7 @@ Slack integration not configured:
 ```
 
 Inaccessible Slack channels:
+
 ```json
 {
   "statusText": "Slack channel override failed. Ensure the QA.tech bot has access to: C0478ABCDEF, C0123FAIL42"
@@ -246,6 +267,7 @@ Inaccessible Slack channels:
 ```
 
 Invalid test plan or malformed request:
+
 ```json
 {
   "statusText": "Invalid test plan ID or malformed applications config"
@@ -253,11 +275,13 @@ Invalid test plan or malformed request:
 ```
 
 #### Forbidden (403)
+
 Returned when the bearer token is invalid or expired, when Netlify webhook signature verification fails, or when the organization is suspended.
 
 **Examples:**
 
 Invalid token:
+
 ```json
 {
   "statusText": "Unknown Error"
@@ -265,6 +289,7 @@ Invalid token:
 ```
 
 Organization suspended:
+
 ```json
 {
   "statusText": "Organization is suspended"
@@ -272,9 +297,11 @@ Organization suspended:
 ```
 
 #### Payment Required (402)
+
 Returned when the organization has reached its usage limit.
 
 **Example:**
+
 ```json
 {
   "statusText": "Organization has reached usage limit. Upgrade your account to continue."
@@ -282,9 +309,11 @@ Returned when the organization has reached its usage limit.
 ```
 
 #### Not Found (404)
+
 Returned when the specified project ID doesn't exist.
 
 **Example:**
+
 ```json
 {
   "statusText": "Unknown Error"
@@ -292,9 +321,11 @@ Returned when the specified project ID doesn't exist.
 ```
 
 #### Internal Server Error (500)
+
 Returned when there's an internal server error.
 
 **Example:**
+
 ```json
 {
   "statusText": "API Error"
@@ -354,7 +385,7 @@ jobs:
               "integrationName": "GitHub Actions",
               "testPlanShortId": "abc123",
               "applications": {
-                "frontend-app": {
+                "gXeBl2": {
                   "environment": {
                     "url": "${{ needs.deploy.outputs.preview_url }}",
                     "name": "PR-${{ github.event.pull_request.number }}"
@@ -365,10 +396,11 @@ jobs:
 ```
 
 <Note>
-This API endpoint works with any CI/CD system. For platform-specific guides and examples:
-- [CI/CD Integration Overview](/configuration/ci-cd-integration) - Learn about integration modes
-- [GitHub Actions](/configuration/github-actions) - Official GitHub Action and examples
-- [GitLab CI](/configuration/gitlab) - GitLab CI/CD examples
+  This API endpoint works with any CI/CD system. For platform-specific guides
+  and examples: - [CI/CD Integration Overview](/configuration/ci-cd-integration)
+  - Learn about integration modes - [GitHub
+  Actions](/configuration/github-actions) - Official GitHub Action and examples
+  - [GitLab CI](/configuration/gitlab) - GitLab CI/CD examples
 </Note>
 
 ## Related Endpoints

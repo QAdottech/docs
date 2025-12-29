@@ -87,13 +87,49 @@ If you're using GitHub Actions integration:
 
 ## Understanding Different IDs
 
-QA.tech uses three different types of identifiers. Make sure you use the correct one:
+QA.tech uses five different types of identifiers. Make sure you use the correct one:
+
+**Note:** All three "Short ID" types (Test Plan, Application, Environment) are 6-character alphanumeric strings, but they identify different resources and are used in different parts of the API request.
 
 | ID Type | Format | Where You See It | Use In API | Example |
 |---------|--------|------------------|------------|---------|
 | **Project UUID** | 36-character UUID | Code examples, GitHub Actions settings | Path parameter: `/api/projects/{projectUuid}/runs` | `550e8400-e29b-41d4-a716-446655440000` |
-| **Short ID** | 6-character alphanumeric | Browser URLs, test result pages | Request body: `"testPlanShortId": "abc123"` | `abc123` |
+| **Test Plan Short ID** | 6-character alphanumeric | Browser URLs, test result pages | Request body: `"testPlanShortId": "abc123"` | `abc123` |
+| **Application Short ID** | 6-character alphanumeric | Settings -> Applications (Short ID column) | Key in `applications` object | `gXeBl2` |
+| **Environment Short ID** | 6-character alphanumeric | Settings -> Applications -> [App] -> Environments | `environment.short_id` field | `aB3xY9` |
 | **API Token** | UUID string | API settings page | Header: `Authorization: Bearer {token}` | `32fc11c3-9be4-4bb9-a220-7a4ca4427335` |
+
+### Finding Application Short IDs
+
+The Application Short ID is the key you use in the `applications` object when overriding environments via API.
+
+<Steps>
+  <Step title="Go to Applications">
+    Navigate to **Settings -> Applications** in your project
+  </Step>
+  <Step title="Find Short ID Column">
+    The Short ID appears in its own column in the applications table
+  </Step>
+  <Step title="Copy Short ID">
+    Click the three-dot menu (⋮) next to any application and select **Copy Short ID**
+  </Step>
+</Steps>
+
+### Finding Environment Short IDs
+
+The Environment Short ID references an existing environment in API requests (using `environment.short_id`).
+
+<Steps>
+  <Step title="Go to Application Settings">
+    Navigate to **Settings -> Applications -> [Select Application]**
+  </Step>
+  <Step title="Find Environment Short ID">
+    In the **Environments** section, the Short ID appears above each environment name in monospace font
+  </Step>
+  <Step title="Copy Short ID">
+    Hover to reveal the copy icon, or click the three-dot menu (⋮) and select **Copy Short ID**
+  </Step>
+</Steps>
 
 ## Next Steps
 

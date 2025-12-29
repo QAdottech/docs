@@ -293,8 +293,16 @@ This allows you to:
 1. Create separate test plans with different device preset settings
 2. Trigger the appropriate test plan via API, schedule, or manual execution based on your needs
 
+## Finding Short IDs for API Usage
 
+When using the [Start Run API](/api-reference/start-run) to override environments, you need Application and Environment Short IDs.
 
+| ID Type | Where to Find | What It's Used For |
+|---------|---------------|-------------------|
+| Application Short ID | Settings -> Applications (column or dropdown menu) | Key in `applications` object |
+| Environment Short ID | Settings -> Applications -> [App] -> Environments (above name) | `environment.short_id` field |
+
+For detailed steps, see [Understanding Different IDs](/api-reference/introduction#understanding-different-ids).
 
 ## Creating Applications & Environments
 
