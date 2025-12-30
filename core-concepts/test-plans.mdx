@@ -149,3 +149,9 @@ This means that while a single test case may take several minutes to execute, ru
    - Use Test Scenarios to define the specific test cases to run for a given version or release
    - The same Test Plan can be reused across different environments by overriding environment URLs via API (see [Start Run API](/api-reference/start-run)) or updating test plan parameters in the UI
    - **Note:** Environment overrides are supported via API, but device preset changes require separate test plans with different device preset settings
+
+5. **Notification Configuration**:
+   - Configure email, Slack, and Microsoft Teams notifications at the test plan level
+   - Override the project's default Slack channel for test plan-specific routing
+   - Add organization members as email recipients to ensure stakeholders receive run completion notifications
+   - See [Notifications](/core-concepts/notifications) for detailed setup instructions

@@ -3,49 +3,228 @@ title: Notifications
 icon: bell
 ---
 
-You can get a Slack notification and/or weekly email summaries for the entire team.
+QA.tech notifies your team when test runs complete and provides weekly summaries of testing activity. Configure notifications at the project level for defaults, at the test plan level for customization, or per-run via API for CI/CD workflows.
 
-## Notification Types
+## Understanding Notifications
 
-| Type | Delivery | Timing | Content |
-|------|----------|--------|---------|
-| Run Completion | Slack | When run finishes (1+ tests) | Pass/fail status, duration, failed test details |
-| Weekly Summary | Email | Mondays 6 AM CET | Test statistics, pass rate, time saved, suggestions |
+### Notification Types
 
-## Slack Notifications
+| Type | Purpose | Timing | Channels |
+|------|---------|--------|----------|
+| Run Completion | Alert team when tests finish | Immediately after run | Slack, Email, Microsoft Teams |
+| Weekly Summary | Summarize testing activity | Mondays 6 AM CET | Email only |
 
-### Setup
+### Delivery Channels
 
-Configure Slack notifications in two steps:
+| Channel | Project Level | Test Plan Level | Per-Run API |
+|---------|---------------|-----------------|-------------|
+| Slack | Default channel | Override channel | Override channels |
+| Email | - | Add recipients | - |
+| Microsoft Teams | Webhook URL | Webhook URL | - |
 
-1. **Connect Slack** at Organization Settings → Connections
-2. **Select channel** at Project Settings → Integrations → Slack
+### Configuration Levels
 
-Each project has a default Slack channel configured in project settings. By default, all run notifications go to this channel. However, when triggering runs via the API, you can override the notification destination on a per-run basis to send notifications to different channels or multiple channels. See [Per-Run Notification Overrides](#per-run-notification-overrides) below for details.
+```
+Project Settings (defaults for all runs)
+└── Test Plan Settings (override per test plan)
+    └── Per-Run API (override per individual run - Slack only)
+```
 
-### What You Get
+- **Project Level** - Set default Slack channel and Teams webhook. All runs use these unless overridden.
+- **Test Plan Level** - Override Slack channel, add email recipients, configure Teams webhook per test plan.
+- **Per-Run API** - Override Slack channels dynamically when triggering runs via API. Useful for CI/CD.
 
-Each notification includes:
+<Note>
+Per-run API overrides only support Slack. Email and Teams notifications cannot be overridden via API - configure them at the test plan level instead.
+</Note>
 
-- **Run status** - Pass or fail with color coding
-- **Test plan name** - If run was part of a test plan
-- **Timing** - When started and total duration
-- **Failed tests** - Detailed breakdown with clickable links
-- **Results link** - Direct access to full test report
+## What You Receive
 
-You'll receive a notification for every completed run, whether you trigger it manually, through CI/CD, or via schedule.
+### Run Completion Notifications
 
-### Per-Run Notification Overrides
+All run completion notifications (Slack, Email, Teams) include:
 
-When triggering test runs via the [Start Run API](/api-reference/start-run), you can override the default Slack channel and send notifications to specific channels for that run. This is useful for:
+| Content | Description |
+|---------|-------------|
+| Run status | Pass or fail with visual indicators |
+| Test plan name | If run was part of a test plan |
+| Timing | When started and total duration |
+| Test summary | Total tests, failed count, error count |
+| Failed tests | Up to 5 failed tests with names and failure reasons |
+| Results link | Direct link to full test report |
 
-- **PR-specific channels**: When testing a pull request, send notifications to a dedicated Slack channel for that PR (e.g., `#pr-123-frontend-tests`) instead of the default project channel
-- **Team-specific notifications**: Route test results to team-specific channels (e.g., send frontend test results to `#frontend-team` and backend tests to `#backend-team`) so each team only sees relevant notifications
-- **Failure-only channels**: Set up channels that only receive notifications when tests fail (e.g., `#alerts-critical-failures`), reducing noise while ensuring failures are immediately visible
+You receive a notification for every completed run - whether triggered manually, through CI/CD, or via schedule.
 
-**How it works:**
+### Weekly Summary Reports
 
-Include a `notifications` array in your API request to specify which Slack channels should receive notifications for that run:
+Weekly summaries are separate from run completion notifications. They provide organization-wide metrics to all members.
+
+**When**: Every Monday at 6 AM Central European Time  
+**Who**: All organization members (unsubscribe via email footer)
+
+**Contents**:
+- Tests executed count
+- Pass percentage
+- Time saved estimate
+- Suggested new tests to add
+- Summary of test runs
+
+## Common Patterns
+
+### Team-Wide Slack Alerts
+
+**Goal**: Everyone on the project sees test results in a shared channel.
+
+**Setup**: Configure default Slack channel at Project Settings → Integrations → Slack. All runs notify this channel automatically.
+
+### Stakeholder Email Notifications
+
+**Goal**: Product managers or executives receive email updates for specific test plans.
+
+**Setup**: Open test plan → Notification settings → Add email recipients. Choose "Only on failure" to reduce email volume.
+
+### CI/CD-Triggered Notifications
+
+**Goal**: Tests triggered via GitHub Actions or GitLab CI notify the team automatically.
+
+**Setup**: Runs triggered via API use project defaults. No additional configuration needed - notifications flow to configured channels.
+
+**Guides**: [GitHub Actions](/configuration/github-actions) | [GitLab CI](/configuration/gitlab) | [Start Run API](/api-reference/start-run)
+
+### PR-Specific Slack Channels
+
+**Goal**: Route notifications for a specific PR to a dedicated Slack channel.
+
+**Setup**: Use per-run API overrides to specify channels dynamically:
+
+```json
+{
+  "testPlanShortId": "abc123",
+  "notifications": [
+    { "type": "slack", "channel": "C0478ABCDEF", "notifyOn": "always" }
+  ]
+}
+```
+
+### Failure-Only Routing
+
+**Goal**: Reduce noise by only notifying on failures.
+
+**Setup**: 
+- **Email/Teams**: Set "Only on failure" in test plan notification settings
+- **Slack API override**: Use `"notifyOn": "failure"` in the notifications array
+
+## Decision Guide
+
+Use this flowchart to determine where to configure notifications:
+
+```mermaid
+flowchart TD
+    START(["I want notifications"]) --> Q1{Which channel?}
+    
+    Q1 -->|Slack| Q2{Same channel for all runs?}
+    Q1 -->|Email| EMAIL["Test Plan Settings"]
+    Q1 -->|Teams| TEAMS["Test Plan or Project Settings"]
+    
+    Q2 -->|"Yes - project default"| SLACK_PROJECT["Project Settings"]
+    Q2 -->|"No - varies by test plan"| SLACK_PLAN["Test Plan Settings"]
+    Q2 -->|"No - varies per run/PR"| SLACK_API["Per-Run API Override"]
+    
+    EMAIL --> NOTE1["Add org members as recipients"]
+    TEAMS --> NOTE2["Configure webhook URL"]
+    SLACK_PROJECT --> NOTE3["Set default channel"]
+    SLACK_PLAN --> NOTE4["Override channel per plan"]
+    SLACK_API --> NOTE5["Pass notifications array in API call"]
+```
+
+| I want to... | Configure at |
+|--------------|--------------|
+| Set default Slack channel for all runs | Project Settings → Integrations → Slack |
+| Add email recipients for a test plan | Test Plan → Notification Settings |
+| Send to different Slack channels per test plan | Test Plan → Notification Settings |
+| Send to different Slack channels per PR/run | Per-Run API (`notifications` array) |
+| Set up Microsoft Teams notifications | Project Settings or Test Plan Settings |
+| Receive weekly summaries | Automatic for all org members |
+
+## Setup by Channel
+
+### Slack
+
+<Steps>
+  <Step title="Connect Slack to Organization">
+    Go to Organization Settings → Connections and connect your Slack workspace.
+  </Step>
+  <Step title="Set Project Default Channel">
+    Go to Project Settings → Integrations → Slack and select a default channel.
+  </Step>
+  <Step title="(Optional) Override Per Test Plan">
+    Open a test plan → Click settings icon (gear) next to Notifications → Select a different Slack channel.
+  </Step>
+</Steps>
+
+The QA.tech bot must be invited to any channels you want to use.
+
+### Email
+
+Email notifications are configured per test plan - there is no project-level default.
+
+<Steps>
+  <Step title="Open Test Plan">
+    Navigate to your test plan from the Test Plans page.
+  </Step>
+  <Step title="Open Notification Settings">
+    Click the settings icon (gear) next to **Notifications** on the test plan page.
+  </Step>
+  <Step title="Add Recipients">
+    Search for organization members by name or email and add them as recipients.
+  </Step>
+  <Step title="Choose Frequency">
+    Select **Every completion** (all runs) or **Only on failure** (failures only).
+  </Step>
+</Steps>
+
+<Note>
+Email recipients must be organization members. External email addresses are not supported.
+</Note>
+
+### Microsoft Teams
+
+Teams notifications use incoming webhooks. See [Microsoft Teams Integration](/integrations/microsoft-teams) for detailed webhook setup instructions.
+
+<Steps>
+  <Step title="Create Incoming Webhook in Teams">
+    Follow Microsoft's guide to create an incoming webhook for your Teams channel.
+  </Step>
+  <Step title="Add Webhook URL">
+    Go to Project Settings → Integrations → Microsoft Teams, or configure at the test plan level via Notification Settings.
+  </Step>
+  <Step title="(Optional) Configure Frequency">
+    Choose **Every completion** or **Only on failure** in test plan settings.
+  </Step>
+</Steps>
+
+## Advanced Configuration
+
+### Per-Test-Plan Settings
+
+Access test plan notification settings by clicking the settings icon (gear) next to **Notifications** on any test plan page. You can configure:
+
+| Setting | Description |
+|---------|-------------|
+| Slack channel | Override project default for this test plan |
+| Email recipients | Add organization members to receive emails |
+| Email frequency | Every completion or only on failure |
+| Teams webhook | Add Teams webhook URL for this test plan |
+| Teams frequency | Every completion or only on failure |
+
+Each test plan can have different notification settings, allowing you to:
+- Route critical test plans to dedicated alert channels
+- Add stakeholders to specific test plans
+- Use different Teams channels for different test plans
+
+### Per-Run API Overrides (Slack Only)
+
+When triggering runs via the [Start Run API](/api-reference/start-run), you can override Slack notification destinations for that specific run.
 
 ```json
 {
@@ -57,35 +236,18 @@ Include a `notifications` array in your API request to specify which Slack chann
 }
 ```
 
-**Key points:**
+**Key points**:
 
-- Each channel can be configured with `notifyOn: "always"` (default) to receive both start and finish notifications, or `notifyOn: "failure"` to only receive finish notifications when the run result is not `PASSED` (i.e., `FAILED`, `SKIPPED`, or `null`)
-- When overrides are provided, the default project channel is skipped - only the specified channels receive notifications
-- The QA.tech bot must already have access to all channels you specify
-- Requires [Slack integration](/core-concepts/notifications#slack-notifications) to be configured for the project
+| Behavior | Description |
+|----------|-------------|
+| Channel format | Use Slack channel ID (e.g., `C0478ABCDEF`), not channel name |
+| `notifyOn: "always"` | Receive start and finish notifications (default) |
+| `notifyOn: "failure"` | Receive finish notifications only when result is not `PASSED` |
+| Default skipped | When overrides provided, project default channel is skipped |
+| Bot access | QA.tech bot must be invited to specified channels |
 
-For complete API documentation, see the [Start Run API Reference](/api-reference/start-run#slack-notification-overrides).
+<Warning>
+Per-run API overrides only support Slack. Email and Microsoft Teams cannot be overridden via API - use test plan settings instead.
+</Warning>
 
-## Email Reports
-
-Weekly reports provide a summary of testing activity and quality metrics to all organization members.
-
-**When**: Every Monday at 6 AM Central European Time  
-**Who**: All organization members  
-
-### What You Get
-- Tests executed count
-- Pass percentage
-- Time saved estimate
-- Suggested new tests to add
-- Summary of test runs
-
-**Unsubscribe**: Use the unsubscribe link in the email footer individually.
-
-## Triggering Runs from CI/CD
-
-Tests triggered via GitHub Actions, GitLab CI, or direct API automatically send notifications when complete. This keeps your team informed regardless of how tests are started.
-
-**Setup guides**:
-- [GitHub Actions Integration](/configuration/github-actions)
-- [Direct API Reference](/api-reference/start-run)
+For complete API documentation, see [Start Run API Reference](/api-reference/start-run).
