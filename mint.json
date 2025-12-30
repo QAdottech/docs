@@ -71,6 +71,7 @@
         "core-concepts/dependencies",
         "core-concepts/test-plans",
         "core-concepts/output-state-optimization",
+        "core-concepts/agent-cache",
         "core-concepts/configs",
         "core-concepts/crawling",
         "core-concepts/issues",

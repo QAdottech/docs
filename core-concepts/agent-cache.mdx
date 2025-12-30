@@ -1,0 +1,73 @@
+---
+title: "Agent Cache"
+description: "Understand how Agent Cache speeds up your tests and when to disable it"
+icon: "bolt"
+---
+
+Agent Cache is **enabled by default** for all tests. It stores AI reasoning from successful test runs and reuses those decisions when your pages haven't changed - making subsequent runs faster.
+
+## Why It's On by Default
+
+Caching makes your tests **faster**. Each AI reasoning step takes 2-5 seconds - with caching enabled, those decisions are reused instantly when your pages haven't changed.
+
+For stable pages - admin dashboards, settings screens, checkout flows - caching delivers significant speed improvements with no trade-offs.
+
+## How It Works
+
+When a test runs, the AI analyzes each page, decides what action to take, and executes it. With caching enabled, these reasoning decisions are stored and reused on subsequent runs:
+
+```
+Without Cache                      With Cache
+─────────────────                  ─────────────────
+1. Analyze page                    1. Check cache
+2. AI decides action      →        2. Cache hit? Use stored decision
+3. Execute action                  3. Execute action
+4. Repeat...                       4. Repeat...
+```
+
+**What gets cached:** AI reasoning decisions - which element to click, what text to type, how to navigate.
+
+**What still executes:** All browser actions (clicks, typing), screenshots, page loads, and verification steps run normally every time.
+
+**Cache invalidation:** The system automatically detects when page content changes significantly and fetches fresh AI decisions. Failed test runs never save to cache, preventing "bad" reasoning patterns from persisting.
+
+## When to Disable Agent Cache
+
+<Tip>
+  Most users never need to disable caching. Consider turning it off only when
+  debugging flaky tests or testing brand-new features where you want fresh AI
+  analysis every run.
+</Tip>
+
+## How to Disable Agent Cache
+
+<Steps>
+  <Step title="Open test case editor">
+    Navigate to **Test Cases**, select a test, and click **Edit**.
+  </Step>
+  <Step title="Open the Settings tab">
+    In the sidebar, click the **Settings** tab (not "Steps").
+  </Step>
+  <Step title="Find the Agent Cache section">
+    Scroll down to locate the **Agent Cache (BETA)** section.
+  </Step>
+  <Step title="Disable caching">
+    Uncheck **Enable caching for this test** and save your changes.
+  </Step>
+</Steps>
+
+## Limitations
+
+<Warning>
+  Agent Cache is in BETA. While cache entries automatically invalidate when page
+  content changes significantly, some minor UI updates may be missed.
+</Warning>
+
+- **Page content affects hit rate** - Cache keys include visible page content, so pages with dynamic elements will naturally see lower hit rates
+- **30-day expiration** - Unused cache entries expire after 30 days
+- **Only successful runs cache** - Failed tests never store decisions
+
+## Related Documentation
+
+- [Creating Tests](/best-practices/creating-tests) - Test creation and agent settings
+- [AI Agent Testing](/core-concepts/ai-agent-testing) - How the AI agent works
