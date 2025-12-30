@@ -111,6 +111,21 @@ PR detected with untested functionality
 
 You don't manage this coordination - it happens automatically based on what you're trying to accomplish.
 
+## Test Execution Model
+
+QA.tech uses Claude Haiku 4.5 as the default AI model for test execution. This model provides the fastest test execution while maintaining high-quality results.
+
+| Model | Speed | Best For |
+|:------|:------|:---------|
+| **Claude Haiku 4.5** (default) | Fastest | Most tests - recommended for day-to-day testing |
+| Claude Sonnet 4.5 | Moderate | Complex scenarios requiring deeper reasoning |
+
+The AI model handles all test execution decisions: navigating your application, filling forms, clicking buttons, and verifying outcomes. You write test goals in natural language, and the model figures out how to achieve them.
+
+<Note>
+You can override the agent per-test in the Advanced settings when creating or editing a test. See [Creating Tests](/best-practices/creating-tests#choosing-an-ai-agent) for details.
+</Note>
+
 ## Get Started
 
 <CardGroup cols={2}>

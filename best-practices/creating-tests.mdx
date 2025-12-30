@@ -45,6 +45,23 @@ Key fields:
 - **Configurations**: Add required data like credentials or test accounts
 - **Advanced**: Agent selection and other settings
 
+### Choosing an AI Agent
+
+When creating a test, you can select which AI agent executes it. Click the **Advanced** section in the test creation modal or test settings to see agent options.
+
+| Agent | Speed | Best For |
+|:------|:------|:---------|
+| **Claude Haiku 4.5** (default) | Fastest | Most tests - recommended for day-to-day testing |
+| Claude Sonnet 4.5 | Moderate | Complex scenarios requiring deeper reasoning |
+
+**Claude Haiku 4.5** is the default for all new tests. It provides the fastest execution while handling most testing scenarios effectively - form filling, navigation, verification, and standard user flows.
+
+**When to consider Sonnet:** If a test consistently fails with Haiku on complex multi-step reasoning or edge cases, try switching to Sonnet for that specific test.
+
+<Note>
+Most users never need to change the default agent. QA.tech selects Haiku 4.5 because it offers the best balance of speed and capability for typical testing workflows.
+</Note>
+
 ### Create Tests via AI Chat Assistant
 
 The [AI Chat Assistant](/core-concepts/ai-chat-assistant) provides a conversational, exploratory approach to test creation:
@@ -165,6 +182,10 @@ The expected result defines what the agent should verify at the end of the test.
 <Tip>
 Keep tests to 10 steps or less. If you need more steps, create a new test with a [dependency](/core-concepts/dependencies) instead. Shorter tests are faster to execute and easier to maintain.
 </Tip>
+
+<Note>
+**Performance tip:** [Agent Cache](/core-concepts/agent-cache) is enabled by default, speeding up execution and reducing costs by reusing AI reasoning from previous successful runs. Consider disabling cache when testing dynamic content, new features, or pages that change frequently - you want fresh AI decisions in those cases.
+</Note>
 
 ### Test Dependencies
 
