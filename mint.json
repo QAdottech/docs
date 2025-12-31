@@ -26,7 +26,6 @@
     "name": "Get Started",
     "url": "https://app.qa.tech/auth/sign-up"
   },
-
   "anchors": [
     {
       "name": "API Reference",
@@ -48,7 +47,9 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": ["core-concepts/ai-agent-testing"]
+      "pages": [
+        "core-concepts/ai-agent-testing"
+      ]
     },
     {
       "group": "Best Practices",
@@ -89,7 +90,8 @@
         "test-features/file-downloads",
         "test-features/device-presets",
         "test-features/dialog-handling",
-        "test-features/api-calls"
+        "test-features/api-calls",
+        "test-features/revision-history"
       ]
     },
     {
@@ -120,7 +122,9 @@
     },
     {
       "group": "Applications",
-      "pages": ["applications/se-bank-id"]
+      "pages": [
+        "applications/se-bank-id"
+      ]
     },
     {
       "group": "API Reference",

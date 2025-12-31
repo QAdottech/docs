@@ -1,0 +1,68 @@
+---
+title: "Revision History"
+description: "View and compare previous versions of your test cases"
+icon: "clock-rotate-left"
+---
+
+Revision history automatically tracks every change you make to your test cases. Each time you edit a test case, a new version is created, preserving a complete history of changes. You can view what changed between versions, see who made each change, and navigate to any previous version.
+
+## Overview
+
+Every edit to a test case creates a new revision, allowing you to track changes over time. Revision history helps you:
+
+- See what changed between versions
+- Understand when and who made changes
+- Navigate to previous versions of your test case
+- Compare revisions side-by-side
+
+## Accessing Revision History
+
+<Steps>
+  <Step title="Open Test Case Editor">
+    Navigate to your test case and click to edit it
+  </Step>
+  <Step title="Open Version History">
+    Click the "Version History" button or menu item in the test case editor
+  </Step>
+  <Step title="View Revisions">
+    The Version History panel opens, showing all previous versions of the test
+    case, ordered from newest to oldest
+  </Step>
+</Steps>
+
+## Understanding Revisions
+
+Each revision in the history shows:
+
+- **Revision ID**: A shortened identifier for the version
+- **Badges**:
+  - **Current**: The active version of the test case (blue badge)
+  - **Draft**: The latest version, if different from current (gray badge)
+- **Date**: When the revision was created (relative time, e.g., "2 hours ago")
+- **Creator**: The person who made the change (display name or email)
+- **View Changes**: Button to compare this revision with the previous one
+
+### What Gets Tracked
+
+Revisions track changes to test case content:
+
+| Tracked in Revisions | Not Tracked               |
+| -------------------- | ------------------------- |
+| Steps                | Test case name            |
+| Prompt examples      | Classification            |
+| Prompt goal          | Status (enabled/disabled) |
+| Required configs     | Labels                    |
+| Start URL path       |                           |
+| Agent selection      |                           |
+
+Test case metadata (name, classification, status) is stored separately and not included in revision history.
+
+## Working with Revisions
+
+Click the "View Changes" button to compare revisions side-by-side, or click any revision ID to navigate to that version's edit view. When viewing an older version, banners indicate the revision state and provide quick navigation back to the current version.
+
+## Limitations
+
+- **Revisions cannot be deleted**: All revisions are preserved as historical records
+- **No restore button**: To restore an old version, navigate to it and make edits from there
+- **Diff shows JSON**: The change comparison displays JSON structure, not formatted test case steps
