@@ -87,13 +87,16 @@ If you're using GitHub Actions integration:
 
 ## Understanding Different IDs
 
-QA.tech uses five different types of identifiers. Make sure you use the correct one:
+QA.tech uses multiple types of identifiers. Make sure you use the correct one for each API request:
 
-**Note:** All three "Short ID" types (Test Plan, Application, Environment) are 6-character alphanumeric strings, but they identify different resources and are used in different parts of the API request.
+**Short IDs vs UUIDs:**
+- **Short IDs** (6-character alphanumeric): Used for Test Plans, Applications, and Environments. Easy to find in the UI.
+- **UUIDs** (36-character format with dashes): Used for Projects, Device Presets, and internal resources. Required for certain API operations.
 
 | ID Type | Format | Where You See It | Use In API | Example |
 |---------|--------|------------------|------------|---------|
 | **Project UUID** | 36-character UUID | Code examples, GitHub Actions settings | Path parameter: `/api/projects/{projectUuid}/runs` | `550e8400-e29b-41d4-a716-446655440000` |
+| **Device Preset UUID** | 36-character UUID | Settings -> Device Presets (see finding instructions below) | Request body: `"devicePresetId": "a1b2c3d4-e5f6-4789-a012-3456789abcde"` | `a1b2c3d4-e5f6-4789-a012-3456789abcde` |
 | **Test Plan Short ID** | 6-character alphanumeric | Browser URLs, test result pages | Request body: `"testPlanShortId": "abc123"` | `abc123` |
 | **Application Short ID** | 6-character alphanumeric | Settings -> Applications (Short ID column) | Key in `applications` object | `gXeBl2` |
 | **Environment Short ID** | 6-character alphanumeric | Settings -> Applications -> [App] -> Environments | `environment.short_id` field | `aB3xY9` |
@@ -130,6 +133,26 @@ The Environment Short ID references an existing environment in API requests (usi
     Hover to reveal the copy icon, or click the three-dot menu (⋮) and select **Copy Short ID**
   </Step>
 </Steps>
+
+### Finding Device Preset UUIDs
+
+The Device Preset UUID is used to override device configurations in API requests (using `devicePresetId` in the `applications` object).
+
+<Steps>
+  <Step title="Go to Device Presets">
+    Navigate to **Settings -> Device Presets** in your project
+  </Step>
+  <Step title="Find Device Preset UUID">
+    Hover over a device preset name to see a tooltip with the UUID, or open browser developer tools (F12) and inspect the preset element to find the UUID in the HTML attributes
+  </Step>
+  <Step title="Copy UUID">
+    Copy the full 36-character UUID (format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+  </Step>
+</Steps>
+
+<Note>
+Device Preset UUIDs are 36-character UUIDs, not Short IDs. They look different from Short IDs (which are 6 characters) and Project UUIDs (which are also 36 characters but used in different places). Make sure you're copying the Device Preset UUID, not the Project UUID.
+</Note>
 
 ## Next Steps
 

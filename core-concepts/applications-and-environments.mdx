@@ -288,10 +288,7 @@ This allows you to:
 
 **In Test Plan UI:** Select which device preset to use for each application.
 
-**Via API:** Device preset overrides are **not supported**. To test with different device configurations:
-
-1. Create separate test plans with different device preset settings
-2. Trigger the appropriate test plan via API, schedule, or manual execution based on your needs
+**Via API:** Device preset overrides are supported using the `devicePresetId` field in the `applications` object. See [Start Run API](/api-reference/start-run) for details.
 
 ## Finding Short IDs for API Usage
 

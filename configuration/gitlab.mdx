@@ -103,6 +103,10 @@ test_preview:
     --data @/tmp/request.json
 ```
 
+<Note>
+You can also override device presets in the same request by adding `devicePresetId` to the `applications` object. For example, to test the preview deployment on a mobile device preset: `"applications":{"frontend-app":{"environment":{"url":"'$PREVIEW_URL'"},"devicePresetId":"YOUR_DEVICE_PRESET_UUID"}}`. See [Start Run API](/api-reference/start-run) for details.
+</Note>
+
 ### Scheduled Testing
 
 ```yaml

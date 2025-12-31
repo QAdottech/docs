@@ -66,7 +66,7 @@
                   },
                   "applications": {
                     "type": "object",
-                    "description": "Optional application environment overrides",
+                    "description": "Optional application overrides for testing specific environments and device configurations",
                     "additionalProperties": {
                       "type": "object",
                       "properties": {
@@ -84,22 +84,24 @@
                               "description": "Human readable name for the environment"
                             }
                           },
-                          "required": [
-                            "url"
-                          ],
+                          "required": ["url"],
                           "description": "Environment configuration for the application"
+                        },
+                        "devicePresetId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "example": "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+                          "description": "Optional device preset UUID to override the default device preset for this application"
                         }
-                      },
-                      "required": [
-                        "environment"
-                      ]
+                      }
                     },
                     "example": {
                       "app-short-id-1": {
                         "environment": {
                           "url": "https://preview-123-frontend.vercel.app",
                           "name": "PR-123-Frontend"
-                        }
+                        },
+                        "devicePresetId": "a1b2c3d4-e5f6-4789-a012-3456789abcde"
                       },
                       "app-short-id-2": {
                         "environment": {
@@ -110,9 +112,7 @@
                     }
                   }
                 },
-                "required": [
-                  "testPlanShortId"
-                ]
+                "required": ["testPlanShortId"]
               }
             }
           }
@@ -178,18 +178,10 @@
                           }
                         }
                       },
-                      "required": [
-                        "id",
-                        "shortId",
-                        "url",
-                        "testCount"
-                      ]
+                      "required": ["id", "shortId", "url", "testCount"]
                     }
                   },
-                  "required": [
-                    "success",
-                    "run"
-                  ]
+                  "required": ["success", "run"]
                 }
               }
             }
@@ -286,10 +278,7 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "example": [
-                      "config-uuid-1",
-                      "config-uuid-2"
-                    ],
+                    "example": ["config-uuid-1", "config-uuid-2"],
                     "description": "Configuration IDs"
                   },
                   "applicationId": {
@@ -305,11 +294,7 @@
                     "description": "Scenario ID"
                   }
                 },
-                "required": [
-                  "name",
-                  "goal",
-                  "applicationId"
-                ]
+                "required": ["name", "goal", "applicationId"]
               }
             }
           }
@@ -440,11 +425,7 @@
                     "result": {
                       "type": "string",
                       "nullable": true,
-                      "enum": [
-                        "PASSED",
-                        "FAILED",
-                        "SKIPPED"
-                      ],
+                      "enum": ["PASSED", "FAILED", "SKIPPED"],
                       "example": "FAILED",
                       "description": "Test result when status is COMPLETED, null otherwise"
                     },
@@ -473,9 +454,7 @@
                           },
                           "result": {
                             "type": "string",
-                            "enum": [
-                              "FAILED"
-                            ],
+                            "enum": ["FAILED"],
                             "description": "Always FAILED in this array"
                           },
                           "resultTitle": {

@@ -37,6 +37,8 @@ Works with any CI/CD system that can make HTTP requests. You create test plans i
 
 - **Test preview/staging environments** - Override application URLs dynamically when testing Vercel, Netlify, or custom preview deployments. See [Preview Environments](/core-concepts/applications-and-environments#preview-environments).
 
+- **Override device configurations** - Test with different device presets per-run via API, allowing you to test mobile, tablet, and desktop configurations without creating separate test plans. See [Start Run API](/api-reference/start-run) for `devicePresetId` parameter details.
+
 - **Block deployments until tests pass** - Wait for test results before proceeding with your pipeline. The GitHub Action has built-in blocking support; other platforms can poll the [Run Status API](/api-reference/run-status) to wait for completion.
 
 - **Schedule recurring test runs** - Set up nightly regression suites or periodic smoke tests using your CI/CD system's cron functionality.

@@ -81,7 +81,9 @@ The request body is optional and can contain the following fields:
 
 - **`integrationName`** (string): Human-readable name of what triggered this test (defaults to "API")
 - **`testPlanShortId`** (string): The **Test Plan Short ID** of the test plan to execute (this is the 6-character ID visible in test plan URLs)
-- **`applications`** (object): Optional application environment overrides for testing specific environments. Each application can specify either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`).
+- **`applications`** (object): Optional application overrides for testing specific environments and device configurations. Each application can specify:
+  - An environment override: either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`)
+  - A device preset override: specify a `devicePresetId` (UUID) to use a different device configuration than the test plan default
 
 <Tip>
   The key in the `applications` object is the **Application Short ID**
@@ -90,11 +92,7 @@ The request body is optional and can contain the following fields:
   Short IDs](/api-reference/introduction#finding-application-short-ids).
 </Tip>
 
-<Warning>
-  **Device Preset Limitation:** Environment overrides are supported via API, but
-  device preset overrides are not. To test with different device configurations,
-  create separate test plans with different device preset settings in the UI.
-</Warning>
+- **`devicePresetId`** (string, UUID): Optional device preset UUID to override the default device preset for this application. Overrides the test plan's device preset setting for this specific run. See [Finding Device Preset UUIDs](/api-reference/introduction#finding-device-preset-uuids) for detailed instructions.
 
 - **`notifications`** (array): Slack notification overrides for this run. Provide one or more channel objects to send run updates to specific channels instead of the project's default Slack channel. Details below.
 
@@ -193,6 +191,44 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
         "environment": {
           "short_id": "aB3xY9"
         }
+      }
+    }
+  }'
+```
+
+### Test Run with Device Preset Override
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "integrationName": "API",
+    "testPlanShortId": "abc123",
+    "applications": {
+      "gXeBl2": {
+        "devicePresetId": "a1b2c3d4-e5f6-4789-a012-3456789abcde"
+      }
+    }
+  }'
+```
+
+### Test Run with Environment and Device Preset Overrides
+
+```bash
+curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "integrationName": "Vercel Preview",
+    "testPlanShortId": "abc123",
+    "applications": {
+      "gXeBl2": {
+        "environment": {
+          "url": "https://pr-123-frontend.vercel.app",
+          "name": "PR-123-Frontend"
+        },
+        "devicePresetId": "a1b2c3d4-e5f6-4789-a012-3456789abcde"
       }
     }
   }'
