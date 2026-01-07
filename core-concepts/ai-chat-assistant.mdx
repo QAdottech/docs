@@ -1,59 +1,123 @@
 ---
 title: AI Chat Assistant
-description: 'Natural language interface for managing your QA.tech projects'
-icon: 'message-bot'
+description: "Natural language interface for managing your QA.tech projects"
+icon: "message-bot"
 ---
 
 The AI Chat Assistant is your intelligent testing companion, built directly into the QA.tech platform. It uses natural language processing to help you manage tests, analyze your application, and get QA guidance without clicking through menus.
 
 You can access the chat assistant by clicking the chat icon in your project dashboard. Just describe what you want to do in plain English, and the assistant will use its 20+ specialized tools to help you accomplish your goal.
 
-It may take a bit of time to get the taste of using it, but you can start treating it as a thinking and self-reflecting buddy who knows your project and QA.tech platform inside and out.
+## Quick Start Examples
 
-## Example Conversations
+| What you want                   | Ask this                                                | What happens                                                    |
+| ------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------- |
+| Create tests for a feature      | "Generate 5 tests for the checkout flow"                | Shows suggestions you can review, edit, and add                 |
+| Run tests                       | "Run the login test"                                    | Starts in background, notifies when complete                    |
+| Edit a test                     | "Add a logout step to the checkout test"                | Shows visual diff for approval, then validates                  |
+| Use existing tests as templates | "Create tests for returns similar to my checkout tests" | Analyzes your checkout tests' structure and applies the pattern |
+| Crawl behind authentication     | "Crawl admin panel from the Login test"                 | Uses login test's session - no re-authentication needed         |
+| Bulk edit multiple tests        | "Add logout step to all checkout tests"                 | Edits multiple tests at once, shows individual diffs to review  |
+| Skip repetitive setup           | "Make this test resume from Login"                      | Inherits browser state, cookies, and session from another test  |
 
-<Tip>
-- What tests do I have in my project?
-- What areas of my product should I cover with test cases first?
-- What do you know about my website and what knowledge would help you write better tests?
+## Core Workflows
 
-- Generate 5 tests for the checkout flow
-- What are the key user stories I should have tests on?
-- Create a test that validates login and checks the user profile
+### Creating Tests
 
-- Does QA.tech support cross-browser testing?
-- How do I add a dependency to a test?
-- What devices can I test on?
-</Tip>
+Ask the assistant to generate tests for specific flows or features. It will suggest test cases that you can review, edit, or accept.
 
+> "Generate 5 tests for the checkout flow"
+
+> "Create a test that validates user registration with email verification"
+
+You can also provide the assistant with a set of test cases (as text, a document, or by referencing existing tests) and have it create new tests or update current ones based on those examples.
+
+> "Create tests for the returns flow similar to my checkout tests"
+
+> "Here are my test cases: [paste list]. Generate tests based on these patterns or update current ones"
+
+The assistant analyzes your application's [knowledge graph](/core-concepts/knowledge-graph) and any examples you provide to suggest relevant tests. Tests appear as interactive suggestions - click "Add Selected Tests" to commit them to your project.
+
+### Running Tests
+
+Ask the assistant to run tests and you'll be notified when they complete.
+
+> "Run the login test"
+
+> "Execute all checkout tests against the staging environment"
+
+**What happens:** The assistant validates your test cases, starts execution in the background, and you'll see results when the run completes. Test runs typically take a few minutes depending on complexity.
+
+### Accessing Test Run Results
+
+The assistant can access detailed step-by-step results for test runs, but with an important limitation:
+
+**What the assistant CAN access:**
+
+- Detailed step-by-step results (screenshots, actions, step descriptions) for test runs it triggered in the current chat conversation
+- Action logs showing what happened during test execution
+- Visual evidence of test steps and outcomes
+
+**What the assistant CANNOT access yet:**
+
+- Runs triggered from the UI dashboard
+- Runs triggered via API
+- Scheduled test plan runs
+- Runs from previous chat conversations
+- Runs by run ID or test case ID (only runs linked to the current conversation)
+
+**How it works:** When you ask the assistant to run tests in chat, it creates a link between the chat conversation and the test run. After the run completes, you can ask questions like "What happened in that test run?" or "Show me screenshots from the failed steps" and the assistant will retrieve detailed action logs and screenshots from that specific run.
+
+If you need to analyze runs triggered outside of chat (from the UI, API, or scheduled plans), use the [Test Results dashboard](/core-concepts/tests-and-results) instead.
+
+### Editing Existing Tests
+
+Describe changes to tests in natural language. The assistant shows a visual diff for you to review before applying.
+
+> "Change step 3 to wait for the spinner first"
+
+> "Add verification that the success message appears"
+
+> "Make this test resume from my Login test"
+
+After you approve changes, the test runs automatically to validate the updates. See [Creating Tests](/best-practices/creating-tests#refine-tests-via-chat) for more editing examples.
+
+### Analyzing Your Application
+
+Ask the assistant to crawl and analyze your site to expand its knowledge of your application's features.
+
+> "Crawl my admin panel"
+
+> "Analyze the checkout flow to find features I should test"
+
+The assistant can start from a specific URL or resume from a test's output state (useful for authenticated areas). Results include screenshots and discovered interactions. See [Crawling Sessions](/core-concepts/crawling) for configuration details.
 
 ## Make the Assistant More Effective
 
-The assistant understands context and can handle follow-up questions, so you can have natural back-and-forth conversations about your testing needs. It relies on [Crawling](/core-concepts/knowledge-graph), [tests](/core-concepts/tests-and-results), and Knowledge for context gathering. 
+The assistant understands context and can handle follow-up questions, so you can have natural back-and-forth conversations about your testing needs. It relies on [Crawling](/core-concepts/crawling), [tests](/core-concepts/tests-and-results), and Knowledge for context gathering.
 
 <Note>
-**Add Knowledge to improve results**: The Chat Assistant works best when it understands your application. Add documentation URLs, project context, and domain-specific information to your [Knowledge Base](/core-concepts/knowledge) so the assistant can provide more accurate test suggestions and better understand your unique workflows.
+**Add Knowledge to improve test creation**: The Chat Assistant works best when it understands your application. Add documentation URLs, project context, and domain-specific information to your [Knowledge Base](/core-concepts/knowledge) so the assistant can provide more accurate test suggestions and better understand your unique workflows.
 
-The assistant automatically searches your knowledge base when generating tests and answering questions, giving you context-aware responses tailored to your specific application.
+The assistant automatically searches your knowledge base and [knowledge graph](/core-concepts/knowledge-graph) when generating tests and answering questions, giving you context-aware responses tailored to your specific application.
+
+**Note:** Knowledge and the knowledge graph are used when creating tests through chat, but not during test execution. When tests run, the agent only uses the test's goal, steps, and current page content to navigate and verify results.
+
 </Note>
 
-## What can you do with the Chat Assistant
+## What Can You Do with the Chat Assistant
 
 **Test Management**
 
-The assistant can list your existing [tests](/core-concepts/tests-and-results), generate new test cases based on your requirements, run tests in the background, and fetch detailed information about specific tests including their steps, [configurations](/core-concepts/configs), and [dependencies](/core-concepts/dependencies). It understands test scenarios (grouping folders) and [test plans](/core-concepts/test-plans), making it easy to organize and trigger your test suite. You can also edit existing tests through conversation - describe changes, review a visual diff, and apply with one click. The test runs automatically after applying.
+The assistant can list your existing [tests](/core-concepts/tests-and-results), generate new test cases based on your requirements, run tests in the background, and fetch detailed information about specific tests including their steps, [configurations](/core-concepts/configs), and [dependencies](/core-concepts/dependencies). It understands test scenarios (grouping folders) and [test plans](/core-concepts/test-plans), making it easy to organize and trigger your test suite. You can also edit existing tests through conversation - describe changes, review a visual diff, and apply with one click.
 
 **Application Analysis**
 
-It can crawl and analyze your website to discover features, search through the [knowledge graph](/core-concepts/knowledge-graph) to find specific functionality that's been discovered in previous crawls, and search your project's [knowledge base](/core-concepts/knowledge) where you've added documentation and important information. This helps the assistant provide context-aware suggestions tailored to your application.
+It can crawl and analyze your website to discover features, search through the [knowledge graph](/core-concepts/knowledge-graph) to find specific functionality from previous crawls, and search your project's [knowledge base](/core-concepts/knowledge). This helps the assistant provide context-aware suggestions tailored to your application.
 
 **Configuration Management**
 
-The assistant can show you what [configurations](/core-concepts/configs) are available in your project, help you create new configurations for credentials and test data, and even display interactive forms right in the chat to collect configuration details from you. It understands different config types like username/password, email credentials, and 2FA setups.
-
-**GitHub Integration**
-
-It can fetch information about your [GitHub pull requests](/configuration/github-app) and write comprehensive test reviews directly on your PRs. When you ask it to test a pull request, it can run relevant tests against the [preview environment](/core-concepts/applications-and-environments#preview-environments) and provide detailed feedback on what was verified and what issues were found.
+The assistant can show you what [configurations](/core-concepts/configs) are available in your project, help you create new configurations for credentials and test data, and display interactive forms right in the chat to collect configuration details. It supports config types like username/password, username/password with 2FA, file uploads, and API calls.
 
 **Help & Support**
 
@@ -63,38 +127,32 @@ The assistant can search QA.tech's documentation to answer questions about platf
 
 Tests generated in chat aren't committed until you explicitly click "Add Selected Tests" - you can review, edit, or reject them without affecting your project. Files uploaded in chat are isolated to that conversation only, so you can experiment freely without impacting teammates. See [How Knowledge Works](/core-concepts/knowledge#how-knowledge-works) for details on chat isolation and when to move knowledge to your project.
 
-## Agentic AI Workflows Behind the Scenes
+## How the Assistant Adapts
 
-The Chat Assistant uses multiple specialized AI agents that automatically coordinate to handle your requests. You don't manage these agents-they work together seamlessly based on what you ask for.
+The Chat Assistant automatically adjusts its approach based on what you're trying to accomplish:
 
-**Specialized Agents:**
+| When you ask to...    | The assistant will...                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------ |
+| Create or suggest tests | Prioritize revenue-critical flows first (checkout, payments, bookings), then secondary features |
+| Run tests             | Validate test cases, start execution in background, notify you when complete                     |
+| Analyze your site     | Crawl pages, discover features, build understanding of your application                          |
+| Edit existing tests   | Show visual diffs for approval, then run tests to validate changes                               |
 
-**Test Generation Specialist** - Activates when you ask to create or suggest tests. Automatically prioritizes revenue-critical flows first (checkout, payments, bookings) before secondary features (settings, navigation, profiles).
+You don't need to specify how - just describe what you want naturally and the assistant handles the details.
 
-**Explorative Testing Specialist** - Activates when you run tests, analyze your site, or review pull requests.
+## What the Assistant Can Access
 
-**Onboarding Specialist** - Activates for new project setup. Focuses on delivering 3-5 high-impact tests quickly with minimal questions. Designed to help you master the key features of QA.tech.
+The assistant has access to your project's data and can perform actions on your behalf:
 
-Just describe what you want naturally - the system routes to the right specialist and coordinates complex workflows automatically.
-
-## Available Tools Reference
-
-The AI Chat agent has access to 16 specialized tools organized into these categories:
+| Capability         | What it can do                                                          |
+| ------------------ | ----------------------------------------------------------------------- |
+| **Tests**          | List, inspect, create, edit, and run your test cases                    |
+| **Site Analysis**  | Crawl pages, discover features, search what it learned                  |
+| **Configurations** | View existing configs, create new ones, show forms for credential input |
+| **Knowledge**      | Search your project's knowledge base and QA.tech documentation          |
+| **Project Info**   | Access applications, environments, device presets, test plans           |
+| **Support**        | Connect you with customer support when needed                           |
 
 <Note>
-**Test Management:** get-test-cases, get-test-case-details, get-test-scenarios, get-test-plan-info
-
-**Application Analysis:** analyze-site, search-feature-graph, search-knowledge-base
-
-**Configuration:** get-configs-info, create-config, request-config-details
-
-**Project Information:** get-application-details, get-device-presets, generate-project-context
-
-**Help & Support:** search-qatech-docs, contact-customer-support
-
-**Advanced:** handover-to-different-agent (automatically switches between specialized agents based on your needs)
+**PR testing** is not available through chat. For automatic PR reviews and testing, use the [GitHub App](/configuration/github-app) or [GitHub Actions](/configuration/github-actions).
 </Note>
-
-You don't need to know which tools the assistant uses - just describe what you want to accomplish, and it will choose the right tools automatically.
-
-Our AI agents and their capabilities are continuously evolving. We regularly add new tools and enhance existing ones to make the Chat Assistant even more powerful and helpful for your testing needs.

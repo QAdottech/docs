@@ -8,13 +8,11 @@ QA.tech uses specialized AI agents to test your application like humans would, b
 
 ## Our AI Agent System
 
-| Agent | Purpose | How It Activates | Learn More |
-|:------|:--------|:-----------------|:-----------|
-| **Chat Assistant** | Interactive testing, test creation, project analysis | You start a conversation | [AI Chat Assistant](/core-concepts/ai-chat-assistant) |
+| Entry Point | Purpose | How It Activates | Learn More |
+|:------------|:--------|:-----------------|:-----------|
+| **Chat Assistant** | Interactive testing, test creation, site analysis | You start a conversation | [AI Chat Assistant](/core-concepts/ai-chat-assistant) |
 | **PR Review** | Autonomous testing of every pull request | Automatic on PR open/update | [GitHub App](/configuration/github-app) |
-| **Explorative** | Deep on-demand testing with custom instructions | `@qatech` mention in PR comments | [GitHub Actions](/configuration/github-actions) |
-| **Test Generation** | Creates test cases from requirements | Via Chat Assistant | [AI Chat Assistant](/core-concepts/ai-chat-assistant) |
-| **Onboarding** | First-time setup and baseline test coverage | Via Chat Assistant | [AI Chat Assistant](/core-concepts/ai-chat-assistant) |
+| **On-Demand PR Testing** | Deep testing with custom instructions | `@qatech` mention in PR comments | [GitHub Actions](/configuration/github-actions) |
 
 ## How It Works in Practice
 
@@ -77,39 +75,31 @@ This entire workflow runs autonomously - no human intervention required.
 | **Complex calculations** | ❌ Use assertions in code instead | ✅ Best - precise math | ⚠️ Manual calculation prone to errors |
 | **Form filling with realistic data** | ✅ Best - understands context | ⚠️ Need hardcoded test data | ✅ Good - but tedious |
 | **Testing preview environments** | ✅ Best - [automatic PR reviews](/configuration/github-app) | ⚠️ Need CI/CD integration | ❌ Requires manual coordination |
-| **First-time test coverage** | ✅ Best - [onboarding agent](/core-concepts/ai-chat-assistant) sets up quickly | ❌ Requires upfront investment | ⚠️ Slow to establish baseline |
+| **First-time test coverage** | ✅ Best - [AI Chat Assistant](/core-concepts/ai-chat-assistant) sets up quickly | ❌ Requires upfront investment | ⚠️ Slow to establish baseline |
 
 In practice, most teams use a combination: AI agents for exploration and edge cases, scripts for critical deterministic flows, and manual QA for subjective evaluation (design, UX, brand consistency).
 
-## Agent Coordination
+## How It All Connects
 
-Agents automatically hand off tasks to specialists when needed:
+The system coordinates automatically based on what you're trying to accomplish:
 
-**Chat → Test Generation**
+**Creating tests via Chat**
 ```
 You: "Create 5 tests for the checkout flow"
-→ Chat Assistant routes to Test Generation agent
 → Analyzes your application structure
 → Creates tests prioritizing revenue-critical paths
+→ Shows suggestions for your approval
 ```
 
-**Chat → Explorative**
-```
-You: "Test this pull request"
-→ Chat Assistant routes to Explorative agent
-→ Fetches PR details and preview environment
-→ Runs tests and posts review
-```
-
-**PR Review → Test Generation**
+**PR Review fills coverage gaps**
 ```
 PR detected with untested functionality
-→ PR Review agent requests new tests
-→ Test Generation creates coverage
-→ PR Review executes and reports
+→ Creates tests for new features
+→ Runs all relevant tests
+→ Posts review with results
 ```
 
-You don't manage this coordination - it happens automatically based on what you're trying to accomplish.
+You don't manage this coordination - it happens automatically.
 
 ## Test Execution Model
 
