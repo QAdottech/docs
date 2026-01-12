@@ -101,9 +101,49 @@ The assistant understands context and can handle follow-up questions, so you can
 
 The assistant automatically searches your knowledge base and [knowledge graph](/core-concepts/knowledge-graph) when generating tests and answering questions, giving you context-aware responses tailored to your specific application.
 
-**Note:** Knowledge and the knowledge graph are used when creating tests through chat, but not during test execution. When tests run, the agent only uses the test's goal, steps, and current page content to navigate and verify results.
+**Note:** Knowledge and the knowledge graph are used when creating tests through chat, but not during test execution. When tests run, the agent only uses the test's goal, steps, and [Global Context](/core-concepts/knowledge#global-context) to navigate and verify results.
 
 </Note>
+
+## Uploading Files and Documents
+
+You can upload files directly into chat to give the assistant additional context for test creation.
+
+**Supported Formats:**
+
+| Format | How It's Processed |
+|--------|-------------------|
+| **PDF** | Text and images are both extracted and understood |
+| **Images** (PNG, JPEG, GIF, WebP) | Analyzed visually by the AI |
+| **Text files** | Content is read and used as context |
+
+**PDF Processing:**
+
+When you upload a PDF, the AI reads both the text content and any images, diagrams, or screenshots within the document. This means you can upload:
+
+- Product specifications with annotated screenshots
+- Design documents with wireframes
+- Requirements documents with flowcharts
+- Bug reports with visual evidence
+
+The AI understands the full content, not just the text.
+
+**Context Persistence:**
+
+- Files remain available throughout your chat conversation
+- You can reference uploaded content in follow-up messages
+- Very long conversations may compress older file content to stay within limits, but recent uploads are always fully available
+
+**When to Upload to Chat vs Project Knowledge:**
+
+| Upload to Chat | Add to Project Knowledge |
+|----------------|--------------------------|
+| Experimental specs | Official documentation |
+| PR descriptions | Stable requirements |
+| One-time references | Compliance guidelines |
+| Work in progress | Permanent product rules |
+
+Files uploaded in chat are isolated to that conversation - other team members cannot see them. For shared documentation, use [Project Knowledge](/core-concepts/knowledge) instead.
 
 ## What Can You Do with the Chat Assistant
 

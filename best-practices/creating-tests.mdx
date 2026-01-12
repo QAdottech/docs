@@ -1,7 +1,7 @@
 ---
 title: Creating Tests
 icon: plus
-description: 'Learn how to create effective test cases in QA.tech and write tests that the AI agent can execute reliably.'
+description: "Learn how to create effective test cases in QA.tech and write tests that the AI agent can execute reliably."
 ---
 
 ## What should be a test?
@@ -31,13 +31,22 @@ Click the **"Add Test Case"** button to open the test creation modal with two op
 
 **Suggested tests** - QA.tech continuously crawls your application to discover testable features and interactions. These appear as AI-generated suggestions you can select and add to your project. Click "Analyze my site" to trigger a new crawl if you want fresh suggestions.
 
-<img width="500px" src="/images/suggested-tests.png" alt="Suggested tests modal" />
+<img
+  width="500px"
+  src="/images/suggested-tests.png"
+  alt="Suggested tests modal"
+/>
 
 **Create your own test** - Describe what you want to test in natural language. The AI agent will understand your goal and attempt to generate the test steps automatically.
 
-<img width="500px" src="/images/create-tests-modal.png" alt="Create your own test modal" />
+<img
+  width="500px"
+  src="/images/create-tests-modal.png"
+  alt="Create your own test modal"
+/>
 
 Key fields:
+
 - **Name**: Clear, descriptive name (e.g., "Create admin user and verify access")
 - **Goal**: What the test should accomplish in natural language
 - **Expected Result** (optional): What success looks like
@@ -49,17 +58,19 @@ Key fields:
 
 When creating a test, you can select which AI agent executes it. Click the **Advanced** section in the test creation modal or test settings to see agent options.
 
-| Agent | Speed | Best For |
-|:------|:------|:---------|
-| **Claude Haiku 4.5** (default) | Fastest | Most tests - recommended for day-to-day testing |
-| Claude Sonnet 4.5 | Moderate | Complex scenarios requiring deeper reasoning |
+| Agent                          | Speed    | Best For                                        |
+| :----------------------------- | :------- | :---------------------------------------------- |
+| **Claude Haiku 4.5** (default) | Fastest  | Most tests - recommended for day-to-day testing |
+| Claude Sonnet 4.5              | Moderate | Complex scenarios requiring deeper reasoning    |
 
 **Claude Haiku 4.5** is the default for all new tests. It provides the fastest execution while handling most testing scenarios effectively - form filling, navigation, verification, and standard user flows.
 
 **When to consider Sonnet:** If a test consistently fails with Haiku on complex multi-step reasoning or edge cases, try switching to Sonnet for that specific test.
 
 <Note>
-Most users never need to change the default agent. QA.tech selects Haiku 4.5 because it offers the best balance of speed and capability for typical testing workflows.
+  Most users never need to change the default agent. QA.tech selects Haiku 4.5
+  because it offers the best balance of speed and capability for typical testing
+  workflows.
 </Note>
 
 ### Create Tests via AI Chat Assistant
@@ -79,6 +90,7 @@ Example prompts:
 - "Create a test that validates login and checks the user profile page"
 
 See [AI Chat Assistant](/core-concepts/ai-chat-assistant) for more examples.
+
 </Tip>
 
 ### Review and Refine
@@ -111,20 +123,24 @@ The fastest way to fix and improve tests: describe changes in the [AI Chat Assis
 
 #### Example Prompts
 
-| You say... | What happens |
-| --- | --- |
-| "Change step 3 to wait for the spinner first" | AI proposes single step edit |
-| "Also verify the success message appears" | AI adds verification to current test |
-| "Make this resume from my Login test" | AI updates dependency |
-| "Add email verification to all checkout tests" | AI finds and edits multiple tests |
+| You say...                                     | What happens                            |
+| ---------------------------------------------- | --------------------------------------- |
+| "Change step 3 to wait for the spinner first"  | AI proposes single step edit            |
+| "Also verify the success message appears"      | AI adds verification to current test    |
+| "Make this resume from my Login test"          | AI updates dependency                   |
+| "Add email verification to all checkout tests" | AI finds and edits multiple tests       |
 | "Create tests for returns similar to checkout" | AI reads your tests, generates new ones |
 
 <Tip>
-The AI already knows your test suite and remembers your conversation. You can say "that test" or "where it failed" - no need to be overly specific. Describe what you want in plain language and let the AI figure out the details.
+  The AI already knows your test suite and remembers your conversation. You can
+  say "that test" or "where it failed" - no need to be overly specific. Describe
+  what you want in plain language and let the AI figure out the details.
 </Tip>
 
 <Note>
-**Only for existing tests:** Editing works on tests that have been created. For suggestions you haven't added yet, keep describing changes and the AI will regenerate the suggestion.
+  **Only for existing tests:** Editing works on tests that have been created.
+  For suggestions you haven't added yet, keep describing changes and the AI will
+  regenerate the suggestion.
 </Note>
 
 ## Activating and Organizing Tests
@@ -136,7 +152,8 @@ After creating and reviewing your test, you'll want to activate it and organize 
 Tests are created in draft mode so you can review and refine them before they run. When you're ready, click the **"Activate"** button to enable the test and make it part of your active test suite.
 
 <Note>
-If your test has dependencies that are also in draft mode, QA.tech will prompt you to activate them together to ensure proper execution order.
+  If your test has dependencies that are also in draft mode, QA.tech will prompt
+  you to activate them together to ensure proper execution order.
 </Note>
 
 Once activated, the button changes to **"Convert to draft"** - use it if you need to temporarily disable the test for maintenance or updates.
@@ -144,6 +161,7 @@ Once activated, the button changes to **"Convert to draft"** - use it if you nee
 ### Organize with Scenarios
 
 On the Test Cases page, you can drag and drop tests to organize them into Scenario groups. Scenarios help you:
+
 - Keep related tests together (e.g., "Checkout Flow", "User Management")
 - Create logical test groupings for better organization
 - Get a clear overview during test execution
@@ -156,11 +174,13 @@ On the Test Cases page, you can drag and drop tests to organize them into Scenar
 The goal is the main objective of the test. The agent uses this to build steps and adapt when your application changes. Focus on describing **what to do**, not what to validate (use expected result for that).
 
 **Good goal examples:**
+
 - Search for 'Chair', navigate to a product and add it to the cart
 - Invite a new member with Admin role to the project
 - Open the customer support chat and send a message
 
 **Keep your goals:**
+
 - **Action-oriented** - Start with verbs like "Create", "Search", "Navigate", "Add"
 - **Specific** - Include exact details (product name, user role, button labels)
 - **Focused** - Describe actions to take, not validation criteria
@@ -170,21 +190,28 @@ The goal is the main objective of the test. The agent uses this to build steps a
 The expected result defines what the agent should verify at the end of the test. Describe what should be visible or observable when the test completes successfully.
 
 **Good expected result examples:**
+
 - The page should contain a user avatar
 - A success message appears and the user is redirected to the product list
 - The user receives an email with a password reset link
 
 **Keep your expected results:**
+
 - **Observable** - Focus on things that can be verified visually or through system responses
 - **Specific** - Include exact elements, messages, or states to check
 - **Outcome-focused** - Describe the end state, not how to get there
 
 <Tip>
-Keep tests to 10 steps or less. If you need more steps, create a new test with a [dependency](/core-concepts/dependencies) instead. Shorter tests are faster to execute and easier to maintain.
+  Keep tests to 10 steps or less. If you need more steps, create a new test with
+  a [dependency](/core-concepts/dependencies) instead. Shorter tests are faster
+  to execute and easier to maintain.
 </Tip>
 
 <Note>
-**Performance tip:** [Agent Cache](/core-concepts/agent-cache) is enabled by default, speeding up test execution by reusing AI reasoning from previous successful runs. Consider disabling cache when debugging flaky tests or testing new features where you want fresh AI analysis.
+  **Performance tip:** [Agent Cache](/core-concepts/agent-cache) is enabled by
+  default, speeding up test execution by reusing AI reasoning from previous
+  successful runs. Consider disabling cache when debugging flaky tests or
+  testing new features where you want fresh AI analysis.
 </Note>
 
 ### Test Dependencies
@@ -192,7 +219,12 @@ Keep tests to 10 steps or less. If you need more steps, create a new test with a
 Tests can depend on other tests to control execution order and reuse browser state. This is essential for complex workflows where one test needs data or state from another. Learn more in [Test Dependencies](/core-concepts/dependencies).
 
 <Tip>
-  **Testing with Multiple Users:** If your test requires multiple users logged in simultaneously (e.g., collaboration, sharing), create separate login tests for each user. Each login test becomes the root of an independent chain with its own isolated browser session, ensuring users don't interfere with each other. Learn more about [Multi-User Testing Scenarios](/core-concepts/dependencies#multi-user-testing-scenarios).
+  **Testing with Multiple Users:** If your test requires multiple users logged
+  in simultaneously (e.g., collaboration, sharing), create separate login tests
+  for each user. Each login test becomes the root of an independent chain with
+  its own isolated browser session, ensuring users don't interfere with each
+  other. Learn more about [Multi-User Testing
+  Scenarios](/core-concepts/dependencies#multi-user-testing-scenarios).
 </Tip>
 
 ## Organizing Tests for Complex Projects

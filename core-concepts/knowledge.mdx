@@ -1,7 +1,7 @@
 ---
 title: Knowledge
 description: Manage project knowledge and context for better AI assistance
-icon: 'book-open'
+icon: "book-open"
 ---
 
 QA.tech's knowledge system helps AI assistants understand your project by providing context through knowledge items, global configuration, and auto-generated summaries. This enables more accurate test generation and better project-specific guidance.
@@ -19,22 +19,41 @@ Add documentation, links, and text content that AI assistants can reference when
 
 ### Global Context
 
-Global context is included in the AI agent's prompt for **all test executions** in your project. Use this to specify project-specific behaviors, requirements, or guidelines that should always apply.
+Global context is included in the AI agent's prompt for **all test executions** and **chat conversations** in your project. Use this to specify project-specific behaviors, requirements, or guidelines that should always apply.
 
-**What to Include:**
+**How It Works:**
 
-- **Service Description**: "The service is a route planning service for American railways"
-- **Data Requirements**: "When creating users, always use Swedish names"
-- **Quality Standards**: "Always fail tests when obvious typos are found"
-- **UI Guidelines**: "If a button is red, it should never be clicked"
-- **Authentication Flows**: "Login requires 2FA via SMS"
+- Loaded once when a test starts executing
+- Passed to the AI on every decision it makes during test execution
+- Changes take effect immediately for new test runs (not mid-run)
+- Applies to both test execution and chat conversations
+
+**Use Cases with Examples:**
+
+| Use Case            | Example                                                                                          | What It Achieves                      |
+| ------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------- |
+| Domain knowledge    | "This is a railway booking system for American routes. Stations use AMTRAK codes."               | Agent understands domain terminology  |
+| Quality standards   | "Tests should fail if obvious typos or broken layouts are detected."                             | Agent enforces quality expectations   |
+| Data requirements   | "When creating test users, always use Swedish names and addresses."                              | Agent generates appropriate test data |
+| UI conventions      | "Red buttons indicate destructive actions - verify confirmation dialogs appear before clicking." | Agent handles UI patterns correctly   |
+| Auth flows          | "Login requires SMS 2FA. The code will be available in the test inbox."                          | Agent knows to check inbox for 2FA    |
+| Timing expectations | "Page loads may take up to 10 seconds in staging. Wait for loading indicators to disappear."     | Agent waits appropriately             |
+| Known limitations   | "The checkout flow is broken on mobile viewports - skip mobile tests for checkout."              | Agent avoids known issues             |
 
 **Best Practices:**
 
-- Keep it concise but specific
+- Keep it concise but specific - the agent sees this on every action
 - Focus on universal rules that apply to all tests
 - Include domain-specific terminology and behaviors
 - Mention any unusual UI patterns or interactions
+- Update when your product behavior changes
+
+**What NOT to Include:**
+
+- **Test-specific instructions** - put these in test steps instead
+- **Credentials** - use [Configs](/core-concepts/configs) instead
+- **URLs** - use [Applications and Environments](/core-concepts/applications-and-environments) instead
+- **Temporary workarounds** - document in test steps where needed
 
 ### Project Summary
 
@@ -70,39 +89,65 @@ An AI-generated summary of your website's functionality and structure, created b
 
 ## How Knowledge Works
 
-
 Knowledge has different roles during test creation versus test execution:
 
+| Knowledge Type  | Test Creation (Chat)                   | Test Execution           |
+| --------------- | -------------------------------------- | ------------------------ |
+| Knowledge Items | Used - AI searches for relevant docs   | Not used                 |
+| Knowledge Graph | Used - provides site structure context | Not used                 |
+| Global Context  | Used - domain understanding            | Used - every AI decision |
+| Project Summary | Used - overall context                 | Not used                 |
+| Uploaded Files  | Used - in that chat session            | Not used                 |
+
+<Note>
+  **Uploaded files are temporary**: Files you upload to chat are only available
+  within that specific conversation and their content is compressed after
+  approximately 3 message exchanges. For information you need long-term or
+  across multiple chats, add it to your [Project
+  Knowledge](/core-concepts/knowledge#adding-knowledge-items) instead, or ask
+  the AI Chat to generate a knowledge item based on the conversation for you.
+</Note>
+
 **During Test Creation (Chat & Test Generation):**
+
 - AI searches knowledge items for relevant documentation and specifications
 - Global context helps the AI understand your product domain
 - Project summary provides overall context about your application
 - Chat assistants use knowledge to answer questions and suggest tests
+- The AI generates **test steps** based on all the above context
 
 **During Test Execution:**
-- Only the generated test steps and global context are used
-- Knowledge items are disconnected from the running test
+
+- Only the generated **test steps**, goal, expected result, and **global context** are used
+- Knowledge items and knowledge graph are not accessed
+- [Configs](/core-concepts/configs) provide credentials, environment URLs, and test files
 - Tests execute based on the instructions that were created, not the original documentation
 
-This separation means you can safely update knowledge without affecting tests that are already running or scheduled.
+<Note>
+  This separation means you can safely update knowledge without affecting tests
+  that are already running or scheduled. Global context is the only knowledge
+  type that affects both creation and execution.
+</Note>
 
 ### Project Knowledge vs. Chat-Local Files
 
 Understanding the scope of your knowledge helps you organize it effectively:
 
 **Project Knowledge** (Settings → Knowledge):
+
 - **Shared across all chats** in the project
 - **Accessible to all team members**
 - **Permanent and searchable** by semantic search
 - **Best for:** Official documentation, stable specifications, product rules
 
 **Chat-Local Files** (uploaded directly to a chat):
+
 - **Only exists in that specific chat conversation**
 - **Other users' chats cannot access it**
 - **Not added to project knowledge automatically**
-- **Best for:** Experimental specs, temporary references, exploratory work
+- **Best for:** Experimental specs, PR descriptions, feature branch docs, exploratory work
 
-This isolation prevents temporary or incorrect information from affecting other team members' work.
+This isolation prevents work-in-progress information from affecting other team members. When your experimental work becomes final, ask the AI Chat to create a knowledge item from the conversation.
 
 ### Semantic Search
 
@@ -113,29 +158,7 @@ Knowledge items are automatically indexed using embeddings, allowing the AI to f
 3. Provides the most relevant information to the AI assistant
 4. Uses clear file names to improve search accuracy
 
-## Managing Your Knowledge - where to Upload What
-
-Choose the right location based on how stable and official your information is:
-
-**Upload to Project Knowledge when:**
-- The information is official, approved documentation
-- It describes stable features and requirements
-- It contains compliance guidelines or business rules
-- It won't change frequently
-- All team members should reference it
-
-**Upload to Chat when:**
-- The information is experimental or exploratory
-- It describes new features still in development
-- It's a pull request description or feature branch documentation
-- It may be updated or replaced soon
-- You're testing ideas before committing them
-
-<Note>
-**Tip:** Start in chat for new work, then move to project knowledge once information is validated and official.
-</Note>
-
-### Adding Knowledge Items
+## Adding Knowledge Items
 
 <Steps>
   <Step title="Navigate to Knowledge Settings">
