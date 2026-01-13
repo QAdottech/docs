@@ -1,7 +1,7 @@
 ---
 title: Issues
 description: QA.tech automatically detects issues during test runs, including failed tests, JavaScript console errors, and WCAG accessibility violations.
-icon: 'bug'
+icon: "bug"
 ---
 
 ## What types of issues does QA.tech detect?
@@ -16,15 +16,15 @@ QA.tech automatically detects issues during test runs. You can export any detect
 
 #### How it works
 
-- Scans run automatically during test execution (on page load, after navigation, after clicks)
-- Issues appear in the dashboard with the exact URL, HTML element, and WCAG documentation
-- Same issue across multiple test runs is grouped together
+- Issues are created automatically when tests fail during execution
+- Same issue across multiple test runs is grouped together using fingerprint-based deduplication
+- Issues appear in the dashboard with details about when and where they occurred
 
 #### WCAG coverage
 
-- ✅ WCAG 2.0 (Level A, AA, AAA)
-- ✅ WCAG 2.1 (Level A, AA)
-- ✅ WCAG 2.2 (Level AA)
+- WCAG 2.0 (Level A, AA, AAA)
+- WCAG 2.1 (Level A, AA)
+- WCAG 2.2 (Level AA)
 
 #### Limitations
 
@@ -45,8 +45,35 @@ Because we interact with your product as a user through a browser:
 <Note>
   **Automatic scanning:** Accessibility checks run automatically whenever you execute a test - no setup needed.
 
-  **Schedule regular checks:** To get ongoing accessibility monitoring, create a [test plan](/core-concepts/test-plans) with your test cases and add a schedule (daily, weekly, etc.), or run tests from your [CI/CD pipeline](/configuration/ci-cd-integration).
+**Schedule regular checks:** To get ongoing accessibility monitoring, create a [test plan](/core-concepts/test-plans) with your test cases and add a schedule (daily, weekly, etc.), or run tests from your [CI/CD pipeline](/configuration/ci-cd-integration).
+
 </Note>
+
+## How Issues Are Collected
+
+Issues are automatically detected and created during test runs. You don't need to manually create or report issues.
+
+### Automatic Detection
+
+When a test execution completes with a **FAILED** result, QA.tech automatically:
+
+1. Creates an issue record for the failed test
+2. Links the issue to the specific test case and run
+3. Groups similar issues together using fingerprint-based deduplication
+
+### Deduplication
+
+QA.tech uses a fingerprint system to group similar issues together:
+
+- Each issue has a unique fingerprint based on the test case and project
+- If the same test fails across multiple runs, it creates one issue with multiple occurrences
+- This prevents duplicate issues and helps you track how often a problem occurs
+
+### When Issues Are Created
+
+- **After test execution:** Issues are created automatically when a test finishes with a FAILED result
+- **Requires test run:** Issues are only created for actual test runs (not during initial test generation)
+- **One issue per test case:** Each unique test case failure creates one issue, with multiple occurrences tracked over time
 
 ## Issues Dashboard
 
@@ -54,13 +81,23 @@ Because we interact with your product as a user through a browser:
 
 Use filters to find specific issues:
 
-| Filter | Options |
-|--------|---------|
-| **Severity** | Minor, Major, Critical |
-| **Type** | Accessibility, Console, Failed Test, Hosting |
-| **Status** | Active, Ignored, Resolved (by default, only Active issues are shown) |
+| Filter       | Options                                                              |
+| ------------ | -------------------------------------------------------------------- |
+| **Severity** | Minor, Major, Critical                                               |
+| **Type**     | Accessibility, Console, Failed Test, Hosting                         |
+| **Status**   | Active, Ignored, Resolved (by default, only Active issues are shown) |
 
 You can also use the search bar to find issues by title or description.
+
+### Insights Dashboard
+
+Issues also appear in the **Insights** page with date range filtering:
+
+- **Issues header stats:** Shows the count of new issues and issue occurrences within the selected date range
+- **New Issues table:** Displays active issues that were created during the selected time period
+- **Date filtering:** Use the date range picker to view issues from specific time periods
+
+The Insights dashboard provides a quick overview of issues trends, while the full Issues page offers complete management capabilities.
 
 ### Viewing Issue Details
 
@@ -77,11 +114,11 @@ QA.tech integrates with popular issue tracking tools so you can manage bugs in y
 
 ### Supported Integrations
 
-| Integration | What Gets Created | Configuration |
-|-------------|-------------------|---------------|
-| [Jira](/integrations/jira) | Jira Issue | Select project and issue type |
-| [Linear](/integrations/linear) | Linear Issue | Select team |
-| [Trello](/integrations/trello) | Trello Card | Select board and list |
+| Integration                    | What Gets Created | Configuration                 |
+| ------------------------------ | ----------------- | ----------------------------- |
+| [Jira](/integrations/jira)     | Jira Issue        | Select project and issue type |
+| [Linear](/integrations/linear) | Linear Issue      | Select team                   |
+| [Trello](/integrations/trello) | Trello Card       | Select board and list         |
 
 ### How to Export an Issue
 
@@ -90,21 +127,26 @@ QA.tech integrates with popular issue tracking tools so you can manage bugs in y
     Click **Issues** in the sidebar to see all detected issues for your project.
   </Step>
   <Step title="Find Your Issue">
-    Use filters to narrow down by severity, type, or status. Search for specific issues by title.
+    Use filters to narrow down by severity, type, or status. Search for specific
+    issues by title.
   </Step>
   <Step title="Open Issue Details">
-    Click on an issue to view its full details, occurrences, and help information.
+    Click on an issue to view its full details, occurrences, and help
+    information.
   </Step>
   <Step title="Export to Your Tracker">
-    In the issue detail view, find the **Link** section at the top. Click the export button for your configured integration:
-    - **"Create Issue in Jira"** - Creates a Jira issue with `qatech` label
-    - **"Create Issue in Linear"** - Creates a Linear issue in your team
-    - **"Create Card in Trello"** - Creates a Trello card in your list
+    In the issue detail view, find the **Link** section at the top. Click the
+    export button for your configured integration: - **"Create Issue in Jira"**
+    - Creates a Jira issue with `qatech` label - **"Create Issue in Linear"** -
+    Creates a Linear issue in your team - **"Create Card in Trello"** - Creates
+    a Trello card in your list
   </Step>
 </Steps>
 
 <Note>
-  If you see **"Add Integration"** instead of export buttons, you need to configure an integration first. Go to **Settings → Integrations** in your project to set up Jira, Linear, or Trello.
+  If you see **"Add Integration"** instead of export buttons, you need to
+  configure an integration first. Go to **Settings → Integrations** in your
+  project to set up Jira, Linear, or Trello.
 </Note>
 
 ### What Gets Exported
@@ -117,5 +159,6 @@ When you export an issue, QA.tech sends:
 - **Console Details:** For console errors, includes the error level, file location, and messages
 
 <Tip>
-  After exporting, the issue detail page shows a direct link to the created ticket, so you can quickly jump to it in Jira, Linear, or Trello.
+  After exporting, the issue detail page shows a direct link to the created
+  ticket, so you can quickly jump to it in Jira, Linear, or Trello.
 </Tip>
