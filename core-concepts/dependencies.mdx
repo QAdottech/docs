@@ -154,7 +154,7 @@ graph TB
 
 ## Application, Environment, and Domain Constraints
 
-Browser state can only be shared via Resume From when tests run in the **same Environment**. While you can create dependencies between tests in different Applications, Resume From will only work if both tests are assigned to the same Environment.
+Browser state can only be shared via Resume From when tests run in the **same Environment**. This applies even across different Applications - Resume From works between Applications if both tests use the same Environment.
 
 ### What Works vs. What Doesn't
 
@@ -182,3 +182,101 @@ Test 2: Verify User (Admin App Application) → waits for Test 1, receives userI
 - The system requires both tests to use the same Environment for state reuse
 - Even if two Environments have similar URLs, Resume From won't work across different Environments
 - Tests in different Applications CAN use Resume From if they're in the same Environment
+
+## Data Sharing Between Tests
+
+QA.tech provides two mechanisms for passing data between dependent tests. Understanding when to use each helps you build effective multi-step test workflows.
+
+### Output Values (Recommended for Cross-Session Data)
+
+Output values are data explicitly saved by a test during execution. They can be passed to any dependent test, regardless of whether the tests share a browser session.
+
+| Aspect | Details |
+|--------|---------|
+| **What's shared** | Text data: URLs, IDs, names, any string value |
+| **Works with** | Both Wait For and Resume From dependencies |
+| **Persists across** | Different browser sessions (cross-application) |
+| **When saved** | Agent saves during test evaluation |
+| **How received** | Agent sees values in context when test starts |
+
+**Use output values when:**
+- Sharing URLs between tests that run in different browser sessions
+- Passing created resource IDs (user IDs, order numbers) to verification tests
+- Coordinating data between tests in different applications
+
+**Example: URL Sharing**
+1. Test A creates a resource and the agent saves the URL in output values
+2. Test B has a Wait For dependency on Test A
+3. When Test B runs, the agent receives Test A's URL and can navigate to it
+
+### Clipboard (Same Session Only)
+
+Clipboard values are automatically saved when a test completes and restored when a Resume From dependent test starts in the same browser session.
+
+| Aspect | Details |
+|--------|---------|
+| **What's shared** | Clipboard content at test completion |
+| **Works with** | Resume From dependencies only |
+| **Persists across** | Same browser session chain only |
+| **When saved** | Automatically when test finishes |
+| **How received** | Clipboard is pre-populated when test starts |
+
+**Use clipboard when:**
+- Copying and pasting within the same browser session chain
+- Quick value transfer between sequential tests sharing a session
+
+**Example: Session Chain**
+1. Test A logs in and copies a verification code to clipboard
+2. Test B uses Resume From dependency on Test A
+3. Test B can paste the verification code (same browser session, clipboard restored)
+
+### Comparison Table
+
+| Mechanism | Cross-Application? | Cross-Session? | Automatic Save? |
+|-----------|-------------------|----------------|-----------------|
+| Output Values | Yes | Yes | No - agent saves explicitly |
+| Clipboard | Only if same Environment | No - same session only | Yes - on test completion |
+
+### Common Patterns
+
+#### Pattern 1: URL Sharing Across Applications
+
+**Scenario:** Test in App 1 creates a resource, Test in App 2 needs to access it.
+
+```
+Test A (App 1): "Create order" → saves order URL in output values
+    ↓ Wait For (data only)
+Test B (App 2): "Verify order in admin" → receives URL, navigates to it
+```
+
+Both tests run in separate browser sessions on different applications. Output values bridge the gap.
+
+#### Pattern 2: Session Chain with Clipboard
+
+**Scenario:** Multi-step workflow in the same session.
+
+```
+Test A: "Login and copy auth code"
+    ↓ Resume From (session + clipboard)
+Test B: "Paste auth code and verify"
+```
+
+Both tests share the browser session. Test B receives the clipboard value automatically.
+
+#### Pattern 3: Combining Both Mechanisms
+
+**Scenario:** Need both shared data AND session continuation.
+
+```
+Test A: "Create resource" → saves URL in output values
+    ↓ Resume From (gets session + clipboard)
+Test B: "Verify resource" → receives URL from output values, keeps login session
+```
+
+Resume From provides session continuity while output values provide the data.
+
+<Note>
+When a test has both Resume From and Wait For dependencies, it receives:
+- Browser state (cookies, localStorage) from the Resume From dependency
+- Output values from ALL dependencies (both Resume From and Wait For)
+</Note>

@@ -294,6 +294,20 @@ This allows you to:
 
 **Via API:** Device preset overrides are supported using the `devicePresetId` field in the `applications` object. See [Start Run API](/api-reference/start-run) for details.
 
+### Parameter Precedence
+
+When running tests, QA.tech resolves environment and device preset settings in this order:
+
+1. **Project defaults** - Base configuration from application settings
+2. **Test plan parameters** - Overrides configured in the test plan UI
+3. **Per-run API overrides** - Overrides passed via API at runtime
+
+Later settings override earlier ones. For example, a per-run API override takes precedence over test plan parameters, which take precedence over project defaults.
+
+<Tip>
+Use test plan parameters when you want consistent overrides for a specific test plan. Use API overrides when you need dynamic configuration at runtime (e.g., preview deployments, CI/CD).
+</Tip>
+
 ## Finding Short IDs for API Usage
 
 When using the [Start Run API](/api-reference/start-run) to override environments, you need Application and Environment Short IDs.
