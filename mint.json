@@ -47,9 +47,7 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": [
-        "core-concepts/ai-agent-testing"
-      ]
+      "pages": ["core-concepts/ai-agent-testing"]
     },
     {
       "group": "Best Practices",
@@ -69,6 +67,7 @@
         "core-concepts/knowledge",
         "core-concepts/applications-and-environments",
         "core-concepts/tests-and-results",
+        "core-concepts/ownership",
         "core-concepts/dependencies",
         "core-concepts/test-plans",
         "core-concepts/output-state-optimization",
@@ -122,9 +121,7 @@
     },
     {
       "group": "Applications",
-      "pages": [
-        "applications/se-bank-id"
-      ]
+      "pages": ["applications/se-bank-id"]
     },
     {
       "group": "API Reference",
