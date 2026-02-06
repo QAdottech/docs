@@ -1,0 +1,88 @@
+---
+title: Rerun Tests
+description: 'Rerun all or a subset of tests from a previous run'
+icon: 'rotate'
+---
+
+Rerun a previous run: either all tests again or only the tests that failed (or were skipped/errored). Useful for flaky test verification or re-running failed tests after a fix.
+
+- **Endpoint**: `POST /run/{shortId}`
+- **Authentication**: Bearer token required
+- **Base URL**: `https://api.qa.tech/v1`
+
+## Path Parameters
+
+| Parameter | Type   | Required | Description                                                                             |
+| --------- | ------ | -------- | --------------------------------------------------------------------------------------- |
+| `shortId` | string | Yes      | The run's short ID (from [Start Run](/api-reference/start-run) response: `run.shortId`) |
+
+## Request Body
+
+| Field                | Type                     | Required | Description                                            |
+| -------------------- | ------------------------ | -------- | ------------------------------------------------------ |
+| `failedOnly`         | boolean                  | No       | If `true`, rerun only failed/skipped/error test cases. |
+| `projectTestCaseIds` | array of strings (UUIDs) | No       | Rerun only these test cases (by project test case ID). |
+
+<Warning>
+  You must provide **either** `failedOnly` **or** `projectTestCaseIds`, but not
+  both. Sending both returns `400 Bad Request`.
+</Warning>
+
+To rerun the entire run with no filters, send an empty body `{}` or omit the body.
+
+## Response
+
+### Success (200)
+
+```json
+{
+  "success": true,
+  "run": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "shortId": "def456",
+    "url": "https://app.qa.tech/p/your-project/results/def456",
+    "testCount": 3
+  }
+}
+```
+
+Use `run.shortId` to [get run status](/api-reference/run-status) or trigger another rerun.
+
+### Error Responses
+
+| Status  | Description                                                                                     |
+| ------- | ----------------------------------------------------------------------------------------------- |
+| **400** | Validation error, or both `failedOnly` and `projectTestCaseIds` provided, or no tests to rerun. |
+| **401** | Missing or invalid API key.                                                                     |
+| **402** | Usage limit exceeded.                                                                           |
+| **403** | Invalid token or organization suspended.                                                        |
+| **404** | Run or project not found.                                                                       |
+| **500** | Server error.                                                                                   |
+
+## Example: Rerun Failed Tests Only
+
+```bash
+curl -X POST "https://api.qa.tech/v1/run/abc123" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"failedOnly": true}'
+```
+
+## Example: Rerun Specific Test Cases
+
+```bash
+curl -X POST "https://api.qa.tech/v1/run/abc123" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "projectTestCaseIds": [
+      "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+      "b2c3d4e5-f6a7-4890-b123-456789abcdef"
+    ]
+  }'
+```
+
+## Related
+
+- [Get Run Status](/api-reference/run-status) – Check run status and retrieve test results
+- [Start Run](/api-reference/start-run) – Start a new run

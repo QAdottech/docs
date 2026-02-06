@@ -193,7 +193,7 @@ To test the same functionality across different devices, you have two options:
 3. Run the appropriate test plan in your pipeline or schedule
 
 **Option 2: API Overrides**
-Override device presets per-run via API using the `devicePresetId` parameter in the `applications` object. This allows you to test different device configurations without creating multiple test plans. See [Start Run API](/api-reference/start-run) for details.
+Override device presets per-run via API using the `devicePresetShortId` parameter in the `applications` array. This allows you to test different device configurations without creating multiple test plans. See [Start Run API](/api-reference/start-run) for details.
 
 The [GitHub App](/configuration/github-app) can automatically select device presets based on PR content - for example, testing on mobile when a PR mentions "responsive design".
 
