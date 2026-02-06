@@ -14,11 +14,10 @@ AI-powered exploratory testing is currently GitHub-only via the [GitHub App](/co
 
 ### Prerequisites
 
-You need three values from your [project settings](https://app.qa.tech/current-project/settings/integrations):
+You need two values from your [project settings](https://app.qa.tech/current-project/settings/integrations):
 
 - **API Token** - Your QA.tech API token
-- **Project UUID** - 36-character project identifier
-- **Test Plan Short ID** - 6-character ID from your test plan URL
+- **Test Plan Short ID** - Prefixed ID from your test plan (e.g. `pln_abc123`)
 
 ### Configure CI/CD Variables
 
@@ -60,7 +59,7 @@ test_mr:
     - merge_requests
   variables:
     API_TOKEN: $QA_TECH_API_TOKEN
-    QATECH_REQUEST_BODY: '{"integrationName": "GitLab MR", "testPlanShortId": "smoke-tests"}'
+    QATECH_REQUEST_BODY: '{"integrationName": "GitLab MR", "testPlanShortId": "pln_smoke-tests"}'
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
@@ -94,7 +93,7 @@ test_preview:
     API_TOKEN: $QA_TECH_API_TOKEN
   before_script:
     - |
-      echo '{"integrationName":"GitLab Preview","testPlanShortId":"regression-suite","applications":{"frontend-app":{"environment":{"url":"'$PREVIEW_URL'","name":"MR-'$CI_MERGE_REQUEST_IID'"}}}}' > /tmp/request.json
+      echo '{"integrationName":"GitLab Preview","testPlanShortId":"pln_regression-suite","applications":[{"applicationShortId":"app_frontend","environment":{"url":"'$PREVIEW_URL'","name":"MR-'$CI_MERGE_REQUEST_IID'"}}]}' > /tmp/request.json
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
@@ -104,7 +103,7 @@ test_preview:
 ```
 
 <Note>
-You can also override device presets in the same request by adding `devicePresetId` to the `applications` object. For example, to test the preview deployment on a mobile device preset: `"applications":{"frontend-app":{"environment":{"url":"'$PREVIEW_URL'"},"devicePresetId":"YOUR_DEVICE_PRESET_UUID"}}`. See [Start Run API](/api-reference/start-run) for details.
+You can also override device presets in the same request by adding `devicePresetShortId` to each application object in the `applications` array. For example, to test the preview deployment on a mobile device preset: `"applications":[{"applicationShortId":"app_frontend","environment":{"url":"'$PREVIEW_URL'"},"devicePresetShortId":"preset_abc123"}]`. See [Start Run API](/api-reference/start-run) for details.
 </Note>
 
 ### Scheduled Testing
@@ -116,7 +115,7 @@ nightly_tests:
     - schedules
   variables:
     API_TOKEN: $QA_TECH_API_TOKEN
-    QATECH_REQUEST_BODY: '{"integrationName": "GitLab Scheduled", "testPlanShortId": "full-regression"}'
+    QATECH_REQUEST_BODY: '{"integrationName": "GitLab Scheduled", "testPlanShortId": "pln_full-regression"}'
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
@@ -148,7 +147,7 @@ See [Test Plans](/core-concepts/test-plans#scheduled-execution) for QA.tech sche
 1. Go to [Test Plans](https://app.qa.tech/current-project/test-plans)
 2. Click on a test plan
 3. Check the URL: `https://app.qa.tech/.../test-plans/abc123`
-4. The short ID is `abc123`
+4. The short ID is `pln_abc123` (add the `pln_` prefix)
 
 ### Building JSON Payloads
 
@@ -182,7 +181,7 @@ trigger_qatech:
         "https://api.qa.tech/v1/run" \
         -H "Authorization: Bearer $API_TOKEN" \
         -H "Content-Type: application/json" \
-        -d "{\"integrationName\": \"GitLab CI\", \"testPlanShortId\": \"abc123\"}")
+        -d "{\"integrationName\": \"GitLab CI\", \"testPlanShortId\": \"pln_abc123\"}")
       SHORT_ID=$(echo "$RESPONSE" | jq -r '.run.shortId')
     
     # Poll until completion (see Run Status API for details)
