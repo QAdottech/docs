@@ -1,24 +1,19 @@
 ---
 title: Start Run API
-description: "API endpoint for programmatically starting test runs"
-icon: "play-circle"
+description: 'API endpoint for programmatically starting test runs'
+icon: 'play-circle'
 ---
 
 # Start Run API
 
-The Start Run API allows you to programmatically trigger test runs for your projects. This endpoint is particularly useful for integrating QA.tech testing into your CI/CD pipelines and custom automation workflows.
+The Start Run API allows you to programmatically trigger test runs for your project. This endpoint is particularly useful for integrating QA.tech testing into your CI/CD pipelines and custom automation workflows.
 
-The Start Run API provides a single endpoint to create new test runs:
-
-- **Endpoint**: `POST /projects/{projectUuid}/runs`
-- **Authentication**: Bearer token (JWT) or Netlify webhook signature
+- **Endpoint**: `POST /run`
+- **Authentication**: Bearer token (project API token)
 - **Content-Type**: `application/json`
+- **Base URL**: `https://api.qa.tech/v1`
 
 ## Authentication
-
-The Start Run API supports two authentication methods:
-
-### Bearer Token Authentication
 
 Include your project's API token in the `Authorization` header:
 
@@ -26,223 +21,127 @@ Include your project's API token in the `Authorization` header:
 Authorization: Bearer YOUR_API_TOKEN
 ```
 
-You can obtain your project's API token through the QA.tech dashboard in the project settings under "API & Integrations".
+You can obtain your project's API token in the QA.tech dashboard: **Settings → Integrations → API**. The project is inferred from the token, so you do not pass a project ID in the URL.
 
-### Netlify Webhook Authentication
+## Request Body
 
-For Netlify webhook integrations, you can use webhook signature authentication instead of a Bearer token. Include the signed JWT token in the `X-Webhook-Signature` header:
+The request body is optional. When provided, it can include:
 
-```
-X-Webhook-Signature: YOUR_SIGNED_JWT_TOKEN
-```
+| Field             | Type   | Required | Description                                        |
+| ----------------- | ------ | -------- | -------------------------------------------------- |
+| `trigger`         | string | No       | `"API"` or `"GITHUB"` (defaults to API)            |
+| `testPlanShortId` | string | No       | Test plan to execute (prefixed, e.g. `pln_abc123`) |
+| `applications`    | array  | No       | Application overrides (environment, device preset) |
+| `notifications`   | array  | No       | Slack notification overrides                       |
 
-The token is verified using your project's API token as the secret. Either authentication method is valid - use Bearer token for general API access or Netlify signature for webhook integrations.
+### Application Overrides (`applications`)
 
-## Finding Your Project UUID
+`applications` is an **array** of objects. Each object has:
 
-Your project UUID is required in the URL path. Find it in your dashboard:
+| Field                 | Type   | Required | Description                                              |
+| --------------------- | ------ | -------- | -------------------------------------------------------- |
+| `applicationShortId`  | string | Yes      | Application short ID (e.g. `app_gXeBl2`)                 |
+| `environment`         | object | No       | Override environment: by URL or by existing env short ID |
+| `devicePresetShortId` | string | No       | Device preset short ID (e.g. `preset_abc123`)            |
 
-**Settings → Integrations → API** - Look at the code examples, your UUID is embedded in the URL between `/projects/` and `/runs` (36-character UUID format)
+**Environment override** – use one of:
 
-**Or** if using GitHub Actions: **Settings → Integrations → GitHub Actions** - Copy from the **QATECH_PROJECT_ID** field
-
-For detailed instructions, see [Finding Your Project UUID](/api-reference/introduction#finding-your-project-uuid).
-
-## Request Parameters
-
-### Path Parameters
-
-| Parameter     | Type          | Required | Description                                                           |
-| ------------- | ------------- | -------- | --------------------------------------------------------------------- |
-| `projectUuid` | string (UUID) | Yes      | Your project's UUID (36-character format, NOT the short ID from URLs) |
-
-### Headers
-
-| Header                | Value                   | Required | Description                                                                   |
-| --------------------- | ----------------------- | -------- | ----------------------------------------------------------------------------- |
-| `Content-Type`        | `application/json`      | Yes      | Media type of the request body                                                |
-| `Authorization`       | `Bearer YOUR_API_TOKEN` | Yes\*    | Bearer token authentication (required if not using Netlify webhook signature) |
-| `X-Webhook-Signature` | `YOUR_SIGNED_JWT_TOKEN` | Yes\*    | Netlify webhook signature authentication (required if not using Bearer token) |
-
-\* Either `Authorization` Bearer token OR `X-Webhook-Signature` header is required for authentication.
-
-### Request Body
-
-The request body is optional and can contain the following fields:
-
-```json
-{
-  "integrationName": "CircleCI",
-  "testPlanShortId": "abc123"
-}
-```
-
-#### Optional Fields
-
-- **`integrationName`** (string): Human-readable name of what triggered this test (defaults to "API")
-- **`testPlanShortId`** (string): The **Test Plan Short ID** of the test plan to execute (this is the 6-character ID visible in test plan URLs)
-- **`applications`** (object): Optional application overrides for testing specific environments and device configurations. Each application can specify:
-  - An environment override: either a new environment (with `url` and `name`) or reference an existing environment (with `short_id`)
-  - A device preset override: specify a `devicePresetId` (UUID) to use a different device configuration than the test plan default
+- **New/preview environment:** `{ "url": "https://...", "name": "Optional name" }`
+- **Existing environment:** `{ "shortId": "env_aB3xY9" }`
 
 <Tip>
-  The key in the `applications` object is the **Application Short ID**
-  (6-character alphanumeric, e.g., `gXeBl2`). Find it in **Settings ->
-  Applications** (Short ID column or dropdown menu). See [Finding Application
-  Short IDs](/api-reference/introduction#finding-application-short-ids).
+  Find Application and Environment Short IDs in **Settings → Applications**. Use
+  the copy action for the Short ID (e.g. `app_gXeBl2`, `env_aB3xY9`). See [API
+  Introduction](/api-reference/introduction#finding-application-and-environment-short-ids).
 </Tip>
 
-- **`devicePresetId`** (string, UUID): Optional device preset UUID to override the default device preset for this application. Overrides the test plan's device preset setting for this specific run. See [Finding Device Preset UUIDs](/api-reference/introduction#finding-device-preset-uuids) for detailed instructions.
+### Slack Notification Overrides (`notifications`)
 
-- **`notifications`** (array): Slack notification overrides for this run. Provide one or more channel objects to send run updates to specific channels instead of the project's default Slack channel. Details below.
+Use the `notifications` array to send per-run Slack updates:
 
-### Slack Notification Overrides
+| Field      | Type   | Required | Description                                                          |
+| ---------- | ------ | -------- | -------------------------------------------------------------------- |
+| `type`     | string | Yes      | Must be `"slack"`                                                    |
+| `channel`  | string | Yes      | Slack channel ID (e.g. `C0478ABCDEF`). QA.tech bot must have access. |
+| `notifyOn` | string | No       | `"always"` (default) or `"failure"`                                  |
 
-Use the `notifications` array to send per-run Slack updates without changing your default integration settings. Each object must describe a Slack destination:
-
-| Field      | Type   | Required | Description                                                                                       |
-| ---------- | ------ | -------- | ------------------------------------------------------------------------------------------------- |
-| `type`     | string | Yes      | Must be `slack` (currently the only supported notification type)                                  |
-| `channel`  | string | Yes      | Slack channel ID (e.g., `C0478ABCDEF`). The QA.tech bot must already have access to this channel. |
-| `notifyOn` | string | No       | Controls when notifications are sent for this channel. See options below.                         |
-
-**`notifyOn` options:**
-
-- **`always`** (default): Sends both a "run started" message when the run begins and the final result summary when it completes
-- **`failure`**: Only sends the final summary when the run result is not `PASSED` (i.e., when result is `FAILED`, `SKIPPED`, or `null`)
-
-The run result values (`PASSED`, `FAILED`, `SKIPPED`, or `null`) are determined when the run completes.
+- **`always`**: Run started + final result summary
+- **`failure`**: Only final summary when result is not `PASSED`
 
 <Warning>
-  Slack notification overrides currently do not work for projects with SSH
-  Tunnel Proxy enabled.
+  Slack notification overrides do not work for projects with SSH Tunnel Proxy
+  enabled.
 </Warning>
 
-<Steps>
-  <Step title="Connect Slack to the project">
-    Go to <strong>Project Settings → Integrations → Slack</strong>, connect your workspace, and invite the QA.tech bot to every channel you plan to target.
-  </Step>
-  <Step title="Send per-run overrides">
-    Include a <code>notifications</code> array in the Start Run API request body:
-    ```json
-    {
-      "notifications": [
-        { "type": "slack", "channel": "C0478ABCDEF", "notifyOn": "always" },
-        { "type": "slack", "channel": "C0123FAIL42", "notifyOn": "failure" }
-      ]
-    }
-    ```
-  </Step>
-</Steps>
+**Validation & errors:**
 
-**Behavior**
-
-- **Start notifications**: When at least one override uses `notifyOn: "always"` (or omits `notifyOn`, which defaults to `always`), QA.tech emits the `slack/run-created` event and posts `Run #<shortId> started` to all channels in the override list as soon as the API call succeeds. If all channels have `notifyOn: "failure"`, no start notification event is triggered.
-- **Finish notifications**: Each channel is evaluated independently based on its own `notifyOn` value:
-  - Channels with `notifyOn: "always"` (or default) receive finish notifications regardless of run result.
-  - Channels with `notifyOn: "failure"` only receive finish notifications when the run result is not `PASSED` (i.e., when result is `FAILED`, `SKIPPED`, or `null`).
-- **Default channel override**: As soon as overrides are provided, QA.tech skips the default Slack channel configured in the integration and only uses the channels listed in the request.
-
-**Validation & Errors**
-
-- The `notifications` array must contain at least one object. Empty arrays are rejected with `400 Bad Request` and a schema validation error message.
-- The API rejects overrides (`400 Bad Request`) if Slack is not connected for the project. Error message: `"Slack integration is not configured for this project. Configure Slack before overriding notification channels."`
-- QA.tech fetches your accessible channel IDs and returns `400 Bad Request` when a requested channel is not found or the bot is not a member. The error message includes the specific inaccessible channel IDs: `"Slack channel override failed. Ensure the QA.tech bot has access to: C0478ABCDEF, C0123FAIL42"` (channel IDs are listed in the error).
-- Schema validation errors include detailed Zod error messages when the request structure is invalid (e.g., missing required fields, invalid enum values).
+- Empty `notifications` array → `400` (array must contain at least one element)
+- Slack not configured for project → `400` ("Slack integration is not configured for this project...")
+- Inaccessible channel(s) → `400` ("Slack channel override failed. Ensure the QA.tech bot has access to: ...")
 
 ## Example Requests
 
 ### Basic Test Run
 
 ```bash
-curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+curl -X POST https://api.qa.tech/v1/run \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{
-    "integrationName": "API",
-    "testPlanShortId": "abc123"
-  }'
+  -d '{"testPlanShortId": "pln_abc123"}'
 ```
 
 ### Test Run with Preview Environment
 
-<Note>
-  Use `short_id` to reference an **existing** environment (find it in
-  Application Settings). Use `url` to create or update a **preview** environment
-  dynamically (creates new preview environment, or updates existing one if it
-  matches the same branch/repository).
-</Note>
+Use `url`/`name` for a new preview environment, or `shortId` to reference an existing environment:
 
 ```bash
-curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+curl -X POST https://api.qa.tech/v1/run \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "integrationName": "Vercel Preview",
-    "testPlanShortId": "abc123",
-    "applications": {
-      "gXeBl2": {
+    "trigger": "API",
+    "testPlanShortId": "pln_abc123",
+    "applications": [
+      {
+        "applicationShortId": "app_gXeBl2",
         "environment": {
           "url": "https://pr-123-frontend.vercel.app",
           "name": "PR-123-Frontend"
         }
       },
-      "abc123": {
-        "environment": {
-          "short_id": "aB3xY9"
-        }
+      {
+        "applicationShortId": "app_abc123",
+        "environment": { "shortId": "env_aB3xY9" }
       }
-    }
+    ]
   }'
 ```
 
 ### Test Run with Device Preset Override
 
 ```bash
-curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+curl -X POST https://api.qa.tech/v1/run \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "integrationName": "API",
-    "testPlanShortId": "abc123",
-    "applications": {
-      "gXeBl2": {
-        "devicePresetId": "a1b2c3d4-e5f6-4789-a012-3456789abcde"
+    "testPlanShortId": "pln_abc123",
+    "applications": [
+      {
+        "applicationShortId": "app_gXeBl2",
+        "devicePresetShortId": "preset_abc123"
       }
-    }
-  }'
-```
-
-### Test Run with Environment and Device Preset Overrides
-
-```bash
-curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
-  -H "Authorization: Bearer YOUR_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "integrationName": "Vercel Preview",
-    "testPlanShortId": "abc123",
-    "applications": {
-      "gXeBl2": {
-        "environment": {
-          "url": "https://pr-123-frontend.vercel.app",
-          "name": "PR-123-Frontend"
-        },
-        "devicePresetId": "a1b2c3d4-e5f6-4789-a012-3456789abcde"
-      }
-    }
+    ]
   }'
 ```
 
 ### Test Run with Slack Notification Override
 
 ```bash
-curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+curl -X POST https://api.qa.tech/v1/run \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "integrationName": "GitHub Actions",
-    "testPlanShortId": "abc123",
+    "testPlanShortId": "pln_abc123",
     "notifications": [
       { "type": "slack", "channel": "C0478ABCDEF", "notifyOn": "always" },
       { "type": "slack", "channel": "C0123FAIL42", "notifyOn": "failure" }
@@ -252,199 +151,43 @@ curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
 
 ## Response Format
 
-### Success Response (200)
+### Success (200)
 
 ```json
 {
   "success": true,
   "run": {
-    "id": "run_abc123def456",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
     "shortId": "abc123",
-    "url": "https://app.qa.tech/projects/project-123/results/abc123",
+    "url": "https://app.qa.tech/p/your-project/results/abc123",
     "testCount": 5,
     "testPlan": {
       "name": "API Integration Tests",
-      "short_id": "xyz789"
+      "shortId": "pln_xyz789"
     }
   }
 }
 ```
 
+Use `run.shortId` to [get run status](/api-reference/run-status) or [rerun](/api-reference/rerun).
+
 ### Error Responses
 
-#### Bad Request (400)
+| Status  | Description                                                                                                                                       |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **400** | Validation error, malformed body, empty notifications, Slack not configured, or inaccessible Slack channels. Response body includes `message`. |
+| **401** | Missing or invalid API key.                                                                                                                       |
+| **402** | Usage limit exceeded. "Organization has reached usage limit. Upgrade your account to continue."                                                   |
+| **403** | Invalid token or organization suspended.                                                                                                          |
+| **404** | Project not found.                                                                                                                                |
+| **500** | Server error.                                                                                                                                     |
 
-Returned when the request body is malformed, missing required fields, or validation fails.
+All error responses can include a body such as: `{ "message": "Error message" }`.
 
-**Examples:**
+## Related
 
-Empty notifications array:
-
-```json
-{
-  "statusText": "Failed to parse notifications in request: Array must contain at least 1 element(s)"
-}
-```
-
-Slack integration not configured:
-
-```json
-{
-  "statusText": "Slack integration is not configured for this project. Configure Slack before overriding notification channels."
-}
-```
-
-Inaccessible Slack channels:
-
-```json
-{
-  "statusText": "Slack channel override failed. Ensure the QA.tech bot has access to: C0478ABCDEF, C0123FAIL42"
-}
-```
-
-Invalid test plan or malformed request:
-
-```json
-{
-  "statusText": "Invalid test plan ID or malformed applications config"
-}
-```
-
-#### Forbidden (403)
-
-Returned when the bearer token is invalid or expired, when Netlify webhook signature verification fails, or when the organization is suspended.
-
-**Examples:**
-
-Invalid token:
-
-```json
-{
-  "statusText": "Unknown Error"
-}
-```
-
-Organization suspended:
-
-```json
-{
-  "statusText": "Organization is suspended"
-}
-```
-
-#### Payment Required (402)
-
-Returned when the organization has reached its usage limit.
-
-**Example:**
-
-```json
-{
-  "statusText": "Organization has reached usage limit. Upgrade your account to continue."
-}
-```
-
-#### Not Found (404)
-
-Returned when the specified project ID doesn't exist.
-
-**Example:**
-
-```json
-{
-  "statusText": "Unknown Error"
-}
-```
-
-#### Internal Server Error (500)
-
-Returned when there's an internal server error.
-
-**Example:**
-
-```json
-{
-  "statusText": "API Error"
-}
-```
-
-## Use Cases
-
-### CI/CD Integration
-
-Integrate test runs into your deployment pipeline to automatically test changes before they reach production.
-
-### Preview Environment Testing
-
-Test pull request changes in isolated environments before merging.
-
-### Scheduled Testing
-
-Set up recurring test runs to ensure ongoing quality assurance.
-
-### Custom Workflows
-
-Trigger tests based on custom business logic or external events.
-
-## Integration Examples
-
-### GitHub Actions
-
-```yaml
-name: QA.tech Test Run
-on:
-  pull_request:
-    types: [opened, synchronize]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    outputs:
-      preview_url: ${{ steps.deploy.outputs.url }}
-    steps:
-      - name: Deploy to Preview
-        id: deploy
-        run: |
-          # Your deployment logic
-          echo "url=https://preview-${{ github.event.pull_request.number }}.vercel.app" >> $GITHUB_OUTPUT
-
-  test:
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
-      - name: Trigger QA.tech Test
-        run: |
-          curl -X POST https://app.qa.tech/api/projects/${{ secrets.QATECH_PROJECT_ID }}/runs \
-            -H "Authorization: Bearer ${{ secrets.QATECH_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "integrationName": "GitHub Actions",
-              "testPlanShortId": "abc123",
-              "applications": {
-                "gXeBl2": {
-                  "environment": {
-                    "url": "${{ needs.deploy.outputs.preview_url }}",
-                    "name": "PR-${{ github.event.pull_request.number }}"
-                  }
-                }
-              }
-            }'
-```
-
-<Note>
-  This API endpoint works with any CI/CD system. For platform-specific guides
-  and examples: - [CI/CD Integration Overview](/configuration/ci-cd-integration)
-  - Learn about integration modes - [GitHub
-  Actions](/configuration/github-actions) - Official GitHub Action and examples
-  - [GitLab CI](/configuration/gitlab) - GitLab CI/CD examples
-</Note>
-
-## Related Endpoints
-
-- [Create Test Case API](/api-reference/test-cases) - Create test cases programmatically before running them
-- [Get Run Status API](/api-reference/run-status) - Check run status and retrieve results
-- [API Introduction](/api-reference/introduction) - Authentication and general API information
-
-## OpenAPI Specification
-
-For detailed API schema and additional examples, refer to the [OpenAPI specification](/api-reference/api.json).
+- [Get Run Status](/api-reference/run-status) – Poll run status and get test results
+- [Rerun Tests](/api-reference/rerun) – Rerun all or failed tests from a run
+- [Create Test Cases](/api-reference/test-cases) – Create test cases via API
+- [API Introduction](/api-reference/introduction) – Authentication and IDs
+- [OpenAPI specification](/api-reference/api.json) – Full API schema

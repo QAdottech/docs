@@ -11,7 +11,8 @@ The QA.tech REST API allows you to programmatically control test runs, create te
 - **Start test runs** programmatically from CI/CD pipelines or scripts
 - **Create test cases** via API for importing tests or generating them dynamically
 - **Check run status** and retrieve test results
-- **Create environments** for preview deployments or dynamic test environments
+- **Rerun tests** (all or a subset) from a previous run
+- **Get outbound IPs** for firewall allowlisting
 - **View metrics** and test execution data
 
 ## Quick Start
@@ -19,145 +20,76 @@ The QA.tech REST API allows you to programmatically control test runs, create te
 Here's a complete example to start a test run:
 
 ```bash
-curl -X POST https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs \
+curl -X POST https://api.qa.tech/v1/run \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{
-    "integrationName": "API",
-    "testPlanShortId": "abc123"
-  }'
+  -d '{"testPlanShortId": "pln_abc123"}'
 ```
 
 **What you need:**
-1. **API Token** - Found in Settings → Integrations → API
-2. **Project UUID** - Your project's 36-character UUID (see finding instructions below)
-3. **Test Plan Short ID** - The 6-character ID from your test plan URL
+
+1. **API Token** - Found in Settings → Integrations → API (project-specific)
+2. **Test Plan Short ID** - Prefixed ID from your test plan (e.g. `pln_abc123`)
+3. **Other short IDs** as needed - Application, Environment, Config, Device Preset, Scenario (see table below)
 
 ## Authentication
 
-All API endpoints require Bearer token authentication. Include your API token in the `Authorization` header:
+All API endpoints (except [Get Outbound IPs](/api-reference/outbound-ips)) require Bearer token authentication. Include your API token in the `Authorization` header:
 
 ```bash
 Authorization: Bearer YOUR_API_TOKEN
 ```
 
 **Where to find your API token:**
+
 1. Navigate to **Settings → Integrations → API** in your project dashboard
 2. Your API token is displayed on the API integration page
 3. Copy the token and use it in the `Authorization` header
 
 <Note>
-  Your API token is project-specific. Each project has its own token. Keep your token secure and never commit it to version control.
+  Your API token is project-specific. The project is inferred from the token, so
+  you do not pass a project ID in the URL or body.
 </Note>
-
-## Finding Your Project UUID
-
-Your project UUID is required for all API requests. It appears in code examples but is not shown as a separate labeled field in the API integration page.
-
-### Option 1: From API Integration Page
-
-<Steps>
-  <Step title="Go to Settings">
-    Navigate to **Settings → Integrations** in your project
-  </Step>
-  <Step title="Select API Integration">
-    Click on the **API** integration card
-  </Step>
-  <Step title="Find UUID in Code Examples">
-    Look at the curl code examples on the page. Your project UUID is embedded in the URL path:
-    
-    `/api/projects/YOUR-PROJECT-UUID/runs`
-    
-    It's the long UUID string between `/projects/` and `/runs` (36 characters with dashes)
-  </Step>
-</Steps>
-
-### Option 2: From GitHub Actions Integration
-
-If you're using GitHub Actions integration:
-
-<Steps>
-  <Step title="Go to GitHub Actions Integration">
-    Navigate to **Settings → Integrations → GitHub Actions**
-  </Step>
-  <Step title="Copy QATECH_PROJECT_ID">
-    You'll see a labeled field **QATECH_PROJECT_ID** with a copy button - this is your project UUID
-  </Step>
-</Steps>
 
 ## Understanding Different IDs
 
-QA.tech uses multiple types of identifiers. Make sure you use the correct one for each API request:
+QA.tech uses **prefixed short IDs** for all API resources. The prefix indicates the resource type:
 
-**Short IDs vs UUIDs:**
-- **Short IDs** (6-character alphanumeric): Used for Test Plans, Applications, and Environments. Easy to find in the UI.
-- **UUIDs** (36-character format with dashes): Used for Projects, Device Presets, and internal resources. Required for certain API operations.
+| ID Type                    | Format                     | Where to Find                          | Used In API                                 | Example           |
+| -------------------------- | -------------------------- | -------------------------------------- | ------------------------------------------- | ----------------- |
+| **Test Plan Short ID**     | `pln_` + alphanumeric      | Test plan URLs, Settings               | `testPlanShortId` in request body           | `pln_abc123`      |
+| **Application Short ID**   | `app_` + alphanumeric      | Settings → Applications                | `applicationShortId` in applications array  | `app_gXeBl2`      |
+| **Environment Short ID**   | `env_` + alphanumeric      | Settings → Applications → Environments | `environment.shortId` in applications array | `env_aB3xY9`      |
+| **Config Short ID**        | `cfg_` + alphanumeric      | Settings → Configs                     | `configShortIds` array                      | `cfg_xyz789`      |
+| **Device Preset Short ID** | `preset_` + alphanumeric   | Settings → Device Presets              | `devicePresetShortId` in applications array | `preset_abc123`   |
+| **Scenario Short ID**      | `scenario_` + alphanumeric | Scenarios                              | `scenarioShortId` in test-cases body        | `scenario_abc123` |
 
-| ID Type | Format | Where You See It | Use In API | Example |
-|---------|--------|------------------|------------|---------|
-| **Project UUID** | 36-character UUID | Code examples, GitHub Actions settings | Path parameter: `/api/projects/{projectUuid}/runs` | `550e8400-e29b-41d4-a716-446655440000` |
-| **Device Preset UUID** | 36-character UUID | Settings -> Device Presets (see finding instructions below) | Request body: `"devicePresetId": "a1b2c3d4-e5f6-4789-a012-3456789abcde"` | `a1b2c3d4-e5f6-4789-a012-3456789abcde` |
-| **Test Plan Short ID** | 6-character alphanumeric | Browser URLs, test result pages | Request body: `"testPlanShortId": "abc123"` | `abc123` |
-| **Application Short ID** | 6-character alphanumeric | Settings -> Applications (Short ID column) | Key in `applications` object | `gXeBl2` |
-| **Environment Short ID** | 6-character alphanumeric | Settings -> Applications -> [App] -> Environments | `environment.short_id` field | `aB3xY9` |
+### Finding Application and Environment Short IDs
 
-### Finding Application Short IDs
-
-The Application Short ID is the key you use in the `applications` object when overriding environments via API.
+Application and Environment Short IDs are shown in the UI with their `app_` and `env_` prefixes.
 
 <Steps>
   <Step title="Go to Applications">
-    Navigate to **Settings -> Applications** in your project
+    Navigate to **Settings → Applications** in your project
   </Step>
-  <Step title="Find Short ID Column">
-    The Short ID appears in its own column in the applications table
-  </Step>
-  <Step title="Copy Short ID">
-    Click the three-dot menu (⋮) next to any application and select **Copy Short ID**
-  </Step>
-</Steps>
-
-### Finding Environment Short IDs
-
-The Environment Short ID references an existing environment in API requests (using `environment.short_id`).
-
-<Steps>
-  <Step title="Go to Application Settings">
-    Navigate to **Settings -> Applications -> [Select Application]**
+  <Step title="Find Short ID">
+    The Application Short ID (e.g. `app_gXeBl2`) appears in the applications
+    table. Use the three-dot menu (⋮) to **Copy Short ID**
   </Step>
   <Step title="Find Environment Short ID">
-    In the **Environments** section, the Short ID appears above each environment name in monospace font
-  </Step>
-  <Step title="Copy Short ID">
-    Hover to reveal the copy icon, or click the three-dot menu (⋮) and select **Copy Short ID**
-  </Step>
-</Steps>
-
-### Finding Device Preset UUIDs
-
-The Device Preset UUID is used to override device configurations in API requests (using `devicePresetId` in the `applications` object).
-
-<Steps>
-  <Step title="Go to Device Presets">
-    Navigate to **Settings -> Device Presets** in your project
-  </Step>
-  <Step title="Find Device Preset UUID">
-    Hover over a device preset name to see a tooltip with the UUID, or open browser developer tools (F12) and inspect the preset element to find the UUID in the HTML attributes
-  </Step>
-  <Step title="Copy UUID">
-    Copy the full 36-character UUID (format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+    Under **Settings → Applications → [Select Application]**, the Environment
+    Short ID (e.g. `env_aB3xY9`) appears in the **Environments** section. Use
+    the copy action to copy it
   </Step>
 </Steps>
-
-<Note>
-Device Preset UUIDs are 36-character UUIDs, not Short IDs. They look different from Short IDs (which are 6 characters) and Project UUIDs (which are also 36 characters but used in different places). Make sure you're copying the Device Preset UUID, not the Project UUID.
-</Note>
 
 ## Next Steps
 
 - **[Start a Run](/api-reference/start-run)** - Trigger test runs programmatically
 - **[Get Run Status](/api-reference/run-status)** - Wait for test completion in CI/CD pipelines
+- **[Rerun Tests](/api-reference/rerun)** - Rerun all or failed tests from a previous run
 - **[Create Test Cases](/api-reference/test-cases)** - Create tests via API
+- **[Get Outbound IPs](/api-reference/outbound-ips)** - Retrieve IPs for firewall allowlisting
 - **[View OpenAPI Spec](/api-reference/api.json)** - Complete API reference with all endpoints
 
 ## Base URL
@@ -165,5 +97,20 @@ Device Preset UUIDs are 36-character UUIDs, not Short IDs. They look different f
 All API requests are made to:
 
 ```
-https://app.qa.tech/api
+https://api.qa.tech/v1
 ```
+
+## Migration from Legacy API
+
+If you used the legacy API format:
+
+- **Old:** `https://app.qa.tech/api/projects/{projectUuid}/runs`
+- **New:** `https://api.qa.tech/v1/run` (project is inferred from your API key)
+
+The old format may still work temporarily but is **deprecated**. Key changes in the current API:
+
+- No `projectUuid` in the path; the project is determined by your API token
+- All IDs use **prefixed short IDs** (e.g. `pln_abc123`, `app_gXeBl2`) instead of UUIDs where applicable
+- Base URL is `https://api.qa.tech/v1`
+
+Migrate to the new base URL and request format when possible.

@@ -2,352 +2,160 @@
   "openapi": "3.0.0",
   "info": {
     "title": "QA.tech API",
-    "description": "API for managing project runs and test cases",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "description": "API for managing test runs, test cases, and project configuration"
   },
-  "servers": [
-    {
-      "url": "https://app.qa.tech/api"
-    }
-  ],
+  "tags": [],
   "paths": {
-    "/projects/{projectUuid}/runs": {
-      "post": {
-        "summary": "Start the tests",
-        "description": "This endpoint triggers a new test run for the specified project.",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "projectUuid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The UUID of your project (found embedded in code examples at Settings → Integrations → API)"
-          },
-          {
-            "in": "header",
-            "name": "Content-Type",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "application/json"
-            },
-            "description": "The media type of the request body. Should be set to application/json"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "Bearer your-api-token"
-            },
-            "description": "Bearer token for API authentication"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "integrationName": {
-                    "type": "string",
-                    "example": "CircleCI",
-                    "default": "API",
-                    "description": "Human readable name of what triggered this test, can be the name of the CI/CD tool. Defaults to 'API' if not provided."
-                  },
-                  "testPlanShortId": {
-                    "type": "string",
-                    "example": "abc123",
-                    "description": "The short ID of the test plan to run"
-                  },
-                  "applications": {
-                    "type": "object",
-                    "description": "Optional application overrides for testing specific environments and device configurations",
-                    "additionalProperties": {
-                      "type": "object",
-                      "properties": {
-                        "environment": {
-                          "type": "object",
-                          "properties": {
-                            "url": {
-                              "type": "string",
-                              "example": "https://preview-123.vercel.app",
-                              "description": "The URL of the environment to test against"
-                            },
-                            "name": {
-                              "type": "string",
-                              "example": "Preview Environment",
-                              "description": "Human readable name for the environment"
-                            }
-                          },
-                          "required": ["url"],
-                          "description": "Environment configuration for the application"
-                        },
-                        "devicePresetId": {
-                          "type": "string",
-                          "format": "uuid",
-                          "example": "a1b2c3d4-e5f6-4789-a012-3456789abcde",
-                          "description": "Optional device preset UUID to override the default device preset for this application"
-                        }
-                      }
-                    },
-                    "example": {
-                      "app-short-id-1": {
-                        "environment": {
-                          "url": "https://preview-123-frontend.vercel.app",
-                          "name": "PR-123-Frontend"
-                        },
-                        "devicePresetId": "a1b2c3d4-e5f6-4789-a012-3456789abcde"
-                      },
-                      "app-short-id-2": {
-                        "environment": {
-                          "url": "https://preview-123-backend.vercel.app",
-                          "name": "PR-123-Backend"
-                        }
-                      }
-                    }
-                  }
-                },
-                "required": ["testPlanShortId"]
-              }
-            }
-          }
-        },
+    "/outbound-ips": {
+      "get": {
+        "operationId": "GetOutboundIps",
+        "description": "Get outbound IP addresses",
+        "parameters": [],
         "responses": {
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Project not found"
-          },
           "200": {
-            "description": "Successfully created run",
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true,
-                      "description": "Indicates if the request was successful"
-                    },
-                    "run": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "example": "run_abc123def456",
-                          "description": "The unique identifier of the created run"
-                        },
-                        "shortId": {
-                          "type": "string",
-                          "example": "abc123",
-                          "description": "The short identifier of the run"
-                        },
-                        "url": {
-                          "type": "string",
-                          "example": "https://app.qa.tech/projects/project-123/results/abc123",
-                          "description": "The URL to view the test results"
-                        },
-                        "testCount": {
-                          "type": "integer",
-                          "example": 5,
-                          "description": "The number of tests in this run"
-                        },
-                        "testPlan": {
-                          "type": "object",
-                          "nullable": true,
-                          "description": "The test plan that was executed, or null if no test plan was specified",
-                          "properties": {
-                            "name": {
-                              "type": "string",
-                              "description": "The name of the test plan"
-                            },
-                            "short_id": {
-                              "type": "string",
-                              "description": "The short ID of the test plan"
-                            }
-                          }
-                        }
-                      },
-                      "required": ["id", "shortId", "url", "testCount"]
-                    }
-                  },
-                  "required": ["success", "run"]
+                  "$ref": "#/components/schemas/OutboundIpsResponse"
                 }
               }
             }
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/projects/{projectUuid}/test-cases": {
-      "post": {
-        "summary": "Create a new test case",
-        "description": "This endpoint creates a new test case for the specified project.",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "projectUuid",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "The UUID of the project"
-          },
-          {
-            "in": "header",
-            "name": "Content-Type",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "application/json"
-            },
-            "description": "The media type of the request body. Should be set to application/json"
-          },
-          {
-            "in": "header",
-            "name": "Authorization",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "Bearer your-api-token"
-            },
-            "description": "Bearer token for API authentication"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 80,
-                    "example": "Login Test",
-                    "description": "Test case name (1-80 characters)"
-                  },
-                  "goal": {
-                    "type": "string",
-                    "example": "Verify that users can log in successfully",
-                    "description": "The goal/objective of the test case"
-                  },
-                  "expectedResult": {
-                    "type": "string",
-                    "example": "User should be redirected to dashboard after successful login",
-                    "description": "Expected result description"
-                  },
-                  "resumeFromDependencyProjectTestCaseId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "example": "550e8400-e29b-41d4-a716-446655440000",
-                    "description": "ID of test case to resume from"
-                  },
-                  "waitForDependenciesProjectTestCaseIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "example": [
-                      "550e8400-e29b-41d4-a716-446655440001",
-                      "550e8400-e29b-41d4-a716-446655440002"
-                    ],
-                    "description": "IDs of test cases to wait for"
-                  },
-                  "configIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "example": ["config-uuid-1", "config-uuid-2"],
-                    "description": "Configuration IDs"
-                  },
-                  "applicationId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "example": "550e8400-e29b-41d4-a716-446655440000",
-                    "description": "Application ID"
-                  },
-                  "scenarioId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "example": "scenario-uuid-123",
-                    "description": "Scenario ID"
-                  }
-                },
-                "required": ["name", "goal", "applicationId"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successfully created test case",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "testCase": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "example": "test-case-uuid"
-                        },
-                        "name": {
-                          "type": "string",
-                          "example": "Test Case Name"
-                        },
-                        "url": {
-                          "type": "string",
-                          "example": "https://app.qatech.com/p/project_slug/test-cases/test-case-uuid/edit"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request - Invalid request data or validation errors"
-          },
-          "401": {
-            "description": "Unauthorized - User not authenticated"
-          },
-          "403": {
-            "description": "Forbidden - User doesn't have access to the project"
-          },
-          "404": {
-            "description": "Not Found - Project not found"
           },
           "500": {
-            "description": "Internal Server Error - Server error"
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/run": {
+      "post": {
+        "operationId": "RunProject",
+        "description": "Execute a run for a given project",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Usage limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Account suspended or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunRequest"
+              }
+            }
           }
         },
         "security": [
@@ -357,168 +165,83 @@
         ]
       }
     },
-    "/projects/{projectUuid}/runs/{shortId}": {
+    "/run/{shortId}": {
       "get": {
-        "summary": "Get run status",
-        "description": "Check the status and results of a test run. Use this endpoint to poll for run completion in CI/CD pipelines.",
+        "operationId": "GetRun",
+        "description": "Get a run by shortId with test cases",
         "parameters": [
           {
-            "in": "path",
-            "name": "projectUuid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "The UUID of your project (found embedded in code examples at Settings → Integrations → API)"
-          },
-          {
-            "in": "path",
             "name": "shortId",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "string"
-            },
-            "description": "The 6-character short ID of the run (returned from Start Run API response: run.shortId)"
+            }
           },
           {
-            "in": "header",
-            "name": "Authorization",
-            "required": true,
+            "name": "testCases",
+            "in": "query",
+            "required": false,
             "schema": {
               "type": "string",
-              "example": "Bearer your-api-token"
+              "enum": [
+                "failed",
+                "all"
+              ]
             },
-            "description": "Bearer token for API authentication"
+            "description": "Return run with test cases: \"failed\" (only failed/skipped/error) or \"all\""
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved run status",
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetRunResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or bad request",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid",
-                      "example": "550e8400-e29b-41d4-a716-446655440000",
-                      "description": "Internal run identifier"
-                    },
-                    "shortId": {
-                      "type": "string",
-                      "example": "abc123",
-                      "description": "6-character short ID used in URLs"
-                    },
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "INITIATED",
-                        "RUNNING",
-                        "COMPLETED",
-                        "ERROR",
-                        "CANCELLED"
-                      ],
-                      "example": "COMPLETED",
-                      "description": "Current run status"
-                    },
-                    "result": {
-                      "type": "string",
-                      "nullable": true,
-                      "enum": ["PASSED", "FAILED", "SKIPPED"],
-                      "example": "FAILED",
-                      "description": "Test result when status is COMPLETED, null otherwise"
-                    },
-                    "failedTestCases": {
-                      "type": "array",
-                      "description": "Array of failed test cases (only populated when result is FAILED)",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid",
-                            "description": "Test case identifier"
-                          },
-                          "shortId": {
-                            "type": "string",
-                            "description": "6-character short ID"
-                          },
-                          "name": {
-                            "type": "string",
-                            "description": "Test case name"
-                          },
-                          "status": {
-                            "type": "string",
-                            "description": "Test case status"
-                          },
-                          "result": {
-                            "type": "string",
-                            "enum": ["FAILED"],
-                            "description": "Always FAILED in this array"
-                          },
-                          "resultTitle": {
-                            "type": "string",
-                            "description": "Brief failure summary"
-                          },
-                          "evaluationThought": {
-                            "type": "string",
-                            "description": "Detailed failure explanation"
-                          },
-                          "promptGoal": {
-                            "type": "string",
-                            "nullable": true,
-                            "description": "Original test goal"
-                          },
-                          "promptExamples": {
-                            "type": "string",
-                            "nullable": true,
-                            "description": "Example scenarios used"
-                          }
-                        }
-                      }
+                    "message": {
+                      "type": "string"
                     }
-                  },
-                  "required": [
-                    "id",
-                    "shortId",
-                    "status",
-                    "result",
-                    "failedTestCases"
-                  ]
-                },
-                "example": {
-                  "id": "550e8400-e29b-41d4-a716-446655440000",
-                  "shortId": "abc123",
-                  "status": "COMPLETED",
-                  "result": "FAILED",
-                  "failedTestCases": [
-                    {
-                      "id": "test-case-uuid",
-                      "shortId": "xyz789",
-                      "name": "Login flow test",
-                      "status": "COMPLETED",
-                      "result": "FAILED",
-                      "resultTitle": "Could not find login button",
-                      "evaluationThought": "The test failed because the login button was not visible on the page.",
-                      "promptGoal": "Test the login flow",
-                      "promptExamples": null
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
                     }
-                  ]
+                  }
                 }
               }
             }
           },
           "403": {
-            "description": "Forbidden - Organization is suspended",
+            "description": "Account suspended or invalid token",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Organization is suspended"
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
@@ -526,18 +249,257 @@
             }
           },
           "404": {
-            "description": "Not Found - Invalid project UUID, run shortId, or API token",
+            "description": "Resource not found",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "statusText": {
-                      "type": "string",
-                      "example": "Unknown Error"
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "RerunRunOp",
+        "description": "Rerun a specific run with optional filters",
+        "parameters": [
+          {
+            "name": "shortId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RerunResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Usage limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Account suspended or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RerunRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/test-cases": {
+      "post": {
+        "operationId": "CreateTestCase",
+        "description": "Create a new test case for a project",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTestCaseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Account suspended or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTestCaseRequest"
               }
             }
           }
@@ -551,12 +513,474 @@
     }
   },
   "components": {
+    "schemas": {
+      "ApplicationEnvironmentOverride": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/ApplicationEnvironmentOverrideByUrl"
+          },
+          {
+            "$ref": "#/components/schemas/ApplicationEnvironmentOverrideByShortId"
+          }
+        ]
+      },
+      "ApplicationEnvironmentOverrideByShortId": {
+        "type": "object",
+        "required": [
+          "shortId"
+        ],
+        "properties": {
+          "shortId": {
+            "$ref": "#/components/schemas/EnvironmentShortId"
+          }
+        }
+      },
+      "ApplicationEnvironmentOverrideByUrl": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ApplicationOverride": {
+        "type": "object",
+        "required": [
+          "applicationShortId"
+        ],
+        "properties": {
+          "applicationShortId": {
+            "$ref": "#/components/schemas/ApplicationShortId"
+          },
+          "environment": {
+            "$ref": "#/components/schemas/ApplicationEnvironmentOverride"
+          },
+          "devicePresetShortId": {
+            "$ref": "#/components/schemas/DevicePresetShortId"
+          }
+        }
+      },
+      "ApplicationShortId": {
+        "type": "string",
+        "pattern": "^app(-.+_.+|_.+)$"
+      },
+      "ConfigShortId": {
+        "type": "string",
+        "pattern": "^cfg(-.+_.+|_.+)$"
+      },
+      "CreateTestCaseRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "goal",
+          "applicationShortId"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "goal": {
+            "type": "string"
+          },
+          "expectedResult": {
+            "type": "string"
+          },
+          "resumeFromDependencyProjectTestCaseId": {
+            "type": "string"
+          },
+          "waitForDependenciesProjectTestCaseIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "configShortIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConfigShortId"
+            }
+          },
+          "applicationShortId": {
+            "$ref": "#/components/schemas/ApplicationShortId"
+          },
+          "scenarioShortId": {
+            "$ref": "#/components/schemas/ScenarioShortId"
+          }
+        }
+      },
+      "CreateTestCaseResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "testCase"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "testCase": {
+            "$ref": "#/components/schemas/TestCase"
+          }
+        }
+      },
+      "DevicePresetShortId": {
+        "type": "string",
+        "pattern": "^preset(-.+_.+|_.+)$"
+      },
+      "EnvironmentShortId": {
+        "type": "string",
+        "pattern": "^env(-.+_.+|_.+)$"
+      },
+      "GetRunQuery": {
+        "type": "object",
+        "properties": {
+          "testCases": {
+            "type": "string",
+            "enum": [
+              "failed",
+              "all"
+            ]
+          }
+        }
+      },
+      "GetRunResponse": {
+        "type": "object",
+        "required": [
+          "id",
+          "shortId",
+          "status",
+          "result",
+          "runTestCases"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shortId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string",
+            "nullable": true
+          },
+          "runTestCases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RunTestCase"
+            }
+          }
+        }
+      },
+      "GitHubTriggerFields": {
+        "type": "object",
+        "properties": {
+          "actor": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "commitHash": {
+            "type": "string"
+          },
+          "commitMessage": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          }
+        }
+      },
+      "NotificationOverride": {
+        "type": "object",
+        "required": [
+          "type",
+          "channel"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "slack"
+            ]
+          },
+          "channel": {
+            "type": "string"
+          },
+          "notifyOn": {
+            "type": "string",
+            "enum": [
+              "failure",
+              "always"
+            ]
+          }
+        }
+      },
+      "OutboundIpsResponse": {
+        "type": "object",
+        "required": [
+          "ipAddresses"
+        ],
+        "properties": {
+          "ipAddresses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RerunRequest": {
+        "type": "object",
+        "properties": {
+          "failedOnly": {
+            "type": "boolean"
+          },
+          "projectTestCaseIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RerunResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "run"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "run": {
+            "$ref": "#/components/schemas/RerunRun"
+          }
+        }
+      },
+      "RerunRun": {
+        "type": "object",
+        "required": [
+          "id",
+          "shortId",
+          "url",
+          "testCount"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shortId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "testCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Run": {
+        "type": "object",
+        "required": [
+          "id",
+          "shortId",
+          "url",
+          "testCount",
+          "testPlan"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shortId": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "testCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "testPlan": {
+            "$ref": "#/components/schemas/TestPlan"
+          }
+        }
+      },
+      "RunRequest": {
+        "type": "object",
+        "properties": {
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "API",
+              "GITHUB"
+            ]
+          },
+          "actor": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "commitHash": {
+            "type": "string"
+          },
+          "commitMessage": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          },
+          "testPlanShortId": {
+            "$ref": "#/components/schemas/TestPlanShortId"
+          },
+          "applications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationOverride"
+            }
+          },
+          "notifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationOverride"
+            }
+          }
+        }
+      },
+      "RunResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "run"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "run": {
+            "$ref": "#/components/schemas/Run"
+          }
+        }
+      },
+      "RunTestCase": {
+        "type": "object",
+        "required": [
+          "id",
+          "shortId",
+          "name",
+          "status",
+          "result",
+          "resultTitle",
+          "evaluationThought",
+          "promptGoal",
+          "promptExamples"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "shortId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string",
+            "nullable": true
+          },
+          "resultTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "evaluationThought": {
+            "type": "string",
+            "nullable": true
+          },
+          "promptGoal": {
+            "type": "string",
+            "nullable": true
+          },
+          "promptExamples": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ScenarioShortId": {
+        "type": "string",
+        "pattern": "^scenario(-.+_.+|_.+)$"
+      },
+      "TestCase": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "url"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "TestPlan": {
+        "type": "object",
+        "required": [
+          "name",
+          "shortId"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "shortId": {
+            "$ref": "#/components/schemas/TestPlanShortId"
+          }
+        }
+      },
+      "TestPlanShortId": {
+        "type": "string",
+        "pattern": "^pln(-.+_.+|_.+)$"
+      }
+    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "description": "Project API token from Settings > Integrations > API. The token is scoped to a specific project."
       }
     }
-  }
+  },
+  "servers": [
+    {
+      "url": "https://api.qa.tech/v1",
+      "description": "Production",
+      "variables": {}
+    }
+  ]
 }

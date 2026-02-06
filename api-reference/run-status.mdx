@@ -8,20 +8,21 @@ Check test run status and retrieve detailed results programmatically. This endpo
 
 ## When to Use This API
 
-- **Test result analysis** - Build dashboards or generate reports from test results
-- **Custom post-run automation** - Trigger webhooks, custom alerting, or auto-create tickets
-- **CI/CD blocking mode** - Wait for test completion before proceeding with deployments (GitLab, CircleCI, Jenkins, etc.)
+- **Test result analysis** – Build dashboards or generate reports from test results
+- **Custom post-run automation** – Trigger webhooks, custom alerting, or auto-create tickets
+- **CI/CD blocking mode** – Wait for test completion before proceeding with deployments (GitLab, CircleCI, Jenkins, etc.)
 
 For detailed examples, see:
-- **[GitLab CI Blocking Mode](/configuration/gitlab#blocking-mode)** - Complete GitLab CI/CD example
-- **[CI/CD Integration](/configuration/ci-cd-integration)** - Advanced use cases including webhooks and custom automation
+
+- **[GitLab CI Blocking Mode](/configuration/gitlab#blocking-mode)** – Complete GitLab CI/CD example
+- **[CI/CD Integration](/configuration/ci-cd-integration)** – Advanced use cases including webhooks and custom automation
 
 ## Quick Example: Polling Script
 
 Basic polling example:
 
 ```bash
-RESPONSE=$(curl -s "https://app.qa.tech/api/projects/$QATECH_PROJECT_UUID/runs/$SHORT_ID" \
+RESPONSE=$(curl -s "https://api.qa.tech/v1/run/$SHORT_ID" \
   -H "Authorization: Bearer $QATECH_API_TOKEN")
 
 STATUS=$(echo "$RESPONSE" | jq -r '.status')
@@ -39,22 +40,29 @@ fi
 ```
 
 **Variables:**
-- `$QATECH_PROJECT_UUID` - Your project's 36-character UUID (see [Finding Your Project UUID](/api-reference/introduction#finding-your-project-uuid))
-- `$SHORT_ID` - The 6-character run short ID (returned from [Start Run API](/api-reference/start-run) response: `run.shortId`)
-- `$QATECH_API_TOKEN` - Your project's API token (found in **Settings → Integrations → API**)
 
+- `$SHORT_ID` – The run short ID (returned from [Start Run API](/api-reference/start-run) response: `run.shortId`)
+- `$QATECH_API_TOKEN` – Your project's API token (found in **Settings → Integrations → API**)
 
 ## API Reference
 
 ### Endpoint
 
 ```
-GET /projects/{projectUuid}/runs/{shortId}
+GET /run/{shortId}
 ```
+
+**Base URL:** `https://api.qa.tech/v1`
+
+### Query Parameters
+
+| Parameter   | Type   | Required | Description                                                                                                                                                                                                              |
+| ----------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `testCases` | string | No       | When set, the response includes a `runTestCases` array. Use `failed` to get only failed/skipped/error test cases, or `all` to get all test cases with full details. Omit to get run metadata only (no test cases array). |
 
 ### Authentication
 
-The Get Run Status API uses Bearer token authentication. Include your project's API token in the `Authorization` header:
+Bearer token authentication. Include your project's API token in the `Authorization` header:
 
 ```
 Authorization: Bearer YOUR_API_TOKEN
@@ -64,14 +72,15 @@ You can obtain your project's API token from the QA.tech dashboard in **Settings
 
 ### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `projectUuid` | string (UUID) | Yes | Your project's UUID (36-character format) |
-| `shortId` | string | Yes | The 6-character short ID of the run (returned from Start Run API) |
+| Parameter | Type   | Required | Description                                                          |
+| --------- | ------ | -------- | -------------------------------------------------------------------- |
+| `shortId` | string | Yes      | The short ID of the run (returned from Start Run API: `run.shortId`) |
 
 ### Response Format
 
 #### Success Response (200)
+
+With `?testCases=all` or `?testCases=failed`:
 
 ```json
 {
@@ -79,7 +88,7 @@ You can obtain your project's API token from the QA.tech dashboard in **Settings
   "shortId": "abc123",
   "status": "COMPLETED",
   "result": "FAILED",
-  "failedTestCases": [
+  "runTestCases": [
     {
       "id": "test-case-uuid",
       "shortId": "xyz789",
@@ -95,107 +104,65 @@ You can obtain your project's API token from the QA.tech dashboard in **Settings
 }
 ```
 
+Without `testCases` query param, the response has the same top-level fields but **no** `runTestCases` array (or it is empty).
+
 #### Response Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string (UUID) | Internal run identifier |
-| `shortId` | string | 6-character short ID used in URLs |
-| `status` | string | Current run status (see Status Values below) |
-| `result` | string \| null | Test result when status is `COMPLETED` (see Result Values below) |
-| `failedTestCases` | array | Array of failed test cases (only populated when `result` is `FAILED`) |
+| Field          | Type           | Description                                                                       |
+| -------------- | -------------- | --------------------------------------------------------------------------------- |
+| `id`           | string (UUID)  | Internal run identifier                                                           |
+| `shortId`      | string         | Run short ID used in URLs                                                         |
+| `status`       | string         | Current run status (see Status Values below)                                      |
+| `result`       | string \| null | Test result when status is `COMPLETED` (see Result Values below)                  |
+| `runTestCases` | array          | Present when `?testCases=failed` or `?testCases=all`. Array of test case results. |
 
-#### Failed Test Case Fields
+#### Run Test Case Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string (UUID) | Test case identifier |
-| `shortId` | string | 6-character short ID |
-| `name` | string | Test case name |
-| `status` | string | Test case status |
-| `result` | string | Always `"FAILED"` in this array |
-| `resultTitle` | string | Brief failure summary |
-| `evaluationThought` | string | Detailed failure explanation |
-| `promptGoal` | string \| null | Original test goal |
-| `promptExamples` | string \| null | Example scenarios used |
+| Field               | Type           | Description                           |
+| ------------------- | -------------- | ------------------------------------- |
+| `id`                | string (UUID)  | Test case identifier                  |
+| `shortId`           | string         | Test case short ID                    |
+| `name`              | string         | Test case name                        |
+| `status`            | string         | Test case status                      |
+| `result`            | string \| null | Test result (e.g. `FAILED`, `PASSED`) |
+| `resultTitle`       | string \| null | Brief failure/summary title           |
+| `evaluationThought` | string \| null | Detailed explanation                  |
+| `promptGoal`        | string \| null | Original test goal                    |
+| `promptExamples`    | string \| null | Example scenarios used                |
 
 ### Status Values
 
-| Status | Description |
-|--------|-------------|
+| Status      | Description                          |
+| ----------- | ------------------------------------ |
 | `INITIATED` | Run has been created but not started |
-| `RUNNING` | Tests are currently executing |
-| `COMPLETED` | All tests have finished |
-| `ERROR` | Run encountered an error |
-| `CANCELLED` | Run was cancelled |
+| `RUNNING`   | Tests are currently executing        |
+| `COMPLETED` | All tests have finished              |
+| `ERROR`     | Run encountered an error             |
+| `CANCELLED` | Run was cancelled                    |
 
 ### Result Values
 
-| Result | Description |
-|--------|-------------|
-| `PASSED` | All tests passed |
-| `FAILED` | One or more tests failed |
-| `SKIPPED` | Tests were skipped |
-| `null` | Run is still in progress (status is `INITIATED` or `RUNNING`) |
-
-## Understanding the Response
-
-### Status Lifecycle
-
-The `status` field tracks the run lifecycle:
-
-1. **`INITIATED`** → Run created, queued for execution
-2. **`RUNNING`** → Tests are executing
-3. **`COMPLETED`** / **`ERROR`** / **`CANCELLED`** → Run finished
-
-### Result Field
-
-The `result` field is only meaningful when `status` is `COMPLETED`:
-
-- **`PASSED`** - All tests succeeded
-- **`FAILED`** - At least one test failed (check `failedTestCases` array for details)
-- **`SKIPPED`** - Tests were skipped
-- **`null`** - Run is still in progress (status is `INITIATED` or `RUNNING`)
-
-### Failed Test Cases
-
-When `result` is `FAILED`, the `failedTestCases` array contains details about each failed test:
-
-- `resultTitle` - Quick summary (e.g., "Could not find login button")
-- `evaluationThought` - Detailed explanation of why the test failed
-- `promptGoal` - The original test objective
+| Result    | Description                                                   |
+| --------- | ------------------------------------------------------------- |
+| `PASSED`  | All tests passed                                              |
+| `FAILED`  | One or more tests failed                                      |
+| `SKIPPED` | Tests were skipped                                            |
+| `null`    | Run is still in progress (status is `INITIATED` or `RUNNING`) |
 
 ## Error Handling
 
-### Not Found (404)
+| Status  | Description                 |
+| ------- | --------------------------- |
+| **400** | Invalid query parameters.   |
+| **401** | Missing or invalid API key. |
+| **403** | Organization suspended.     |
+| **404** | Run or project not found.   |
 
-Returned when:
-- Invalid project UUID
-- Invalid run shortId
-- Invalid API token
-
-**Response:**
-
-```json
-{
-  "statusText": "Unknown Error"
-}
-```
-
-### Forbidden (403)
-
-Returned when the organization is suspended.
-
-**Response:**
-
-```json
-{
-  "statusText": "Organization is suspended"
-}
-```
+Responses can include a body such as: `{ "message": "..." }`.
 
 ## Related Documentation
 
-- **[Start Run API](/api-reference/start-run)** - Trigger test runs programmatically
-- **[CI/CD Integration](/configuration/ci-cd-integration)** - Overview of integration modes and advanced use cases
-- **[GitLab CI](/configuration/gitlab)** - GitLab-specific integration examples with blocking mode
+- **[Start Run API](/api-reference/start-run)** – Trigger test runs programmatically
+- **[Rerun Tests](/api-reference/rerun)** – Rerun all or failed tests from a run
+- **[CI/CD Integration](/configuration/ci-cd-integration)** – Overview of integration modes and advanced use cases
+- **[GitLab CI](/configuration/gitlab)** – GitLab-specific integration examples with blocking mode

@@ -1,0 +1,41 @@
+---
+title: Get Outbound IPs
+description: 'Retrieve QA.tech outbound IP addresses for firewall allowlisting'
+icon: 'globe'
+---
+
+Use this endpoint to programmatically retrieve QA.tech's current outbound IP addresses. This is useful for configuring firewall rules or allowlists so your application can accept requests from QA.tech test runners.
+
+- **Endpoint**: `GET /outbound-ips`
+- **Authentication**: **None** – this endpoint does not require an API key
+- **Base URL**: `https://api.qa.tech/v1`
+
+## Response
+
+### Success (200)
+
+```json
+{
+  "ipAddresses": ["1.2.3.4", "5.6.7.8"]
+}
+```
+
+Add these IPs to your firewall or allowlist so QA.tech can reach your environments during test runs.
+
+### Error Responses
+
+| Status  | Description                                  |
+| ------- | -------------------------------------------- |
+| **500** | Server error (e.g. failed to fetch IP list). |
+
+## Example
+
+```bash
+curl https://api.qa.tech/v1/outbound-ips
+```
+
+No `Authorization` header is required.
+
+## Related
+
+- [IP Access Control](/configuration/ip-access-control) – Guide to allowlisting QA.tech IPs in your infrastructure

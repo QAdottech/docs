@@ -40,16 +40,16 @@ trigger_qatech:
   stage: test
   variables:
     API_TOKEN: $QA_TECH_API_TOKEN
-    QATECH_REQUEST_BODY: '{"integrationName": "GitLab", "testPlanShortId": "abc123"}'
+    QATECH_REQUEST_BODY: '{"integrationName": "GitLab", "testPlanShortId": "pln_abc123"}'
   script: >
     curl --request POST
-    --url "https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs"
+    --url "https://api.qa.tech/v1/run"
     --header "Authorization: Bearer $API_TOKEN"
     --header "Content-Type: application/json"
     --data "${QATECH_REQUEST_BODY}"
 ```
 
-Replace `YOUR_PROJECT_UUID` and `abc123` with your values.
+Replace `pln_abc123` with your test plan short ID (see Settings).
 
 ### Run on Merge Requests
 
@@ -63,7 +63,7 @@ test_mr:
     QATECH_REQUEST_BODY: '{"integrationName": "GitLab MR", "testPlanShortId": "smoke-tests"}'
   script: >
     curl --request POST
-    --url "https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs"
+    --url "https://api.qa.tech/v1/run"
     --header "Authorization: Bearer $API_TOKEN"
     --header "Content-Type: application/json"
     --data "${QATECH_REQUEST_BODY}"
@@ -97,7 +97,7 @@ test_preview:
       echo '{"integrationName":"GitLab Preview","testPlanShortId":"regression-suite","applications":{"frontend-app":{"environment":{"url":"'$PREVIEW_URL'","name":"MR-'$CI_MERGE_REQUEST_IID'"}}}}' > /tmp/request.json
   script: >
     curl --request POST
-    --url "https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs"
+    --url "https://api.qa.tech/v1/run"
     --header "Authorization: Bearer $API_TOKEN"
     --header "Content-Type: application/json"
     --data @/tmp/request.json
@@ -119,7 +119,7 @@ nightly_tests:
     QATECH_REQUEST_BODY: '{"integrationName": "GitLab Scheduled", "testPlanShortId": "full-regression"}'
   script: >
     curl --request POST
-    --url "https://app.qa.tech/api/projects/YOUR_PROJECT_UUID/runs"
+    --url "https://api.qa.tech/v1/run"
     --header "Authorization: Bearer $API_TOKEN"
     --header "Content-Type: application/json"
     --data "${QATECH_REQUEST_BODY}"
@@ -175,12 +175,11 @@ trigger_qatech:
   stage: test
   variables:
     API_TOKEN: $QA_TECH_API_TOKEN
-    PROJECT_UUID: "your-project-uuid"
   script:
     # Start run and capture shortId
     - |
       RESPONSE=$(curl -s -X POST \
-        "https://app.qa.tech/api/projects/$PROJECT_UUID/runs" \
+        "https://api.qa.tech/v1/run" \
         -H "Authorization: Bearer $API_TOKEN" \
         -H "Content-Type: application/json" \
         -d "{\"integrationName\": \"GitLab CI\", \"testPlanShortId\": \"abc123\"}")
@@ -190,7 +189,7 @@ trigger_qatech:
     - |
       while true; do
         RESPONSE=$(curl -s \
-          "https://app.qa.tech/api/projects/$PROJECT_UUID/runs/$SHORT_ID" \
+          "https://api.qa.tech/v1/run/$SHORT_ID" \
           -H "Authorization: Bearer $API_TOKEN")
         STATUS=$(echo "$RESPONSE" | jq -r '.status')
         if [[ "$STATUS" == "COMPLETED" || "$STATUS" == "ERROR" || "$STATUS" == "CANCELLED" ]]; then

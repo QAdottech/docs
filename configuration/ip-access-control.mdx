@@ -15,7 +15,7 @@ QA.tech uses a dedicated pool of static IP addresses (through NAT) for all test 
 Find the current list of QA.tech IP addresses:
 
 - **In the app:** [**Settings → Network**](https://app.qa.tech/current-project/settings/network)
-- **Direct access:** https://app.qa.tech/api/outbound-ips
+- **Direct access:** [Get Outbound IPs API](/api-reference/outbound-ips) (https://api.qa.tech/v1/outbound-ips)
 
 <Warning>
 IP addresses may change. Always use the current list from [Settings → Network](https://app.qa.tech/current-project/settings/network) or the API endpoint above.
@@ -71,7 +71,7 @@ For other CDN providers or firewall systems, add QA.tech IP addresses to your al
 
 The exact steps depend on your security provider, but the concept is the same across all platforms:
 
-1. **Get QA.tech's IP addresses** from [Settings → Network](https://app.qa.tech/current-project/settings/network) or via https://app.qa.tech/api/outbound-ips
+1. **Get QA.tech's IP addresses** from [Settings → Network](https://app.qa.tech/current-project/settings/network) or via the [Get Outbound IPs API](/api-reference/outbound-ips)
 2. **Add them to your security tool's IP allowlist/whitelist**
 3. **Configure the rule** to bypass security checks (CAPTCHA, rate limiting, etc.) for these IPs
 
