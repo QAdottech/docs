@@ -18,7 +18,7 @@ Ownership is optional - tests can remain unassigned or be assigned to any organi
     page.
   </Step>
   <Step title="Find Owner Section">
-    In the sidebar, click the **Advanced** tab to expand advanced settings.
+    In the sidebar, click the **Settings** tab, then expand the **Advanced** section.
   </Step>
   <Step title="Select Owner">
     In the **Owner** section, select a team member from the dropdown. Choose "No
@@ -55,37 +55,37 @@ You can assign an owner when creating a test plan or update it afterward:
   </Step>
 </Steps>
 
-### Bulk Assignment
+### In the Add Test Case Modal
 
-When creating multiple tests at once using the "Add Tests" modal, you can assign the same owner to all tests. Expand the **Advanced** section in the modal to find the Owner field.
+When adding a test case manually using the "Add test case" modal, expand the **Advanced** section to find the Owner field.
 
 ### Where to Assign
 
 | Where              | When to Use                     | Notes                              |
 | ------------------ | ------------------------------- | ---------------------------------- |
-| Test case editor   | Setting owner for existing test | Can update anytime in Advanced tab |
+| Test case editor   | Setting owner for existing test | In Settings tab, under Advanced section |
 | Test plan creation | Assigning owner during setup    | Optional field in creation modal   |
 | Test plan settings | Changing owner after creation   | Update in Settings tab             |
-| Bulk test creation | Same owner for multiple tests   | Set in Advanced section of modal   |
+| Add test case modal | Setting owner during creation | In Advanced section of the modal   |
 
-## My Items Dashboard
+## My items Dashboard
 
-The **My Items** tab on your project dashboard provides a focused view of everything you own.
+The **My items** tab on your project dashboard provides a focused view of everything you own.
 
-**Location:** Project dashboard → **My Items** tab
+**Location:** Project dashboard → **My items** tab
 
 | Widget               | Shows                                                           |
 | -------------------- | --------------------------------------------------------------- |
 | Test execution trend | Pass/fail trend chart for your owned tests over time            |
 | Recent failures      | Up to 5 recent failures with direct links to results            |
 | My test plans        | List of test plans you own (up to 50) with run status           |
-| My test cases        | List of test cases you own (up to 50) with enabled/draft badges |
+| My test cases        | List of test cases you own (up to 10) with enabled/draft badges |
 
 Each widget links directly to the relevant test or result page, making it easy to investigate issues or review your tests.
 
 <Note>
   When you don't own any tests or test plans, the dashboard shows empty states
-  with guidance on assigning ownership.
+  indicating where your owned items will appear.
 </Note>
 
 ## Filtering by Owner
@@ -96,7 +96,7 @@ On the test cases page, you can filter to show only tests you own:
 2. Check the **Owned by me** checkbox
 3. The list updates to show only test cases where you are the owner
 
-This filter combines with other filters (status, applications, etc.) and persists across sessions. The URL also updates, so you can share filtered views with your team.
+This filter combines with other filters (status, applications, etc.) and persists across sessions.
 
 <Tip>
   Filtering by owner is useful during sprint planning to focus on your team's
@@ -109,7 +109,7 @@ This filter combines with other filters (status, applications, etc.) and persist
 
 **Scenario:** A team owns specific feature areas.
 
-Assign test cases to the team member responsible for that feature. Use the "My Items" dashboard to track your feature's test health and filter by owner during standups.
+Assign test cases to the team member responsible for that feature. Use the "My items" dashboard to track your feature's test health and filter by owner during standups.
 
 ### Developer-Owned Tests
 
@@ -121,7 +121,7 @@ Assign ownership when creating tests via [AI Chat](/core-concepts/ai-chat-assist
 
 **Scenario:** QA team distributes test maintenance across members.
 
-Assign test plans to QA engineers. Use the execution trend chart in "My Items" to identify tests needing attention and track pass rates over time.
+Assign test plans to QA engineers. Use the execution trend chart in "My items" to identify tests needing attention and track pass rates over time.
 
 ## Best Practices
 
@@ -131,7 +131,7 @@ Assign test plans to QA engineers. Use the execution trend chart in "My Items" t
    - Leave tests unowned if ownership is unclear
 
 2. **Use the Dashboard Effectively**:
-   - Review "My Items" regularly to track your testing workload
+   - Review "My items" regularly to track your testing workload
    - Act on recent failures shown in the widget
    - Monitor execution trends to identify flaky tests
 
