@@ -1,0 +1,146 @@
+---
+title: Ownership
+description: Assign team members to test cases and test plans to organize responsibilities and track your work
+icon: user-check
+---
+
+Test ownership lets you assign team members to specific test cases and test plans. This helps organize testing responsibilities, track your work through a dedicated dashboard, and filter tests by owner.
+
+Ownership is optional - tests can remain unassigned or be assigned to any organization member.
+
+## Assigning Owners
+
+### To Test Cases
+
+<Steps>
+  <Step title="Open Test Case">
+    Navigate to the test case you want to assign and click to open the edit
+    page.
+  </Step>
+  <Step title="Find Owner Section">
+    In the sidebar, click the **Settings** tab, then expand the **Advanced** section.
+  </Step>
+  <Step title="Select Owner">
+    In the **Owner** section, select a team member from the dropdown. Choose "No
+    owner" to remove an existing assignment.
+  </Step>
+  <Step title="Save Changes">
+    Save the test case to apply the ownership change.
+  </Step>
+</Steps>
+
+<Note>
+  Ownership is saved with each test case revision. When you update a test case,
+  the owner assignment carries forward to the new revision.
+</Note>
+
+### To Test Plans
+
+You can assign an owner when creating a test plan or update it afterward:
+
+**During creation:** In the "Add Test Plan" modal, select an owner from the optional "Owner" field.
+
+**After creation:**
+
+<Steps>
+  <Step title="Open Test Plan">
+    Navigate to the test plan from the Test Plans page.
+  </Step>
+  <Step title="Go to Settings">
+    Click the **Settings** tab within the test plan.
+  </Step>
+  <Step title="Select Owner">
+    In the **Owner** section, select a team member or choose "No owner" to
+    remove the assignment.
+  </Step>
+</Steps>
+
+### In the Add Test Case Modal
+
+When adding a test case manually using the "Add test case" modal, expand the **Advanced** section to find the Owner field.
+
+### Where to Assign
+
+| Where              | When to Use                     | Notes                              |
+| ------------------ | ------------------------------- | ---------------------------------- |
+| Test case editor   | Setting owner for existing test | In Settings tab, under Advanced section |
+| Test plan creation | Assigning owner during setup    | Optional field in creation modal   |
+| Test plan settings | Changing owner after creation   | Update in Settings tab             |
+| Add test case modal | Setting owner during creation | In Advanced section of the modal   |
+
+## My items Dashboard
+
+The **My items** tab on your project dashboard provides a focused view of everything you own.
+
+**Location:** Project dashboard → **My items** tab
+
+| Widget               | Shows                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| Test execution trend | Pass/fail trend chart for your owned tests over time            |
+| Recent failures      | Up to 5 recent failures with direct links to results            |
+| My test plans        | List of test plans you own (up to 50) with run status           |
+| My test cases        | List of test cases you own (up to 10) with enabled/draft badges |
+
+Each widget links directly to the relevant test or result page, making it easy to investigate issues or review your tests.
+
+<Note>
+  When you don't own any tests or test plans, the dashboard shows empty states
+  indicating where your owned items will appear.
+</Note>
+
+## Filtering by Owner
+
+On the test cases page, you can filter to show only tests you own:
+
+1. Click the **Filters** dropdown above the test list
+2. Check the **Owned by me** checkbox
+3. The list updates to show only test cases where you are the owner
+
+This filter combines with other filters (status, applications, etc.) and persists across sessions.
+
+<Tip>
+  Filtering by owner is useful during sprint planning to focus on your team's
+  tests, or when reviewing tests you're responsible for maintaining.
+</Tip>
+
+## Common Patterns
+
+### Feature Team Ownership
+
+**Scenario:** A team owns specific feature areas.
+
+Assign test cases to the team member responsible for that feature. Use the "My items" dashboard to track your feature's test health and filter by owner during standups.
+
+### Developer-Owned Tests
+
+**Scenario:** Developers create and maintain tests for their features.
+
+Assign ownership when creating tests via [AI Chat](/core-concepts/ai-chat-assistant) or the test modal. Developers can use "Owned by me" filter to review their tests before deployments.
+
+### QA Team Organization
+
+**Scenario:** QA team distributes test maintenance across members.
+
+Assign test plans to QA engineers. Use the execution trend chart in "My items" to identify tests needing attention and track pass rates over time.
+
+## Best Practices
+
+1. **Assign Clear Ownership**:
+   - Set owners when responsibilities are defined
+   - Update ownership when team structure changes
+   - Leave tests unowned if ownership is unclear
+
+2. **Use the Dashboard Effectively**:
+   - Review "My items" regularly to track your testing workload
+   - Act on recent failures shown in the widget
+   - Monitor execution trends to identify flaky tests
+
+3. **Combine with Other Features**:
+   - Use owner filtering during sprint planning
+   - Assign owners to [test plans](/core-concepts/test-plans) for organized test management
+   - Filter by owner when reviewing test results
+
+<Tip>
+  Ownership works best when it reflects actual team structure. If you're unsure
+  who should own a test, leave it unassigned until responsibilities are clear.
+</Tip>
