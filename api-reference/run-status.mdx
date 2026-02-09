@@ -58,7 +58,7 @@ GET /run/{shortId}
 
 | Parameter   | Type   | Required | Description                                                                                                                                                                                                              |
 | ----------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `testCases` | string | No       | Controls the `runTestCases` array in the response. Use `failed` to include only failed/skipped/error test cases, or `all` to include all test cases with full details. When omitted, `runTestCases` is returned as an empty array. |
+| `testCases` | string | No       | When set, the response includes a `runTestCases` array. Use `failed` to get only failed/skipped/error test cases, or `all` to get all test cases with full details. Omit to get run metadata only (no test cases array). |
 
 ### Authentication
 

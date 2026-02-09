@@ -25,7 +25,7 @@ You can obtain your project's API token in the QA.tech dashboard: **Settings →
 
 ## Request Body
 
-The request body is required but all fields within it are optional:
+The request body is optional. When provided, it can include:
 
 | Field             | Type   | Required | Description                                        |
 | ----------------- | ------ | -------- | -------------------------------------------------- |
@@ -179,7 +179,7 @@ Use `run.shortId` to [get run status](/api-reference/run-status) or [rerun](/api
 | **401** | Missing or invalid API key.                                                                                                                       |
 | **402** | Usage limit exceeded. "Organization has reached usage limit. Upgrade your account to continue."                                                   |
 | **403** | Invalid token or organization suspended.                                                                                                          |
-| **404** | Resource not found (project, test plan, or referenced entity).                                                                                                                                |
+| **404** | Project not found.                                                                                                                                |
 | **500** | Server error.                                                                                                                                     |
 
 All error responses can include a body such as: `{ "message": "Error message" }`.
