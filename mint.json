@@ -34,11 +34,6 @@
       "icon": "square-terminal"
     },
     {
-      "name": "Discord",
-      "icon": "discord",
-      "url": "https://discord.com/invite/SuMAkMpwYv"
-    },
-    {
       "name": "Blog",
       "icon": "newspaper",
       "url": "https://qa.tech/blog/"
@@ -47,7 +42,9 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": ["core-concepts/ai-agent-testing"]
+      "pages": [
+        "core-concepts/ai-agent-testing"
+      ]
     },
     {
       "group": "Best Practices",
@@ -121,7 +118,9 @@
     },
     {
       "group": "Applications",
-      "pages": ["applications/se-bank-id"]
+      "pages": [
+        "applications/se-bank-id"
+      ]
     },
     {
       "group": "API Reference",
