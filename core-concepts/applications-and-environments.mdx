@@ -214,16 +214,16 @@ Preview environments are **automatically created** when you call the [Start Run 
 
 ```json
 {
-  "integrationName": "GitHub Actions",
-  "testPlanShortId": "abc123",
-  "applications": {
-    "frontend-app": {
+  "testPlanShortId": "pln_abc123",
+  "applications": [
+    {
+      "applicationShortId": "app_frontend",
       "environment": {
         "url": "https://pr-123-frontend.vercel.app",
         "name": "PR-123-Frontend"
       }
     }
-  }
+  ]
 }
 ```
 
@@ -269,14 +269,15 @@ Test plans allow you to configure which environment and device preset to use per
 
 ```json
 {
-  "testPlanShortId": "abc123",
-  "applications": {
-    "frontend-app": {
+  "testPlanShortId": "pln_abc123",
+  "applications": [
+    {
+      "applicationShortId": "app_frontend",
       "environment": {
         "url": "https://preview.example.com"
       }
     }
-  }
+  ]
 }
 ```
 
@@ -311,8 +312,8 @@ When using the [Start Run API](/api-reference/start-run) to override environment
 
 | ID Type | Where to Find | What It's Used For |
 |---------|---------------|-------------------|
-| Application Short ID | Settings -> Applications (column or dropdown menu) | Key in `applications` object |
-| Environment Short ID | Settings -> Applications -> [App] -> Environments (above name) | `environment.short_id` field |
+| Application Short ID | Settings -> Applications (column or dropdown menu) | `applicationShortId` in `applications` array |
+| Environment Short ID | Settings -> Applications -> [App] -> Environments (above name) | `environment.shortId` field |
 
 For detailed steps, see [Understanding Different IDs](/api-reference/introduction#understanding-different-ids).
 

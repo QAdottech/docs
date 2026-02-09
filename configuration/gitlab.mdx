@@ -39,7 +39,7 @@ trigger_qatech:
   stage: test
   variables:
     API_TOKEN: $QA_TECH_API_TOKEN
-    QATECH_REQUEST_BODY: '{"integrationName": "GitLab", "testPlanShortId": "pln_abc123"}'
+    QATECH_REQUEST_BODY: '{"testPlanShortId": "pln_abc123"}'
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
@@ -59,7 +59,7 @@ test_mr:
     - merge_requests
   variables:
     API_TOKEN: $QA_TECH_API_TOKEN
-    QATECH_REQUEST_BODY: '{"integrationName": "GitLab MR", "testPlanShortId": "pln_smoke-tests"}'
+    QATECH_REQUEST_BODY: '{"testPlanShortId": "pln_smoke-tests"}'
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
@@ -93,7 +93,7 @@ test_preview:
     API_TOKEN: $QA_TECH_API_TOKEN
   before_script:
     - |
-      echo '{"integrationName":"GitLab Preview","testPlanShortId":"pln_regression-suite","applications":[{"applicationShortId":"app_frontend","environment":{"url":"'$PREVIEW_URL'","name":"MR-'$CI_MERGE_REQUEST_IID'"}}]}' > /tmp/request.json
+      echo '{"testPlanShortId":"pln_regression-suite","applications":[{"applicationShortId":"app_frontend","environment":{"url":"'$PREVIEW_URL'","name":"MR-'$CI_MERGE_REQUEST_IID'"}}]}' > /tmp/request.json
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
@@ -115,7 +115,7 @@ nightly_tests:
     - schedules
   variables:
     API_TOKEN: $QA_TECH_API_TOKEN
-    QATECH_REQUEST_BODY: '{"integrationName": "GitLab Scheduled", "testPlanShortId": "pln_full-regression"}'
+    QATECH_REQUEST_BODY: '{"testPlanShortId": "pln_full-regression"}'
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
@@ -181,7 +181,7 @@ trigger_qatech:
         "https://api.qa.tech/v1/run" \
         -H "Authorization: Bearer $API_TOKEN" \
         -H "Content-Type: application/json" \
-        -d "{\"integrationName\": \"GitLab CI\", \"testPlanShortId\": \"pln_abc123\"}")
+        -d "{\"testPlanShortId\": \"pln_abc123\"}")
       SHORT_ID=$(echo "$RESPONSE" | jq -r '.run.shortId')
     
     # Poll until completion (see Run Status API for details)
