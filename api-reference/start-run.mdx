@@ -25,7 +25,7 @@ You can obtain your project's API token in the QA.tech dashboard: **Settings →
 
 ## Request Body
 
-The request body is required but all fields within it are optional:
+The request body is optional. When omitted, the server defaults to `trigger: "API"` and runs using the project's default test plan. All fields are optional:
 
 | Field             | Type   | Required | Description                                        |
 | ----------------- | ------ | -------- | -------------------------------------------------- |
@@ -33,6 +33,20 @@ The request body is required but all fields within it are optional:
 | `testPlanShortId` | string | No       | Test plan to execute (prefixed, e.g. `pln_abc123`) |
 | `applications`    | array  | No       | Application overrides (environment, device preset) |
 | `notifications`   | array  | No       | Slack notification overrides                       |
+
+### GitHub Trigger Fields
+
+When using `trigger: "GITHUB"` (typically from a CI/CD integration), you can include additional context fields:
+
+| Field           | Type   | Required | Description                                      |
+| --------------- | ------ | -------- | ------------------------------------------------ |
+| `actor`         | string | No       | GitHub username that triggered the workflow       |
+| `branch`        | string | No       | Branch name                                      |
+| `commitHash`    | string | No       | Full commit SHA                                  |
+| `commitMessage` | string | No       | Commit message                                   |
+| `repository`    | string | No       | Repository name (e.g. `owner/repo`)              |
+
+These fields provide attribution and context in the QA.tech dashboard. They are ignored when `trigger` is `"API"` or omitted.
 
 ### Application Overrides (`applications`)
 
