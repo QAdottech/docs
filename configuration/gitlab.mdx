@@ -115,7 +115,7 @@ nightly_tests:
     - schedules
   variables:
     API_TOKEN: $QA_TECH_API_TOKEN
-    QATECH_REQUEST_BODY: '{"testPlanShortId": "pln_full-regression"}'
+    QATECH_REQUEST_BODY: '{"testPlanShortId": "pln-full-regression_abc123"}'
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
