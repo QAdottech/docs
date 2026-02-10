@@ -59,7 +59,7 @@ test_mr:
     - merge_requests
   variables:
     API_TOKEN: $QA_TECH_API_TOKEN
-    QATECH_REQUEST_BODY: '{"testPlanShortId": "pln_smoke-tests"}'
+    QATECH_REQUEST_BODY: '{"testPlanShortId": "pln-smoke-tests_abc123"}'
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
