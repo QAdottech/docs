@@ -93,7 +93,7 @@ test_preview:
     API_TOKEN: $QA_TECH_API_TOKEN
   before_script:
     - |
-      echo '{"testPlanShortId":"pln_regression-suite","applications":[{"applicationShortId":"app_frontend","environment":{"url":"'$PREVIEW_URL'","name":"MR-'$CI_MERGE_REQUEST_IID'"}}]}' > /tmp/request.json
+      echo '{"testPlanShortId":"pln-regression-suite_abc123","applications":[{"applicationShortId":"app-frontend_abc123","environment":{"url":"'$PREVIEW_URL'","name":"MR-'$CI_MERGE_REQUEST_IID'"}}]}' > /tmp/request.json
   script: >
     curl --request POST
     --url "https://api.qa.tech/v1/run"
