@@ -19,12 +19,12 @@
   "topbarLinks": [
     {
       "name": "Support",
-      "url": "mailto:hi@qa.tech"
+      "url": "https://qa.tech/contact"
     }
   ],
   "topbarCtaButton": {
     "name": "Get Started",
-    "url": "https://app.qa.tech/auth/sign-up"
+    "url": "https://qa.tech/demo"
   },
   "anchors": [
     {
@@ -138,5 +138,11 @@
     "x": "https://x.com/getqatech",
     "github": "https://github.com/qAdottech/",
     "linkedin": "https://www.linkedin.com/company/qa-tech-ai/"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/introduction",
+      "destination": "/core-concepts/ai-agent-testing"
+    }
+  ]
 }
