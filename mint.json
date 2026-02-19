@@ -43,51 +43,21 @@
     {
       "group": "Get Started",
       "pages": [
-        "core-concepts/ai-agent-testing"
-      ]
-    },
-    {
-      "group": "Best Practices",
-      "pages": [
+        "core-concepts/ai-agent-testing",
+        "core-concepts/ai-chat-assistant",
         "best-practices/creating-tests",
-        "best-practices/running-tests",
-        "best-practices/test-results",
-        "best-practices/handle-auth",
-        "best-practices/troubleshooting"
+        "core-concepts/applications-and-environments",
+        "core-concepts/configs"
       ]
     },
     {
       "group": "Core Concepts",
       "pages": [
-        "core-concepts/ai-chat-assistant",
-        "core-concepts/knowledge-graph",
-        "core-concepts/knowledge",
-        "core-concepts/applications-and-environments",
-        "core-concepts/tests-and-results",
-        "core-concepts/ownership",
+        "best-practices/handle-auth",
+        "core-concepts/crawling",
         "core-concepts/dependencies",
         "core-concepts/test-plans",
-        "core-concepts/output-state-optimization",
-        "core-concepts/agent-cache",
-        "core-concepts/configs",
-        "core-concepts/crawling",
-        "core-concepts/issues",
-        "core-concepts/notifications",
-        "core-concepts/time-saved",
-        "core-concepts/limits"
-      ]
-    },
-    {
-      "group": "Test Features",
-      "pages": [
-        "test-features/dynamic-navigation",
-        "test-features/email-inbox",
-        "test-features/file-uploads",
-        "test-features/file-downloads",
-        "test-features/device-presets",
-        "test-features/dialog-handling",
-        "test-features/api-calls",
-        "test-features/revision-history"
+        "core-concepts/knowledge"
       ]
     },
     {
@@ -103,6 +73,41 @@
         "configuration/ip-access-control",
         "configuration/ssh-tunnel",
         "configuration/auth-rate-limits"
+      ]
+    },
+    {
+      "group": "Best Practices",
+      "pages": [
+        "best-practices/creating-tests",
+        "best-practices/running-tests",
+        "best-practices/test-results",
+        "best-practices/handle-auth",
+        "best-practices/troubleshooting"
+      ]
+    },
+    {
+      "group": "Test Features",
+      "pages": [
+        "test-features/dynamic-navigation",
+        "test-features/email-inbox",
+        "test-features/file-uploads",
+        "test-features/file-downloads",
+        "test-features/device-presets",
+        "test-features/dialog-handling",
+        "test-features/api-calls",
+        "test-features/revision-history",
+        "core-concepts/ai-chat-assistant",
+        "core-concepts/knowledge-graph",
+        "core-concepts/applications-and-environments",
+        "core-concepts/tests-and-results",
+        "core-concepts/ownership",
+        "core-concepts/output-state-optimization",
+        "core-concepts/agent-cache",
+        "core-concepts/configs",
+        "core-concepts/issues",
+        "core-concepts/notifications",
+        "core-concepts/time-saved",
+        "core-concepts/limits"
       ]
     },
     {
