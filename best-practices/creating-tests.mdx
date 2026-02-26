@@ -214,6 +214,18 @@ The expected result defines what the agent should verify at the end of the test.
   testing new features where you want fresh AI analysis.
 </Note>
 
+### Testing Email Flows
+
+When writing tests that involve emails (like password resets or notifications), follow these best practices to ensure the agent can find the correct email:
+
+- **Specify the Recipient**: Always mention the target email address in your test goal or step (e.g., "Wait for the welcome email sent to `user@example.com`").
+- **Use Descriptive Queries**: Describe the email content clearly (e.g., "Find the email with subject 'Reset Password'").
+- **Mind the Time Window**: Remember that tests can only see emails received _after_ the test started.
+  - If Test A triggers an email and finishes, Test B cannot see that email if it starts afterwards.
+  - **Solution**: Combine the trigger and verification into one test, or use dependencies where the second test triggers the email resend.
+
+For more details on how the inbox works, see [Email Inbox](/test-features/email-inbox).
+
 ### Test Dependencies
 
 Tests can depend on other tests to control execution order and reuse browser state. This is essential for complex workflows where one test needs data or state from another. Learn more in [Test Dependencies](/core-concepts/dependencies).

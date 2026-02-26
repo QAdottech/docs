@@ -1,7 +1,7 @@
 ---
 title: Configs
 description: Manage reusable data across your tests
-icon: 'gear'
+icon: "gear"
 ---
 
 <img width="700px" src="/images/configs.png" alt="Configs screenshot" />
@@ -15,11 +15,12 @@ Configs are reusable pieces of data that can be accessed across multiple tests. 
 - File uploads
 
 <Warning>
-  **Security Notice: Use Test Credentials Only**
-  
-  Config data (including passwords and credentials) is **stored unencrypted** and is passed directly to AI language models during test execution. This is by design to enable the AI agent to authenticate during testing.
-  
-  **Never use real user credentials or production passwords.** Always create dedicated test accounts with limited permissions for your QA.tech tests.
+  **Security Notice: Use Test Credentials Only** Config data (including
+  passwords and credentials) is **stored unencrypted** and is passed directly to
+  AI language models during test execution. This is by design to enable the AI
+  agent to authenticate during testing. **Never use real user credentials or
+  production passwords.** Always create dedicated test accounts with limited
+  permissions for your QA.tech tests.
 </Warning>
 
 ### Adding a New Config
@@ -39,16 +40,14 @@ Configs can be referenced in your test cases under the Settings » Configs secti
 QA.tech automatically provides several configs for common testing needs:
 
 1. **Single use Test Email Address**
-
    - Generates a unique email for each test session
    - Perfect for email verification flows
-   - Includes access to email inbox
+   - Includes access to [email inbox](/test-features/email-inbox)
 
 2. **Email for Magic Link Login**
-
    - Format: `magic-login-xxxxx@qatech.email`
    - Dedicated for magic link authentication flows
-   - Includes inbox monitoring
+   - Includes [inbox monitoring](/test-features/email-inbox)
 
 3. **Project e-mail address**
    - Format: `prj-xxxxx@qatech.email`
@@ -58,37 +57,36 @@ QA.tech automatically provides several configs for common testing needs:
 ### Creating Custom Configs
 
 1. **Username + Password Credentials**
-
    - For standard authentication
    - Fields: Username (can be email) and password
    - Optional "Use for Basic Auth" checkbox for HTTP Basic Authentication
 
    <Accordion title="When to enable Basic Auth">
-     The "Use for Basic Auth" checkbox is for **HTTP Basic Authentication**, which is different from regular login forms.
-     
-     **Enable this when your tests need to access:**
-     - Staging or testing environments protected with browser authentication popups
-     - URLs that trigger browser dialogs asking for username/password
-     - Corporate proxies or internal tools requiring basic authentication
-     - Password-protected development environments
-     
-     When enabled, QA.tech automatically supplies these credentials to the browser whenever it encounters an HTTP Basic Auth challenge, so your tests can proceed without manual intervention.
-     
+     The "Use for Basic Auth" checkbox is for **HTTP Basic Authentication**,
+     which is different from regular login forms. **Enable this when your tests
+     need to access:** - Staging or testing environments protected with browser
+     authentication popups - URLs that trigger browser dialogs asking for
+     username/password - Corporate proxies or internal tools requiring basic
+     authentication - Password-protected development environments When enabled,
+     QA.tech automatically supplies these credentials to the browser whenever it
+     encounters an HTTP Basic Auth challenge, so your tests can proceed without
+     manual intervention.
      <Note>
-       **Important:** This is for the HTTP Basic Authentication protocol (RFC 7617), not for testing login forms on your website. For regular login forms, create a Username + Password config and leave "Use for Basic Auth" disabled.
+       **Important:** This is for the HTTP Basic Authentication protocol (RFC
+       7617), not for testing login forms on your website. For regular login
+       forms, create a Username + Password config and leave "Use for Basic Auth"
+       disabled.
      </Note>
    </Accordion>
 
 2. **Username + Password Credentials - with Two-Factor Authentication**
-
    - For two-factor authentication flows
    - Includes 2FA setup (Google Authenticator/Authy)
 
 3. **Valid Email + Password Login Credentials**
-
    - Includes generated unique email
    - Password management
-   - Email inbox access
+   - [Email inbox access](/test-features/email-inbox)
 
 4. **File Upload**
    - Upload static files for testing

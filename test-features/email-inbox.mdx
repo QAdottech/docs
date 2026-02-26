@@ -1,7 +1,7 @@
 ---
 title: Email Inbox
 description: Access and manage test emails during automated testing
-icon: 'envelope'
+icon: "envelope"
 ---
 
 <img width="700px" src="/images/email-inbox-test.png" alt="Email Inbox" />
@@ -13,15 +13,33 @@ During test execution, the AI agent has access to an email inbox that can receiv
 - Email notifications
 - Newsletter subscriptions
 
-The AI agent can:
+## How It Works
 
-- Open the email inbox
-- Wait for new emails
-- Read email content
-- Extract One-Time Passwords (OTP)
-- Click links in emails
+The inbox feature is powered by a direct integration with our email backend. When a test step requires checking email (e.g., "Wait for the welcome email"), the agent queries the inbox system directly.
 
-The agent will poll for new emails for up to 3 minutes before timing out.
+- **Polling**: The agent polls for new emails for up to **3 minutes**. If no matching email is found within this time, the step fails.
+- **No Pagination**: The system always looks for the **newest** email that matches your criteria. It does not support pagination or "get more" requests.
+- **Text-Only View**: The agent sees a text summary of the email (subject, match reason, attachment summary), not the raw HTML or JSON.
+
+### What the Agent Can Do
+
+The agent interacts with the inbox in three specific ways:
+
+| Action             | Example Test Step                               | What the Agent Does                                                                                               |
+| :----------------- | :---------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| **Verify Receipt** | "Verify that a confirmation email was received" | Checks the inbox for a matching email and confirms its arrival. It sees the subject and a summary of attachments. |
+| **Click Link**     | "Click the 'Reset Password' link in the email"  | Finds the newest matching email, locates the link described in your step, and navigates the browser to it.        |
+| **Get Code (OTP)** | "Get the verification code from the email"      | Finds the email and extracts the One-Time Password (OTP) or verification code to use in the test.                 |
+
+### Filtering & Matching
+
+To find the right email, the system uses strict filtering and natural language matching:
+
+- **Recipient**: Emails are strictly filtered by the `to_address`. The agent only sees emails sent to the specific address configured for the test.
+- **Content Matching**: The agent uses your natural language query (e.g., "password reset email") to match against the subject, body, and attachments.
+- **Time Window**: The system enforces a strict time cursor based on **when the test run started**.
+  - The agent can _only_ see emails received **after** the test execution began.
+  - Emails received before the test started are invisible to the agent.
 
 ## Email Configs
 
@@ -43,6 +61,23 @@ QA.tech provides these system email configurations by default:
   src="/images/email-inbox-config.png"
   alt="Email Inbox Config"
 />
+
+### Supported Email Types
+
+The inbox feature only works with emails managed by the QA.tech system.
+
+| Config Type          | Behavior                                                            | Inbox Access |
+| :------------------- | :------------------------------------------------------------------ | :----------- |
+| **Single Use**       | Generates a unique email for **each test run**. Best for isolation. | ✅ Yes       |
+| **Fixed / Project**  | Uses a stable email address. Good for whitelisting.                 | ✅ Yes       |
+| **Email + Password** | Generates a unique email **once per config**.                       | ✅ Yes       |
+| **External Email**   | Using your own Gmail/Outlook address in a test step.                | ❌ No        |
+
+<Warning>
+  **External emails are not supported.** The agent cannot access personal
+  inboxes like Gmail or Outlook. You must use a system-generated email config
+  for the agent to read emails.
+</Warning>
 
 ## Using Email Inbox in Tests
 
@@ -73,8 +108,15 @@ You can view test emails manually:
 
 - **Shared Inboxes**: If multiple tests use the same email inbox simultaneously (e.g., two password reset tests), emails may get mixed up. Use separate email configs for concurrent tests.
 
-- **Email Inheritance**: Tests can access emails through:
-  - Direct config assignment
-  - Dependencies on other tests that use email configs
-- **Timeout**: The agent will wait up to 3 minutes for expected emails before failing
+- **Sharing Emails Between Tests**: If Test B needs to check an email triggered by Test A:
+  - **Output Values**: In Test A, save the email address as an Output Value. In Test B, use that value to tell the agent which inbox to check.
+  - **Shared Configs**: If using a Fixed/Project email, both tests can use the same config. Be mindful of the time window (Test B must start _before_ the email arrives, or you must trigger the email _during_ Test B).
+
+- **Cross-Test Limitations**: Because of the strict time window, a test cannot see emails that arrived _before_ it started.
+  - If Test A triggers an email and finishes, and then Test B starts and tries to read that email, Test B will fail to find it.
+  - **Solution**: Combine the trigger and verification into the same test, or ensure the email is triggered _after_ the verification test starts (e.g., using dependencies where the second test triggers the resend).
+
+- **Timeout**: The agent will wait up to **3 minutes** for expected emails before failing.
+  - **Extending the wait**: You can add explicit "Wait" steps (e.g., "Wait 2 minutes") before the email check. Since the inbox cursor is fixed at the start of the test run, waiting _before_ checking effectively extends the window for receiving emails.
+
 - **Invitation Links** Since the browser state will be kept when opening the email you should log out after inviting a user to avoid that the invitation link redirects to the inviters account.
