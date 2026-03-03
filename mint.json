@@ -81,7 +81,6 @@
         "best-practices/creating-tests",
         "best-practices/running-tests",
         "best-practices/test-results",
-        "best-practices/handle-auth",
         "best-practices/troubleshooting"
       ]
     },
