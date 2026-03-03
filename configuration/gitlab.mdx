@@ -11,7 +11,7 @@ Use GitLab with QA.tech in two ways:
 
 This page covers both.
 
-## What GitLab MR Reviews Do
+## What GitLab MR reviews do
 
 When enabled, QA.tech can:
 
@@ -28,7 +28,13 @@ GitLab MR reviews use the same core review pipeline as GitHub PR reviews (same Q
   integration identity.
 </Note>
 
-## Set Up GitLab MR Reviews
+<Note>
+  Automatic MR review triggering requires native GitLab deployment and
+  environment signals. If your flow does not publish those signals, use the
+  manual or CI-assisted `@qa.tech` trigger path below.
+</Note>
+
+## Set up GitLab MR reviews
 
 <Steps>
   <Step title="Connect GitLab in Organization Connections">
@@ -43,7 +49,7 @@ GitLab MR reviews use the same core review pipeline as GitHub PR reviews (same Q
     - **Review Context** (optional instructions for reviews)
     - **Auto-run on Merge Requests**
     - **Include Draft Merge Requests**
-    - **Post Comment on Opened MR**
+    - **Post Comment on Opened MR** (post an introductory QA.tech comment when an MR is opened, including waiting/progress guidance)
     - **Environment Mapping** (map GitLab environments to QA.tech applications)
 
   </Step>
@@ -52,11 +58,11 @@ GitLab MR reviews use the same core review pipeline as GitHub PR reviews (same Q
   </Step>
 </Steps>
 
-## Triggering a Merge Request Review
+## Triggering a merge request review
 
 ### Option A: Automatic trigger for native GitLab deployments
 
-If **Auto-run on Merge Requests** is enabled, QA.tech can auto-trigger reviews when deployment data is ready.
+If **Auto-run on Merge Requests** is enabled, QA.tech can auto-trigger reviews when deployment data is ready from native GitLab deployments and environments.
 
 High-level behavior:
 
@@ -69,26 +75,26 @@ High-level behavior:
 
 Comment on the merge request and mention `@qa.tech`.
 
-For best results, include the preview deployment URL in the same comment. QA.tech parses URLs from MR comments and uses that URL as deployment context for the review run.
+Include the preview deployment URL in the same comment. QA.tech parses URLs from MR comments and uses that URL as deployment context for the review run. In practice, this is required for reliable review targeting.
 
 Example:
 
 ```text
-@qa.tech please review this MR on the latest preview:
-https://preview.example.com
+@qa.tech https://preview.example.com
 ```
 
 ### Option C: CI-assisted manual trigger
 
 If your deployment process is custom, have CI post an MR comment that mentions `@qa.tech` and includes the preview URL. This gives you a consistent trigger pattern without requiring developers to comment manually each time.
 
-## GitLab MR Review Troubleshooting
+## GitLab MR review troubleshooting
 
 **No review starts after MR open**
 
 - Verify the repository is selected in GitLab integration settings.
 - Check whether **Auto-run on Merge Requests** is enabled.
 - Confirm deployment status is successful for the latest MR commit, or manually trigger with `@qa.tech`.
+- If you are not using native GitLab deployment/environment signals, use the manual `@qa.tech` trigger with a preview URL.
 
 **Draft MRs are skipped**
 
@@ -99,18 +105,18 @@ If your deployment process is custom, have CI post an MR comment that mentions `
 - Make sure the comment is on the merge request and includes `@qa.tech` (case-insensitive).
 - If you expect preview-aware testing, include the preview URL in that same comment.
 
-## API-Driven GitLab CI/CD (Manual test plan runs)
+## API-driven GitLab CI/CD (manual test plan runs)
 
-You can still trigger QA.tech test plans from GitLab CI/CD using the REST API.
+You can trigger QA.tech test plans from GitLab CI/CD using the REST API.
 
 ### Prerequisites
 
-You need two values from your [project settings](https://app.qa.tech/current-project/settings/integrations):
+You need two values before configuring your pipeline:
 
 - **API Token** - Your QA.tech API token
-- **Test Plan Short ID** - Prefixed ID from your test plan (e.g. `pln_abc123`)
+- **Test Plan Short ID** - From your test plan (e.g. `pln_abc123`)
 
-### Configure CI/CD Variables
+### Configure CI/CD variables
 
 Store your API token securely:
 
@@ -121,9 +127,9 @@ Store your API token securely:
    - **Protected**: ✅
    - **Masked**: ✅
 
-## API Implementation Patterns
+## API implementation patterns
 
-### Basic Setup
+### Basic setup
 
 ```yaml
 trigger_qatech:
@@ -139,7 +145,7 @@ trigger_qatech:
     --data "${QATECH_REQUEST_BODY}"
 ```
 
-Replace `pln_abc123` with your test plan short ID (see Settings).
+Replace `pln_abc123` with your test plan short ID (from your test plan page).
 
 ### Run test plans on merge requests
 
@@ -197,7 +203,7 @@ test_preview:
 You can also override device presets in the same request by adding `devicePresetShortId` to each application object in the `applications` array. For example, to test the preview deployment on a mobile device preset: `"applications":[{"applicationShortId":"app_frontend","environment":{"url":"'$PREVIEW_URL'"},"devicePresetShortId":"preset_abc123"}]`. See [Start Run API](/api-reference/start-run) for details.
 </Note>
 
-### Scheduled Testing
+### Scheduled testing
 
 ```yaml
 nightly_tests:
@@ -233,16 +239,18 @@ See [Test Plans](/core-concepts/test-plans#scheduled-execution) for QA.tech sche
 
 </Accordion>
 
-## API Tips
+## API tips
 
-### Finding Your Test Plan Short ID
+For shared API concepts and platform-agnostic workflows, see [CI/CD Integration](/configuration/ci-cd-integration) and [Start Run API](/api-reference/start-run). The examples below focus on GitLab-specific usage.
+
+### Finding your test plan short ID
 
 1. Go to [Test Plans](https://app.qa.tech/current-project/test-plans)
 2. Click on a test plan
 3. Check the URL: `https://app.qa.tech/.../test-plans/abc123`
-4. The short ID is `pln_abc123` (add the `pln_` prefix)
+4. Use the test plan short ID in API payloads (for example: `pln_abc123`)
 
-### Building JSON Payloads
+### Building JSON payloads
 
 For complex payloads with dynamic values, write to a file first:
 
@@ -254,11 +262,11 @@ script:
   - curl ... --data @/tmp/request.json
 ```
 
-### Custom Slack Notifications
+### Custom Slack notifications
 
 Override notification channels per-run. See [Notifications](/core-concepts/notifications#per-run-api-overrides-slack-only) for details.
 
-### Blocking Mode
+### Blocking mode
 
 Wait for test completion before proceeding with deployments:
 
