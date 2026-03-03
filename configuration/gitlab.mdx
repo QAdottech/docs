@@ -1,16 +1,107 @@
 ---
-title: GitLab CI/CD
-description: 'Integrate QA.tech testing into GitLab pipelines'
-icon: 'gitlab'
+title: GitLab Merge Request Reviews and CI/CD
+description: "Set up automated GitLab merge request reviews and API-driven test runs"
+icon: "gitlab"
 ---
 
-Trigger QA.tech test runs from your GitLab CI/CD pipelines using the REST API.
+Use GitLab with QA.tech in two ways:
+
+1. **GitLab MR Reviews (AI exploratory testing)** via the GitLab integration in QA.tech.
+2. **API-driven CI/CD test runs** via the QA.tech REST API.
+
+This page covers both.
+
+## What GitLab MR Reviews Do
+
+When enabled, QA.tech can:
+
+- detect merge request activity from your connected repository
+- post an introduction or progress comment on merge requests
+- run exploratory and end-to-end testing against your merge request
+- publish a final results-based review comment back on the merge request
+
+GitLab MR reviews use the same core review pipeline as GitHub PR reviews (same QA.tech review engine, provider-specific GitLab posting and webhook handling).
 
 <Note>
-AI-powered exploratory testing is currently GitHub-only via the [GitHub App](/configuration/github-app). For GitLab, use API-driven testing as described below.
+  QA.tech uses your connected GitLab OAuth integration to call GitLab APIs. That
+  means MR comments and review updates are posted through your connected GitLab
+  integration identity.
 </Note>
 
-## Setup
+## Set Up GitLab MR Reviews
+
+<Steps>
+  <Step title="Connect GitLab in Organization Connections">
+    Go to [Settings → Organization → Connections](https://app.qa.tech/current-project/settings/organization/connections) and connect GitLab.
+  </Step>
+  <Step title="Choose a repository in project integrations">
+    Open [Settings → Integrations](https://app.qa.tech/current-project/settings/integrations), select **GitLab**, then choose the repository you want QA.tech to review.
+  </Step>
+  <Step title="Configure MR review behavior">
+    In the GitLab integration settings, configure:
+
+    - **Review Context** (optional instructions for reviews)
+    - **Auto-run on Merge Requests**
+    - **Include Draft Merge Requests**
+    - **Post Comment on Opened MR**
+    - **Environment Mapping** (map GitLab environments to QA.tech applications)
+
+  </Step>
+  <Step title="Save integration">
+    Saving creates or refreshes the GitLab webhook connection for your selected repository so QA.tech can process merge request, note, deployment, and pipeline events.
+  </Step>
+</Steps>
+
+## Triggering a Merge Request Review
+
+### Option A: Automatic trigger for native GitLab deployments
+
+If **Auto-run on Merge Requests** is enabled, QA.tech can auto-trigger reviews when deployment data is ready.
+
+High-level behavior:
+
+1. MR is opened or updated.
+2. QA.tech checks if the MR commit is the latest and deployment(s) for that commit are ready.
+3. If deployments are ready, QA.tech starts the review flow automatically.
+4. If deployments are not ready, QA.tech can post a waiting comment (based on your setting) and wait for deployment readiness or a manual `@qa.tech` trigger.
+
+### Option B: Manual trigger using a GitLab comment
+
+Comment on the merge request and mention `@qa.tech`.
+
+For best results, include the preview deployment URL in the same comment. QA.tech parses URLs from MR comments and uses that URL as deployment context for the review run.
+
+Example:
+
+```text
+@qa.tech please review this MR on the latest preview:
+https://preview.example.com
+```
+
+### Option C: CI-assisted manual trigger
+
+If your deployment process is custom, have CI post an MR comment that mentions `@qa.tech` and includes the preview URL. This gives you a consistent trigger pattern without requiring developers to comment manually each time.
+
+## GitLab MR Review Troubleshooting
+
+**No review starts after MR open**
+
+- Verify the repository is selected in GitLab integration settings.
+- Check whether **Auto-run on Merge Requests** is enabled.
+- Confirm deployment status is successful for the latest MR commit, or manually trigger with `@qa.tech`.
+
+**Draft MRs are skipped**
+
+- Enable **Include Draft Merge Requests** if you want draft MRs reviewed.
+
+**Manual trigger did nothing**
+
+- Make sure the comment is on the merge request and includes `@qa.tech` (case-insensitive).
+- If you expect preview-aware testing, include the preview URL in that same comment.
+
+## API-Driven GitLab CI/CD (Manual test plan runs)
+
+You can still trigger QA.tech test plans from GitLab CI/CD using the REST API.
 
 ### Prerequisites
 
@@ -30,7 +121,7 @@ Store your API token securely:
    - **Protected**: ✅
    - **Masked**: ✅
 
-## Implementation Patterns
+## API Implementation Patterns
 
 ### Basic Setup
 
@@ -50,7 +141,7 @@ trigger_qatech:
 
 Replace `pln_abc123` with your test plan short ID (see Settings).
 
-### Run on Merge Requests
+### Run test plans on merge requests
 
 ```yaml
 test_mr:
@@ -68,7 +159,7 @@ test_mr:
     --data "${QATECH_REQUEST_BODY}"
 ```
 
-### Test Preview Deployments
+### Test preview deployments via API
 
 Pass dynamic URLs between jobs using dotenv artifacts:
 
@@ -133,14 +224,16 @@ Set up schedules at **CI/CD → Schedules → New schedule**.
 - You want to gate deployments on scheduled test results
 
 **Use QA.tech schedules when:**
+
 - Tests should run independently of CI/CD infrastructure
 - You prefer managing schedules in QA.tech UI
 - You want to avoid consuming GitLab runner minutes
 
 See [Test Plans](/core-concepts/test-plans#scheduled-execution) for QA.tech scheduling.
+
 </Accordion>
 
-## GitLab Tips
+## API Tips
 
 ### Finding Your Test Plan Short ID
 
@@ -183,7 +276,7 @@ trigger_qatech:
         -H "Content-Type: application/json" \
         -d "{\"testPlanShortId\": \"pln_abc123\"}")
       SHORT_ID=$(echo "$RESPONSE" | jq -r '.run.shortId')
-    
+
     # Poll until completion (see Run Status API for details)
     - |
       while true; do
@@ -204,6 +297,7 @@ See [Run Status API](/api-reference/run-status) for polling logic details and er
 ## Related Documentation
 
 - **[CI/CD Integration](/configuration/ci-cd-integration)** - Overview of integration modes
+- **[GitHub App for PR Reviews](/configuration/github-app)** - GitHub version of exploratory PR reviews
 - **[API Reference](/api-reference/start-run)** - Complete API documentation
 - **[Test Plans](/core-concepts/test-plans)** - Create and organize test plans
 - **[Preview Environments](/core-concepts/applications-and-environments#preview-environments)** - Dynamic preview testing

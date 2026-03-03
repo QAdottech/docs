@@ -1,25 +1,26 @@
 ---
-title: 'CI/CD Integration'
-description: 'Integrate QA.tech into your CI/CD workflows to automatically test your applications on every deployment, pull request, or scheduled run.'
-icon: 'rotate'
+title: "CI/CD Integration"
+description: "Integrate QA.tech into your CI/CD workflows to automatically test your applications on every deployment, pull request, or scheduled run."
+icon: "rotate"
 ---
 
 ## Two Ways to Integrate
 
 QA.tech offers two integration modes for CI/CD:
 
-| Feature | API-Driven Testing | AI Exploratory Testing |
-|:--------|:-------------------|:----------------------|
-| **How it works** | You define test plans, trigger via API | AI analyzes PR, creates & runs tests |
-| **CI/CD Support** | Any system (GitLab, GitHub, Bitbucket, Azure DevOps, CircleCI, Jenkins) | GitHub only |
-| **Test Selection** | You choose which test plan to run | AI selects relevant tests automatically |
-| **Test Creation** | You create tests in QA.tech UI or [via API](/api-reference/test-cases) | AI creates tests for new functionality |
-| **Best For** | Regression testing, scheduled runs, deployment gates | Exploratory testing of new features |
+| Feature            | API-Driven Testing                                                      | AI Exploratory Testing                  |
+| :----------------- | :---------------------------------------------------------------------- | :-------------------------------------- |
+| **How it works**   | You define test plans, trigger via API                                  | AI analyzes PR, creates & runs tests    |
+| **CI/CD Support**  | Any system (GitLab, GitHub, Bitbucket, Azure DevOps, CircleCI, Jenkins) | GitHub App and GitLab integration       |
+| **Test Selection** | You choose which test plan to run                                       | AI selects relevant tests automatically |
+| **Test Creation**  | You create tests in QA.tech UI or [via API](/api-reference/test-cases)  | AI creates tests for new functionality  |
+| **Best For**       | Regression testing, scheduled runs, deployment gates                    | Exploratory testing of new features     |
 
 <Note>
-**Which mode should you use?**
-- **API-driven**: Use for regression testing, scheduled test runs, or when you want full control over which tests run
-- **AI exploratory**: Use for GitHub PRs when you want AI to discover and test new functionality automatically
+  **Which mode should you use?** - **API-driven**: Use for regression testing,
+  scheduled test runs, or when you want full control over which tests run - **AI
+  exploratory**: Use GitHub App or GitLab integration when you want AI to
+  discover and test new functionality automatically
 </Note>
 
 ## API-Driven Testing
@@ -58,26 +59,31 @@ QA.tech works with any CI/CD platform that can make HTTP requests. We provide de
 
 **Other platforms** (Bitbucket Pipelines, Azure DevOps, CircleCI, Jenkins, and more) can integrate using the REST API directly. See the [Start Run API Reference](/api-reference/start-run) for complete API documentation and examples.
 
-## AI Exploratory Testing
+## AI Exploratory Testing (GitHub and GitLab)
 
-The QA.tech GitHub App automatically analyzes your pull requests, identifies user-facing changes, and creates tests for new functionality. It runs these tests against your PR's preview deployment and posts results directly as a PR review comment. This helps catch issues before merge without requiring you to manually write tests for every feature.
+QA.tech exploratory review integrations automatically analyze pull/merge requests, identify user-facing changes, and create tests for new functionality. They run those tests against your preview deployment context and post results back to the request discussion. This helps catch issues before merge without requiring you to manually write tests for every feature.
 
 ### How It Works
 
-1. **Analyzes PR changes** - Examines code diff and identifies user-facing changes
+1. **Analyzes request changes** - Examines code diff and identifies user-facing changes
 2. **Selects relevant tests** - Finds existing tests that apply to the changes
 3. **Creates missing tests** - Generates tests for untested functionality
 4. **Runs tests** - Executes against PR preview deployment
-5. **Posts review** - Comments on PR with test results and approval/rejection
+5. **Posts review** - Comments on the request with test results and approval/rejection
 
 ### Requirements
 
-- GitHub App installed on your repository
-- Preview deployments configured (Vercel, Netlify, Render, Railway, Fly.io supported)
-- GitHub Actions enabled (for test execution)
+- GitHub App or GitLab integration connected to your repository
+- Preview deployment context available (native deployment signals or manual `@qa.tech` comment with preview URL)
+- Repository selected in QA.tech integration settings
 
 <Note>
-AI exploratory testing is currently available for GitHub only. For other platforms, use API-driven testing. See [GitHub App](/configuration/github-app) for installation and configuration.
+AI exploratory testing is available through:
+- **[GitHub App for PR Reviews](/configuration/github-app)** for GitHub pull requests
+- **[GitLab Merge Request Reviews](/configuration/gitlab)** for GitLab merge requests
+
+For other platforms, use API-driven testing.
+
 </Note>
 
 ## Related Documentation
