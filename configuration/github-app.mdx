@@ -65,6 +65,24 @@ The agent posts reviews with:
 
 **Reviews focus on test results only** - no code quality opinions, implementation suggestions, or references to other bot comments.
 
+## What the GitHub App Writes
+
+The GitHub App needs write permissions to communicate test results back to your PR. Here is what it posts and when:
+
+| Operation                    | When                                    | Description                                                                                                                                                         |
+| :--------------------------- | :-------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **PR comment (in progress)** | When the agent starts testing           | Comment with link to the QA.tech conversation and details (branch, commit SHA, event type). Lets you track progress.                                                |
+| **PR comment (quota limit)** | When the organization is out of credits | Single comment with upgrade link. No tests run.                                                                                                                     |
+| **PR review**                | After tests complete                    | Native GitHub review with verdict (approve/request changes/comment), summary, test results table, and evaluation details. Replaces any pending review from the bot. |
+| **Reaction (eyes emoji)**    | When processing starts                  | Added to the triggering comment or PR to acknowledge it has been seen.                                                                                              |
+| **Commit status**            | During and after test run               | CI check indicator on the PR commit: pending while running, then success or failure. Links to the run in QA.tech.                                                   |
+
+<Tip>
+  If you see permission errors when installing the app, ensure the repository
+  grants write access for pull requests and statuses. The app only writes when
+  tests run or when the organization is out of credits.
+</Tip>
+
 ## Test Selection and Creation
 
 ### How Tests Are Selected
@@ -234,6 +252,11 @@ The GitHub App is fully autonomous. For manual test selection, use [GitHub Actio
 - Verify GitHub App is installed and has repository access
 - Check repository is configured in QA.tech Settings → Integrations
 - Ensure PR has user-facing changes (docs/infra-only PRs are skipped)
+- If you see 403 Forbidden, check that the app has write permissions for pull requests and statuses
+
+**We ran out of credits - what happens?**
+
+QA.tech posts a single comment on the PR with an upgrade link. No tests run. No review is posted.
 
 **Tests running against wrong URL?**
 

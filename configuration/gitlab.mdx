@@ -20,7 +20,14 @@ When enabled, QA.tech can:
 - run exploratory and end-to-end testing against your merge request
 - publish a final results-based review comment back on the merge request
 
-GitLab MR reviews use the same core review pipeline as GitHub PR reviews (same QA.tech review engine, provider-specific GitLab posting and webhook handling).
+## What QA.tech Writes on GitLab MRs
+
+QA.tech posts comments and review notes on merge requests when the integration is triggered.
+
+| Operation                    | When                                    | Description                                                                                                                                                    |
+| :--------------------------- | :-------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **MR comment (in progress)** | When the agent starts testing           | Comment with link to the QA.tech conversation and details (project, MR number, branch, event type). Lets you track progress.                                   |
+| **MR review note**           | After tests complete                    | MR note with verdict (Approved, Changes Requested, or Comment), summary, test results table, and evaluation details.                                           |
 
 <Note>
   QA.tech uses your connected GitLab OAuth integration to call GitLab APIs. That
