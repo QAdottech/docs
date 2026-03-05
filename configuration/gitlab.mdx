@@ -20,19 +20,14 @@ When enabled, QA.tech can:
 - run exploratory and end-to-end testing against your merge request
 - publish a final results-based review comment back on the merge request
 
-GitLab MR reviews use the same core review pipeline as GitHub PR reviews (same QA.tech review engine, provider-specific GitLab posting and webhook handling).
-
 ## What QA.tech Writes on GitLab MRs
 
-QA.tech posts comments and review notes on merge requests when the integration is triggered. Unlike the GitHub App, GitLab does not receive reactions or commit status updates.
+QA.tech posts comments and review notes on merge requests when the integration is triggered.
 
 | Operation                    | When                                    | Description                                                                                                                                                    |
 | :--------------------------- | :-------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **MR comment (in progress)** | When the agent starts testing           | Comment with link to the QA.tech conversation and details (project, MR number, branch, event type). Lets you track progress.                                   |
-| **MR comment (quota limit)** | When the organization is out of credits | Single comment with upgrade link. No tests run.                                                                                                                |
-| **MR review note**           | After tests complete                    | MR note with verdict (Approved, Changes Requested, or Comment), summary, test results table, and evaluation details. Same content format as GitHub PR reviews. |
-
-**GitLab vs GitHub:** The GitHub App also adds an eyes emoji reaction to acknowledge the trigger and updates the commit status (CI check) on the PR. GitLab MR reviews do not add reactions or commit statuses.
+| **MR review note**           | After tests complete                    | MR note with verdict (Approved, Changes Requested, or Comment), summary, test results table, and evaluation details.                                           |
 
 <Note>
   QA.tech uses your connected GitLab OAuth integration to call GitLab APIs. That
@@ -116,10 +111,6 @@ If your deployment process is custom, have CI post an MR comment that mentions `
 
 - Make sure the comment is on the merge request and includes `@qa.tech` (case-insensitive).
 - If you expect preview-aware testing, include the preview URL in that same comment.
-
-**Out of credits**
-
-QA.tech posts a single comment on the MR with an upgrade link. No tests run. No review is posted.
 
 ## API-driven GitLab CI/CD (manual test plan runs)
 
