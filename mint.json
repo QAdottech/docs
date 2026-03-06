@@ -95,6 +95,7 @@
         "test-features/dialog-handling",
         "test-features/api-calls",
         "test-features/revision-history",
+        "test-features/mobile-app-testing",
         "core-concepts/ai-chat-assistant",
         "core-concepts/knowledge-graph",
         "core-concepts/applications-and-environments",
@@ -122,9 +123,7 @@
     },
     {
       "group": "Applications",
-      "pages": [
-        "applications/se-bank-id"
-      ]
+      "pages": ["applications/se-bank-id"]
     },
     {
       "group": "API Reference",

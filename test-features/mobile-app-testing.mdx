@@ -1,0 +1,177 @@
+---
+title: "Mobile App Testing"
+description: "Test native iOS and Android apps with AI-powered automation"
+icon: "mobile"
+---
+
+# Mobile App Testing
+
+QA.tech supports testing native iOS and Android applications using the same AI agent that powers web testing. The agent interacts with your app through touch gestures, hardware controls, and deep links - covering the full range of user interactions on a mobile device.
+
+## Test Environments
+
+Mobile tests currently run on cloud-hosted iOS Simulators and Android Emulators. Real device testing on physical iOS and Android hardware is coming soon and will be selectable through device presets.
+
+| Environment     | Status      | Description                                 |
+| --------------- | ----------- | ------------------------------------------- |
+| Cloud emulators | Available   | iOS Simulator and Android Emulator in cloud |
+| Real devices    | Coming soon | Physical iOS and Android device testing     |
+
+The device model and OS version used for a test are selected automatically based on your uploaded app build. Device selection through device presets is coming in a future update.
+
+## Preparing Your App Build
+
+<Note>
+  Mobile testing requires a simulator or emulator build of your app, not an
+  AppStore or Play Store distribution build. Follow the steps below for your
+  platform.
+</Note>
+
+<Tabs>
+  <Tab title="iOS">
+    Prepare an **iOS Simulator build** (`.app` file compressed as `.zip` or `.tar.gz`). AppStore distribution builds (`.ipa`) are not supported - they are device-specific and cannot run on simulators.
+
+    ### Build with Xcode
+
+    Run and build your application in Xcode while targeting an iOS Simulator.
+
+    Once the build is complete and the app is running in the simulator, locate the `.app` file:
+
+    1. In Xcode, go to **Product** → **Show Build Folder in Finder**
+    2. Navigate to **Products/Debug-iphonesimulator/**
+    3. Find your `.app` file
+
+    ### Build with Xcode Command Line Tools
+
+    <CodeGroup>
+      ```bash .xcodeproj
+      xcodebuild -project '{project_name}.xcodeproj' \
+        -scheme '{scheme_name}' \
+        -sdk iphonesimulator \
+        -configuration Debug
+      ```
+
+      ```bash .xcworkspace
+      xcodebuild -workspace '{your_workspace_name}.xcworkspace' \
+        -scheme '{scheme_name}' \
+        -sdk iphonesimulator \
+        -configuration Debug
+      ```
+    </CodeGroup>
+
+    The `.app` file is output to:
+
+    ```
+    build/Debug-iphonesimulator/
+    ```
+
+    ### Compress the .app file
+
+    Once you have the `.app` file, compress it before uploading:
+
+    ```bash
+    zip -r AppName.zip AppName.app
+    ```
+
+    Upload the resulting `.zip` (or `.tar.gz`) file - not the raw `.app` directory.
+
+  </Tab>
+  <Tab title="Android">
+    Prepare an **APK file** for your app. If your project produces an Android App Bundle (`.aab`), convert it to `.apk` first using the steps below.
+
+    ### Build with Android Studio
+
+    Select **Build** → **Build APK(s)** → **Build APK(s)**
+
+    Once complete, click **locate** in the dialog that appears, or navigate to:
+
+    ```
+    {project_name}/{app_module}/build/outputs/apk/
+    ```
+
+    ### Build with Gradle
+
+    Run the `assemble` command for your preferred build variant:
+
+    ```bash
+    ./gradlew assembleDebug
+    ```
+
+    The `.apk` file is output to:
+
+    ```
+    {project_name}/{app_module}/build/outputs/apk/
+    ```
+
+    ### Convert AAB to APK
+
+    If you only have an Android App Bundle (`.aab`), convert it using [bundletool](https://developer.android.com/tools/bundletool):
+
+    ```bash
+    # Generate a universal APK set
+    bundletool build-apks --bundle=/{your_app}/{name}.aab \
+        --output=/{your_app}/{name}.apks \
+        --mode=universal
+
+    # Extract a single APK from the set
+    unzip -p /{your_app}/{name}.apks universal.apk > /{your_app}/{name}.apk
+    ```
+
+    Upload the resulting `.apk` file.
+
+  </Tab>
+</Tabs>
+
+## Setting Up a Mobile App in QA.tech
+
+<Steps>
+  <Step title="Create a Mobile Application">
+    In your project, go to **Applications** and create a new application. Select **Mobile App** as the application type.
+  </Step>
+  <Step title="Add an Environment">
+    Add an environment to your mobile application. Select the platform - **iOS** or **Android** - and give the environment a name (for example: Staging or Production).
+
+    No URL is required for mobile apps.
+
+  </Step>
+  <Step title="Upload Your App Build">
+    Upload your app build file:
+    - iOS: `.zip` or `.tar.gz` containing your `.app` simulator build (max 4 GB)
+    - Android: `.apk` file (max 4 GB)
+  </Step>
+  <Step title="Create and Run Tests">
+    Create tests for your mobile application. The AI agent will interact with your app using touch gestures and device controls.
+  </Step>
+</Steps>
+
+## AI Agent Capabilities
+
+The agent interacts with your app using the following actions:
+
+### Touch Interactions
+
+| Action         | Description                                           |
+| -------------- | ----------------------------------------------------- |
+| Tap            | Tap at a specific point on the screen                 |
+| Double tap     | Double-tap at a specific point                        |
+| Long press     | Press and hold at a point for a configurable duration |
+| Swipe          | Swipe from one point to another                       |
+| Type           | Tap a field and type text                             |
+| Clear and type | Clear an existing field value, then type              |
+
+### Device Controls
+
+| Action         | Platforms    | Description                                |
+| -------------- | ------------ | ------------------------------------------ |
+| Home button    | iOS, Android | Press the device home button               |
+| Back button    | Android only | Press the Android back button              |
+| App switcher   | iOS, Android | Open the app switcher                      |
+| Launch app     | iOS, Android | Launch an app by bundle ID or package name |
+| Close app      | iOS, Android | Close the current app                      |
+| Open URL       | iOS, Android | Open a URL or deep link                    |
+| Rotate         | Android only | Switch between portrait and landscape      |
+| Volume up/down | iOS, Android | Press hardware volume keys                 |
+
+## Requirements
+
+Mobile testing is enabled per organization. Contact [support](mailto:hi@qa.tech) to enable mobile testing for your account.
