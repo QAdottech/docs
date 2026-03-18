@@ -71,6 +71,7 @@
         "configuration/vercel-preview-protection",
         "configuration/authentication",
         "configuration/ip-access-control",
+        "bot",
         "configuration/ssh-tunnel",
         "configuration/auth-rate-limits"
       ]
@@ -147,6 +148,10 @@
     {
       "source": "/introduction",
       "destination": "/core-concepts/ai-agent-testing"
+    },
+    {
+      "source": "/bots",
+      "destination": "/bot"
     }
   ]
 }

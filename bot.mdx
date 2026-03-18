@@ -1,0 +1,74 @@
+---
+title: QA.tech Bot
+description: 'Identify and verify QA.tech automated testing traffic.'
+icon: 'robot'
+---
+
+**QATechBot** is the automated browser identity used by [QA.tech](https://qa.tech) when customers run AI-powered functional and regression tests against their own web applications. Traffic is **only sent to sites and environments the customer has explicitly configured** in QA.tech—not for crawling, indexing, or scraping the public web.
+
+---
+
+## What QATechBot does
+
+| Aspect       | Detail                                                                                                                    |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| **Purpose**  | Execute authorized end-to-end tests (clicks, navigation, forms) in a real browser, driven by customer-defined test cases. |
+| **Category** | Monitoring & testing automation (not a search engine or content harvester).                                               |
+| **Scope**    | URLs under applications and environments the customer adds in QA.tech.                                                    |
+
+---
+
+## User-Agent
+
+Requests from QA.tech browser automation append an identifiable suffix so you can recognize the bot in logs and WAF rules.
+
+**Suffix (always present on bot traffic):**
+
+```http
+QATechBot/1.0 (+https://docs.qa.tech/bot)
+```
+
+The full `User-Agent` is typically a standard Chromium-based string **plus** this suffix (device presets may vary the base browser UA).
+
+Standalone fetches that identify as the bot (e.g. when reading `robots.txt`) use:
+
+```http
+User-Agent: QATechBot/1.0 (+https://docs.qa.tech/bot)
+```
+
+---
+
+## Verifying QATechBot traffic
+
+If you use **Cloudflare Verified Bot** (or similar controls), QA.tech supports verification in two complementary ways:
+
+### 1. IP allowlist and reverse DNS
+
+- **Published IPv4 prefixes:**  
+  `https://app.qa.tech/.well-known/qatech-ips.json`  
+  (JSON with `ipv4Prefix` entries, updated as infrastructure changes.)
+
+- **Reverse DNS:** Egress IPs resolve (PTR) to **`bot.qa.tech`**, and forward DNS for `bot.qa.tech` matches those same static IPs—so IP ownership can be validated end-to-end.
+
+### 2. Web Bot Auth (signed requests)
+
+For **top-level page navigations**, QA.tech may attach **HTTP Message Signatures** ([Web Bot Auth](https://github.com/cloudflare/web-bot-auth)) so verifiers can cryptographically confirm the request came from QA.tech.
+
+- **Public key directory:**  
+  `https://app.qa.tech/.well-known/http-message-signatures-directory`
+
+Sub-resource requests (images, scripts, stylesheets) are usually **not** signed; IP validation still applies to those.
+
+---
+
+## robots.txt
+
+Where QA.tech performs discovery or policy checks against `robots.txt`, requests use the `QATechBot/1.0` user agent and respect normal robots rules for the customer’s configured URLs.
+
+---
+
+## Privacy and authorization
+
+- Tests run **on behalf of the QA.tech customer** who configured the target application.
+- QA.tech does **not** use QATechBot to index or bulk-scrape arbitrary sites.
+- If you believe traffic is unauthorized, contact your counterpart at the organization using QA.tech, or reach out to QA.tech support.
