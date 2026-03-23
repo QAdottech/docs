@@ -19,6 +19,8 @@ You can access the chat assistant by clicking the chat icon in your project dash
 | Crawl behind authentication     | "Crawl admin panel from the Login test"                 | Uses login test's session - no re-authentication needed         |
 | Bulk edit multiple tests        | "Add logout step to all checkout tests"                 | Edits multiple tests at once, shows individual diffs to review  |
 | Skip repetitive setup           | "Make this test resume from Login"                      | Inherits browser state, cookies, and session from another test  |
+| Search tracker issues           | "Find Linear issues about checkout"                     | Searches your connected Linear or Jira for matching issues      |
+| Create a tracker issue          | "Create a Jira ticket for the broken nav menu"          | Creates a new issue in your connected Linear team or Jira project |
 
 ## Core Workflows
 
@@ -159,6 +161,10 @@ It can crawl and analyze your website to discover features, search through the [
 
 The assistant can show you what [configurations](/core-concepts/configs) are available in your project, help you create new configurations for credentials and test data, and display interactive forms right in the chat to collect configuration details. It supports config types like username/password, username/password with 2FA, file uploads, and API calls.
 
+**Issue Tracking**
+
+If you have [Linear](/integrations/linear) or [Jira](/integrations/jira) connected, the assistant can search for issues by keyword, fetch a specific issue by key (e.g. `DEV-42`), list recent issues, and create new ones in your configured team or project. Jira users can also filter by issue type such as Epic, Bug, Story, or Task. If both integrations are connected, the assistant asks which tracker to use.
+
 **Help & Support**
 
 The assistant can search QA.tech's documentation to answer questions about platform features and capabilities, and provide you with contact information for customer support when you need help beyond what the AI can provide.
@@ -191,6 +197,7 @@ The assistant has access to your project's data and can perform actions on your 
 | **Configurations** | View existing configs, create new ones, show forms for credential input |
 | **Knowledge**      | Search your project's knowledge base and QA.tech documentation          |
 | **Project Info**   | Access applications, environments, device presets, test plans           |
+| **Issue Trackers** | Search, fetch, and create issues in connected [Linear](/integrations/linear) or [Jira](/integrations/jira) |
 | **Support**        | Connect you with customer support when needed                           |
 
 <Note>
