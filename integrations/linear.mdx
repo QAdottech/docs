@@ -1,6 +1,6 @@
 ---
 title: Linear
-description: 'Export QA.tech-detected issues to Linear'
+description: 'Export issues to Linear and manage them from the AI Chat Assistant'
 icon: 'bug'
 ---
 
@@ -53,3 +53,26 @@ When you export an issue, Linear receives:
 <Tip>
   Exported issues include a direct link back to QA.tech, so your team can easily access test results and occurrence details.
 </Tip>
+
+## Using Linear in Chat
+
+Once your Linear connection is set up, the [AI Chat Assistant](/core-concepts/ai-chat-assistant) can search your Linear issues and create new ones directly from the chat interface.
+
+You can ask the assistant to:
+
+- **Search issues** by keyword or topic
+- **Fetch a specific issue** by its key
+- **List recent issues** from your connected team
+- **Create new issues** with a title and description in your configured Linear team
+
+> "Search Linear for issues related to checkout"
+
+> "Show me DEV-42"
+
+> "What are the most recent issues in Linear?"
+
+> "Create a Linear issue titled 'Fix mobile nav overlap' with a description of the layout bug on small screens"
+
+<Note>
+  If you have both Linear and Jira connected, the assistant will ask which tracker you want to use before searching or creating issues.
+</Note>
