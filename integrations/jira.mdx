@@ -1,6 +1,6 @@
 ---
 title: Jira
-description: 'Export QA.tech-detected issues to Jira'
+description: 'Export issues to Jira and manage them from the AI Chat Assistant'
 icon: 'jira'
 ---
 
@@ -49,3 +49,27 @@ When you export an issue, Jira receives:
 <Tip>
   Exported issues include a direct link back to QA.tech, so your team can easily access test results and occurrence details.
 </Tip>
+
+## Using Jira in Chat
+
+Once your Jira connection is set up, the [AI Chat Assistant](/core-concepts/ai-chat-assistant) can search your Jira tickets and create new ones directly from the chat interface.
+
+You can ask the assistant to:
+
+- **Search tickets** by keyword or topic
+- **Fetch a specific ticket** by its key
+- **List recent tickets** from your connected Jira project
+- **Filter by issue type** such as Epic, Bug, Story, or Task
+- **Create new tickets** with a title and description in your configured Jira project
+
+> "Find Jira tickets about authentication failures"
+
+> "Pull up PROJ-108"
+
+> "Show me recent bugs in Jira"
+
+> "Create a Jira ticket titled 'Add rate limiting to public API' describing the need for request throttling on unauthenticated endpoints"
+
+<Note>
+  If you have both Jira and Linear connected, the assistant will ask which tracker you want to use before searching or creating tickets.
+</Note>
