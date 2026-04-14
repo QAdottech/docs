@@ -3,10 +3,16 @@
   "name": "QA.tech Docs",
   "logo": {
     "dark": "/logo/dark.svg",
-    "light": "/logo/logo.svg"
+    "light": "/logo/logo.svg",
+    "href": "https://docs.qa.tech"
   },
   "favicon": "/favicon.svg",
   "assistant": false,
+  "seo": {
+    "metatags": {
+      "canonical": "https://docs.qa.tech"
+    }
+  },
   "colors": {
     "primary": "#4F46E5",
     "light": "#F672AB",
