@@ -63,7 +63,8 @@
         "core-concepts/crawling",
         "core-concepts/dependencies",
         "core-concepts/test-plans",
-        "core-concepts/knowledge"
+        "core-concepts/knowledge",
+        "core-concepts/roles-and-permissions"
       ]
     },
     {

@@ -1,0 +1,43 @@
+---
+title: Roles and Permissions
+description: Role-based access in QA.tech
+icon: shield
+---
+
+# Organization roles and permissions
+
+Your **role** is set per **organization**. The same person can be an Owner in one organization and a Member in another.
+This page matches how the QA.tech app enforces access for billing, team management, agreements, and certain integrations. Other product areas may use the same role where noted below.
+
+## Organization Owner, Admin, and Member
+
+| Role       | In the product (short)                                                                                                                 |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Owner**  | Can change settings, invite people, and manage billing.                                                                                |
+| **Admin**  | Full product access, can invite people, and manage billing.                                                                            |
+| **Member** | Can use the product for testing and related work, but not billing or team management (see the [matrix below](#what-each-role-can-do)). |
+
+## What each role can do
+
+| Capability                                                                              | Member | Admin                                           | Owner                                               |
+| --------------------------------------------------------------------------------------- | ------ | ----------------------------------------------- | --------------------------------------------------- |
+| **Projects, tests, and day-to-day product use**                                         | Yes    | Yes                                             | Yes                                                 |
+| **Billing and subscription** (including purchase and plan changes)                      | No     | Yes                                             | Yes                                                 |
+| **Accept organization terms of use** (where the app requires it)                        | No     | Yes                                             | Yes                                                 |
+| **Invite users** to the organization                                                    | No     | Yes                                             | Yes                                                 |
+| **Change another user’s role** or **remove** them from the organization (team settings) | No     | Yes, for **Members and Admins** (not the Owner) | Yes, for **Members and Admins** (not another Owner) |
+| **Transfer ownership** (hand off Owner to someone else)                                 | No     | No                                              | Yes                                                 |
+| **Non-public organization integrations** (connectors that are not shown to all members) | No     | Yes                                             | Yes                                                 |
+
+**Notes:**
+- An **Admin** can manage other **Admins** and **Members**, but cannot use actions that only apply to the **Owner** (for example, they cannot change the Owner’s role, remove the Owner, or transfer ownership from the Owner).
+- **Transfer ownership** is only available to the current **Owner**. Ownership is not assigned when sending a normal email invite. If you need a new Owner, a current Owner uses **Transfer ownership** for an existing member.
+
+## Inviting people and choosing a role
+Only **Admins** and **Owners** can send invitations.
+When you choose a role for an invite:
+- You can assign a role that is the **same** as yours or **lower** (for example, an Admin can invite an Admin or a Member; an Owner can invite an Admin or a Member).
+- You **cannot** choose **Owner** on an invite. The **Owner** role is only granted when someone creates the organization, or when ownership is **transferred** to an existing member.
+
+## Why you might not see a button or section
+The app hides or disables actions you are not allowed to perform (for example, billing and invite flows for **Members**, or the **Transfer ownership** action when you are not the **Owner**). If you need to do something that is restricted, ask an **Admin** or the **Owner** of your organization.
