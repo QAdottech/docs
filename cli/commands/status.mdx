@@ -1,0 +1,81 @@
+---
+title: 'qatech status'
+description: 'Check or wait for the result of a test run.'
+icon: 'circle-check'
+---
+
+Returns the current status of a run, or polls until it finishes. Use this when you started a run with `qatech run` (without `--wait`) and want to check on it later.
+
+## Usage
+
+```bash
+qatech status <run-id> [options]
+```
+
+## Arguments
+
+| Argument   | Description                                                                                                 |
+| ---------- | ----------------------------------------------------------------------------------------------------------- |
+| `<run-id>` | Run short ID (e.g. `UkxK`). Returned by [`qatech run`](/cli/commands/run) and visible in the dashboard URL. |
+
+## Options
+
+| Flag                     | Short | Description                                           |
+| ------------------------ | ----- | ----------------------------------------------------- |
+| `--wait`                 | `-w`  | Poll until the run completes, then print results      |
+| `--poll-interval <secs>` |       | How often to check status when waiting (default: `5`) |
+| `--timeout <secs>`       |       | Max time to wait before giving up (default: `600`)    |
+| `--json`                 | `-j`  | Machine-readable output                               |
+| `--api-key <key>`        |       | Per-command API key override                          |
+| `--help`                 | `-h`  | Show command help                                     |
+
+## Run statuses
+
+| Status      | Meaning                                                   |
+| ----------- | --------------------------------------------------------- |
+| `INITIATED` | Queued, not yet executing                                 |
+| `RUNNING`   | Tests are running                                         |
+| `COMPLETED` | All tests finished - check `result` for `PASSED`/`FAILED` |
+| `ERROR`     | Run failed due to an infrastructure error                 |
+| `CANCELLED` | Run was cancelled before completion                       |
+
+Exit code is `1` if `result` is `FAILED`, `0` otherwise.
+
+## Examples
+
+```bash
+# One-shot status check
+qatech status UkxK
+
+# Block until finished
+qatech status UkxK --wait
+
+# Wait, then get JSON
+qatech status UkxK --wait --json
+
+# Just the top-line result
+qatech status UkxK -j | jq '.result'
+```
+
+## JSON output
+
+```json
+{
+  "shortId": "UkxK",
+  "status": "COMPLETED",
+  "result": "FAILED",
+  "runTestCases": [
+    {
+      "id": "636a990b-...",
+      "shortId": "AbCd",
+      "name": "Checkout with saved card",
+      "status": "COMPLETED",
+      "result": "FAILED",
+      "resultTitle": "Card form did not submit",
+      "evaluationThought": "..."
+    }
+  ]
+}
+```
+
+Without `--wait`, the response only includes failed test cases (`testCases=failed` server-side). With `--wait`, you get the full set.

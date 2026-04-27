@@ -1,0 +1,58 @@
+---
+title: 'qatech init'
+description: 'Generate Claude Code subagent and skill files for the QA.tech CLI.'
+icon: 'wand-magic-sparkles'
+---
+
+`qatech init` writes two files into the current project that teach Claude Code how to use this CLI:
+
+```
+.claude/agents/qa-runner.md             # subagent definition
+.claude/skills/qa-tech-cli/SKILL.md     # full CLI reference for the agent
+```
+
+These files contain no credentials and are safe to commit to your repo. Re-run with `--force` after upgrading the CLI to pull in the latest skill and agent content.
+
+## Usage
+
+```bash
+qatech init [options]
+```
+
+## Options
+
+| Flag           | Short | Description                                           |
+| -------------- | ----- | ----------------------------------------------------- |
+| `--dir <path>` | `-d`  | Target project directory (default: current directory) |
+| `--force`      | `-f`  | Overwrite existing files (useful after CLI upgrades)  |
+| `--help`       | `-h`  | Show command help                                     |
+
+## Examples
+
+```bash
+# Create files in the current project
+qatech init
+
+# Initialize a different project
+qatech init --dir /path/to/project
+
+# Refresh after upgrading the CLI
+qatech init --force
+```
+
+## What you get
+
+After running `qatech init`, Claude Code (or any agent that reads `.claude/`) can:
+
+- Invoke the `qa-runner` subagent via the **Task** tool to run E2E tests in the background.
+- Read the `qa-tech-cli` skill - a complete CLI reference with examples, ID formats, JSON shapes, and error handling - whenever it needs to use `qatech`.
+
+## Updating after CLI upgrades
+
+The skill and agent files are baked into the CLI itself, so they evolve as the CLI evolves. After `npm install -g qatech@latest`, run:
+
+```bash
+qatech init --force
+```
+
+…in each project that has the integration installed, then commit the diff.

@@ -1,0 +1,101 @@
+---
+title: 'qatech chat'
+description: 'Talk to the QA.tech agent - get test IDs, ask about coverage, and run tests against custom URLs.'
+icon: 'comment'
+---
+
+Sends a message to the QA.tech agent. The agent knows your test cases, applications, and configurations, and returns test case IDs you can pipe directly into [`qatech run`](/cli/commands/run). Useful for both scripting (single-shot) and exploration (interactive REPL).
+
+## Usage
+
+```bash
+# Single-shot
+qatech chat [options] "<message>"
+
+# Interactive REPL
+qatech chat [options]
+
+# From stdin
+echo "<message>" | qatech chat
+qatech chat --stdin <<'EOF'
+<message>
+EOF
+```
+
+## Options
+
+| Flag                             | Short | Description                                                   |
+| -------------------------------- | ----- | ------------------------------------------------------------- |
+| `--conversation <id>`            | `-c`  | Continue an existing conversation (chat short ID)             |
+| `--application-overrides <json>` |       | Override application target URLs as a JSON array              |
+| `--json`                         | `-j`  | Machine-readable output (single-shot only)                    |
+| `--stdin`                        |       | Force reading the message from stdin even when stdin is a TTY |
+| `--api-key <key>`                |       | Per-command API key override                                  |
+| `--help`                         | `-h`  | Show command help                                             |
+
+## Modes
+
+- **Single-shot** - pass a message argument or pipe stdin. Streams the agent's response, then exits.
+- **Interactive** - invoked with no message on a TTY. Drops you into a REPL; type `exit` or `quit` to leave.
+- **Resume** - pass `-c <chat-short-id>` to continue a previous conversation in either mode.
+
+## Examples
+
+```bash
+# Ask a question
+qatech chat "What tests cover the checkout flow?"
+
+# Pipe IDs into a run
+ID=$(qatech chat --json "Most critical login test, just the ID" | jq -r '.content')
+qatech run -c "$ID" --wait
+
+# Continue a conversation
+qatech chat -c chat_abc123 "Now run those tests"
+
+# Interactive REPL
+qatech chat
+```
+
+## Testing against a custom URL
+
+When you want the agent to test against a URL that isn't a configured environment - e.g. a tunnel from [`qatech tunnel`](/cli/commands/tunnel) or a PR preview - pass `--application-overrides`:
+
+```bash
+qatech chat --application-overrides '[{
+  "applicationShortId": "app-myapp_Abc123",
+  "environment": {"url": "https://preview.example.com"}
+}]' "Test the login flow"
+```
+
+For multiple apps:
+
+```bash
+qatech chat --application-overrides '[
+  {"applicationShortId": "app-myapp_Abc123",  "environment": {"url": "https://web.preview.example.com"}},
+  {"applicationShortId": "app-myapi_Def456", "environment": {"url": "https://api.preview.example.com"}}
+]' "Run the full test suite"
+```
+
+The `environment` object accepts any of:
+
+| Form                                     | When to use                                 |
+| ---------------------------------------- | ------------------------------------------- |
+| `{"url": "..."}`                         | Inline URL override (tunnel, preview, etc.) |
+| `{"shortId": "env_xxx"}`                 | Reuse a saved environment                   |
+| `{"applicationBuildShortId": "bld_xxx"}` | Pin to a specific build                     |
+
+<Note>
+  Application overrides apply to the **first** message of a conversation. When
+  resuming with `-c`, the existing conversation already has its environment.
+</Note>
+
+## JSON output
+
+```json
+{
+  "conversationShortId": "chat_abc123",
+  "messageId": "e5f6g7h8-...",
+  "content": "Here are the tests covering checkout: ...",
+  "url": "https://app.qa.tech/..."
+}
+```

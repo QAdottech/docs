@@ -1,0 +1,97 @@
+---
+title: 'qatech tunnel'
+description: 'Expose local ports to QA.tech and run tests against your dev server.'
+icon: 'link'
+---
+
+Exposes local ports to QA.tech so the agent can reach your dev server during testing. Pair with `--application-overrides` on [`qatech run`](/cli/commands/run) or [`qatech chat`](/cli/commands/chat) to point a test run at the tunnel URL.
+
+## Usage
+
+```bash
+qatech tunnel start [options]    # start a tunnel
+qatech tunnel list               # list active tunnels for your project
+qatech tunnel status <runner-id> # check tunnel health
+qatech tunnel stop <runner-id>   # tear down a tunnel
+```
+
+## Global flags
+
+These work on every subcommand:
+
+| Flag              | Short | Description                            |
+| ----------------- | ----- | -------------------------------------- |
+| `--api-key <key>` | `-k`  | API key override (or `QATECH_API_KEY`) |
+| `--api-url <url>` |       | API base URL (or `QATECH_API_URL`)     |
+| `--help`          | `-h`  | Show subcommand help                   |
+
+## `qatech tunnel start`
+
+Starts a tunnel and prints a manifest of public URLs, one per port.
+
+| Flag             | Short | Description                                                      |
+| ---------------- | ----- | ---------------------------------------------------------------- |
+| `--port <ports>` | `-p`  | Ports to expose, comma-separated, with optional labels           |
+| `--https`        |       | Local services use HTTPS (default: HTTP)                         |
+| `--public`       |       | Make the tunnel publicly accessible (no authentication required) |
+
+### Port syntax
+
+| Form        | Example                    | Result                   |
+| ----------- | -------------------------- | ------------------------ |
+| Single port | `--port 3000`              | One tunnel for port 3000 |
+| Multi-port  | `--port 3000,8080`         | One tunnel host per port |
+| Labelled    | `--port 3000:web,4000:api` | Hostnames keyed by label |
+
+A labelled multi-port tunnel returns a manifest with one URL per label:
+
+```text
+web -> https://web-<id>.quack.run
+api -> https://api-<id>.quack.run
+```
+
+### Examples
+
+```bash
+# Single port
+qatech tunnel start --port 3000
+
+# Multiple ports with labels
+qatech tunnel start --port 3000:web,4000:api
+
+# Public tunnel (no auth wrapper)
+qatech tunnel start --port 3000 --public
+
+# Local server uses HTTPS
+qatech tunnel start --port 8443 --https
+
+# Use the tunnel URL in a run
+qatech tunnel start --port 3000
+qatech run -t pln_abc123 \
+  --application-overrides '[{"applicationShortId":"app-myapp_Abc123","environment":{"url":"https://<tunnel-host>.quack.run"}}]' \
+  --wait
+```
+
+## `qatech tunnel list`
+
+```bash
+qatech tunnel list
+```
+
+Lists every active tunnel for the project - runner ID, port mapping, and public URLs.
+
+## `qatech tunnel status`
+
+```bash
+qatech tunnel status <runner-id>
+```
+
+Returns the live health status of a single tunnel.
+
+## `qatech tunnel stop`
+
+```bash
+qatech tunnel stop <runner-id>
+```
+
+Tears down a tunnel and cleans up its resources. If the tunnel process is still running in another terminal, it will exit on its own within ~30 seconds.

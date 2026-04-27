@@ -1,0 +1,92 @@
+---
+title: 'CLI Overview'
+description: 'Run QA.tech tests, inspect results, expose local servers, and chat with the QA.tech agent from the terminal.'
+icon: 'terminal'
+---
+
+# qatech CLI
+
+`qatech` is the official command-line tool for [QA.tech](https://qa.tech). It lets you run end-to-end tests, inspect results, expose local servers via tunnels, and chat with the QA.tech agent - all from the terminal.
+
+The CLI is designed to be **agent-friendly**: every command supports `--json` output, `--help` with copy-pasteable examples, and exits non-zero on failure so AI coding agents can drive it reliably from your terminal.
+
+## Install
+
+```bash
+npm install -g qatech
+```
+
+Requires Node.js 18+.
+
+## Quick start
+
+<Steps>
+  <Step title="Get an API key">
+    Sign in at [app.qa.tech](https://app.qa.tech) → **Settings → Integrations → API**.
+  </Step>
+  <Step title="Configure the CLI">
+    ```bash
+    qatech configure -k <your-api-key>
+    ```
+    The key is saved to `.qatech/config.json` in the current directory by default.
+  </Step>
+  <Step title="Discover your tests">
+    ```bash
+    qatech test-cases
+    ```
+  </Step>
+  <Step title="Run a test">
+    ```bash
+    qatech run -c <test-case-id> --wait
+    ```
+    Streams progress to your terminal and exits with code `1` if any test fails.
+  </Step>
+</Steps>
+
+## Commands
+
+| Command                                      | Description                                   |
+| -------------------------------------------- | --------------------------------------------- |
+| [`configure`](/cli/commands/configure)       | Set up API credentials                        |
+| [`test-cases`](/cli/commands/test-cases)     | List and search test cases                    |
+| [`applications`](/cli/commands/applications) | List applications in the project              |
+| [`environments`](/cli/commands/environments) | List environments for an application          |
+| [`run`](/cli/commands/run)                   | Start a test run                              |
+| [`status`](/cli/commands/status)             | Check or wait for a run's results             |
+| [`chat`](/cli/commands/chat)                 | Chat with the QA.tech agent                   |
+| [`tunnel`](/cli/commands/tunnel)             | Expose local ports via tunnels                |
+| [`init`](/cli/commands/init)                 | Generate Claude Code subagent and skill files |
+
+Run `qatech <command> --help` for detailed flags on any command.
+
+## Configuration resolution
+
+The CLI resolves credentials in this order - first match wins:
+
+1. `--api-key` flag (per-command override)
+2. `QATECH_API_KEY` environment variable
+3. `.qatech/config.json` in the current directory (project-local)
+4. `~/.qatech/config.json` (global fallback)
+
+| Environment variable | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `QATECH_API_KEY`     | API key                                       |
+| `QATECH_API_URL`     | API base URL (default: `https://api.qa.tech`) |
+| `QATECH_DEBUG`       | Set to `1` for stack traces on errors         |
+
+## Output conventions
+
+- **stdout** → data (JSON or human-readable results)
+- **stderr** → progress messages, errors, hints
+- With `--json`, stdout is always valid JSON - safe to pipe to `jq`
+- Errors with `--json` are also JSON: `{ "error": true, "message": "...", "statusCode": 401 }`
+
+This split lets you pipe results into `jq` cleanly:
+
+```bash
+qatech run -t pln_abc123 --wait --json | jq '.runTestCases[] | select(.result == "FAILED")'
+```
+
+## See also
+
+- [API reference](/api-reference/introduction)
