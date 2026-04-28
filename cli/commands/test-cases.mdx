@@ -1,0 +1,77 @@
+---
+title: 'qatech test-cases'
+description: 'List and search test cases in your project.'
+icon: 'list-check'
+---
+
+Lists the test cases in your project. Each test case has a UUID that you can pass to `qatech run -c <id>` to execute it.
+
+## Usage
+
+```bash
+qatech test-cases [options]
+```
+
+## Options
+
+| Flag                      | Short | Description                                                     |
+| ------------------------- | ----- | --------------------------------------------------------------- |
+| `--application <id>`      | `-a`  | Filter by application short ID (e.g. `app-myapp_Abc123`)        |
+| `--labels <labels>`       | `-l`  | Filter by labels (comma-separated, e.g. `smoke,critical`)       |
+| `--search <query>`        | `-s`  | Filter by name or goal text (case-insensitive, applied locally) |
+| `--enabled <true\|false>` |       | Filter by enabled/disabled status                               |
+| `--limit <n>`             |       | Max results per page (default: 100, max: 1000)                  |
+| `--offset <n>`            |       | Pagination offset (default: 0)                                  |
+| `--json`                  | `-j`  | Machine-readable output                                         |
+| `--api-key <key>`         |       | Per-command API key override                                    |
+| `--help`                  | `-h`  | Show command help                                               |
+
+`--application`, `--labels`, and `--enabled` are server-side filters. `--search` is applied locally to the returned page, so combine it with the server-side filters when you have many test cases.
+
+## Examples
+
+```bash
+# List the first 100 test cases
+qatech test-cases
+
+# Find login-related tests
+qatech test-cases --search "login"
+
+# Combine filters
+qatech test-cases --enabled true -a app-myapp_Abc123 -l smoke,critical
+
+# Pagination
+qatech test-cases --offset 100 --limit 100
+
+# Extract every test case ID
+qatech test-cases --json | jq '.testCases[].id'
+```
+
+## JSON output
+
+```json
+{
+  "testCases": [
+    {
+      "id": "636a990b-85e7-44c2-8175-58390f2184a3",
+      "name": "Login with valid credentials",
+      "isEnabled": true,
+      "labels": ["smoke", "auth"],
+      "applicationShortId": "app-myapp_Abc123",
+      "applicationName": "My App",
+      "goal": "Verify user can log in",
+      "lastRun": {
+        "runShortId": "UkxK",
+        "status": "COMPLETED",
+        "result": "PASSED",
+        "completedAt": "2026-02-26T12:00:00Z"
+      }
+    }
+  ],
+  "total": 42,
+  "limit": 100,
+  "offset": 0
+}
+```
+
+Use the `id` field with [`qatech run -c <id>`](/cli/commands/run).

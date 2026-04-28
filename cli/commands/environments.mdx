@@ -1,0 +1,43 @@
+---
+title: 'qatech environments'
+description: 'List the environments configured for an application.'
+icon: 'cubes'
+---
+
+Lists the non-preview environments for a given application along with each environment's URL and short ID.
+
+## Usage
+
+```bash
+qatech environments <application-short-id> [options]
+```
+
+## Arguments
+
+| Argument                 | Description                                                                                                           |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `<application-short-id>` | The application short ID (e.g. `app-myapp_Abc123`). Find it with [`qatech applications`](/cli/commands/applications). |
+
+## Options
+
+| Flag              | Short | Description                  |
+| ----------------- | ----- | ---------------------------- |
+| `--json`          | `-j`  | Machine-readable output      |
+| `--api-key <key>` |       | Per-command API key override |
+| `--help`          | `-h`  | Show command help            |
+
+## Examples
+
+```bash
+qatech environments app-myapp_Abc123
+qatech environments app-myapp_Abc123 --json
+```
+
+## Sample output
+
+```text
+Environments for app-myapp_Abc123:
+
+  Production: https://app.example.com (env_abc123) [production]
+  Staging:    https://staging.example.com (env_def456)
+```

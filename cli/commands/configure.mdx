@@ -1,0 +1,58 @@
+---
+title: 'qatech configure'
+description: 'Set up and inspect your QA.tech CLI credentials.'
+icon: 'gear'
+---
+
+Configures the CLI with your QA.tech API key. By default the key is saved to `.qatech/config.json` in the current directory so each project can have its own key. Use `--global` to write to `~/.qatech/config.json` as a fallback.
+
+## Usage
+
+```bash
+qatech configure [options]
+```
+
+## Options
+
+| Flag              | Short | Description                                                   |
+| ----------------- | ----- | ------------------------------------------------------------- |
+| `--api-key <key>` | `-k`  | Set the API key (saves to local config by default)            |
+| `--global`        | `-g`  | Save to `~/.qatech/config.json` instead of project-local      |
+| `--show`          | `-s`  | Show the active configuration and where each value comes from |
+| `--help`          | `-h`  | Show command help                                             |
+
+## Examples
+
+```bash
+# Interactive setup (saves locally)
+qatech configure
+
+# Non-interactive - set the project-local key
+qatech configure -k <your-api-key>
+
+# Set the global fallback key
+qatech configure -k <your-api-key> --global
+
+# Inspect what the CLI is using
+qatech configure --show
+```
+
+## Resolution order
+
+The resolved key is the first match from:
+
+1. `--api-key` flag on the running command
+2. `QATECH_API_KEY` environment variable
+3. `.qatech/config.json` in the current directory (project-local)
+4. `~/.qatech/config.json` (global fallback)
+
+`qatech configure --show` reports the active key (masked), the source it came from, and both config file paths so you can see exactly which file you're editing.
+
+## Security
+
+The config file stores your raw API key - treat it like any other credential. Add `.qatech/` to your `.gitignore` if you want to keep project-local keys out of source control.
+
+<Tip>
+  Get your API key from [app.qa.tech](https://app.qa.tech) → **Settings →
+  Integrations → API**.
+</Tip>

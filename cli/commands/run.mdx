@@ -1,0 +1,107 @@
+---
+title: 'qatech run'
+description: 'Start a test run by test plan or individual test cases.'
+icon: 'play'
+---
+
+Starts a QA.tech test run. Pass either a test plan or one or more individual test cases. With `--wait`, the command polls until completion and exits non-zero on failure.
+
+## Usage
+
+```bash
+qatech run (-t <test-plan-id> | -c <test-case-id> ...) [options]
+```
+
+You must provide either `--test-plan` **or** one or more `--test-case` flags - not both.
+
+## Options
+
+| Flag                             | Short | Description                                                                              |
+| -------------------------------- | ----- | ---------------------------------------------------------------------------------------- |
+| `--test-plan <id>`               | `-t`  | Test plan short ID (e.g. `pln_abc123`)                                                   |
+| `--test-case <id>`               | `-c`  | Test case UUID (repeatable)                                                              |
+| `--application-overrides <json>` |       | JSON array of application overrides - point apps at custom URLs, environments, or builds |
+| `--wait`                         | `-w`  | Poll until the run finishes, then print results                                          |
+| `--poll-interval <secs>`         |       | How often to check status when waiting (default: `5`)                                    |
+| `--timeout <secs>`               |       | Max time to wait before giving up (default: `600`)                                       |
+| `--json`                         | `-j`  | Machine-readable output. Progress goes to stderr.                                        |
+| `--api-key <key>`                |       | Per-command API key override                                                             |
+| `--help`                         | `-h`  | Show command help                                                                        |
+
+## Behavior
+
+- **Without `--wait`** - prints the run short ID and exits immediately.
+- **With `--wait`** - polls until `COMPLETED`, `ERROR`, or `CANCELLED`, then prints results.
+- Exit code is `1` if any test case ends as `FAILED`, `0` otherwise.
+- With `--wait --json`, progress logs go to stderr so stdout stays clean JSON.
+
+## Examples
+
+```bash
+# Run a full test plan and wait for results
+qatech run -t pln_abc123 --wait
+
+# Run specific test cases
+qatech run -c 636a990b-85e7-44c2-8175-58390f2184a3 --wait
+
+# Run multiple test cases with JSON output
+qatech run -c <id1> -c <id2> -w --json
+
+# Run against a preview deployment
+qatech run -t pln_abc123 \
+  --application-overrides '[{"applicationShortId":"app-myapp_Abc123","environment":{"url":"https://preview.example.com"}}]' \
+  --wait
+
+# Fire-and-forget - check later with `qatech status`
+qatech run -t pln_abc123
+```
+
+## Application overrides
+
+`--application-overrides` redirects one or more applications to a different URL, saved environment, or build for this run. Same JSON shape as [`qatech chat --application-overrides`](/cli/commands/chat) - useful for testing preview deployments, tunnels from [`qatech tunnel`](/cli/commands/tunnel), or any URL not configured as a saved environment.
+
+```bash
+qatech run -t pln_abc123 \
+  --application-overrides '[
+    {"applicationShortId": "app-myapp_Abc123",  "environment": {"url": "https://web.preview.example.com"}},
+    {"applicationShortId": "app-myapi_Def456", "environment": {"url": "https://api.preview.example.com"}}
+  ]' \
+  --wait --json
+```
+
+The `environment` object accepts any of:
+
+| Form                                     | When to use                                 |
+| ---------------------------------------- | ------------------------------------------- |
+| `{"url": "..."}`                         | Inline URL override (tunnel, preview, etc.) |
+| `{"shortId": "env_xxx"}`                 | Reuse a saved environment                   |
+| `{"applicationBuildShortId": "bld_xxx"}` | Pin to a specific build                     |
+
+## JSON output
+
+The shape returned by `qatech run --wait --json` matches [`qatech status --json`](/cli/commands/status):
+
+```json
+{
+  "shortId": "UkxK",
+  "status": "COMPLETED",
+  "result": "PASSED",
+  "runTestCases": [
+    {
+      "id": "636a990b-...",
+      "shortId": "AbCd",
+      "name": "Login with valid credentials",
+      "status": "COMPLETED",
+      "result": "PASSED",
+      "resultTitle": null,
+      "evaluationThought": "The test passed because..."
+    }
+  ]
+}
+```
+
+Key fields:
+
+- `result` - `"PASSED" | "FAILED" | "SKIPPED" | null`
+- `runTestCases[].resultTitle` - human-readable failure reason (`null` if passed)
+- `runTestCases[].evaluationThought` - agent's reasoning about the result

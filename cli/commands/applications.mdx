@@ -1,0 +1,37 @@
+---
+title: 'qatech applications'
+description: 'List the applications in your QA.tech project.'
+icon: 'cube'
+---
+
+Lists every application in the project with its short ID and type (web or mobile). Use the short ID with [`qatech environments`](/cli/commands/environments) or with `--application-overrides` on [`qatech run`](/cli/commands/run) and [`qatech chat`](/cli/commands/chat).
+
+## Usage
+
+```bash
+qatech applications [options]
+```
+
+## Options
+
+| Flag              | Short | Description                  |
+| ----------------- | ----- | ---------------------------- |
+| `--json`          | `-j`  | Machine-readable output      |
+| `--api-key <key>` |       | Per-command API key override |
+| `--help`          | `-h`  | Show command help            |
+
+## Examples
+
+```bash
+qatech applications
+qatech applications --json
+```
+
+## Sample output
+
+```text
+Applications:
+
+  My Web App (app-myapp_Abc123) - web
+  My Mobile App (app-mymobile_Def456) - mobile
+```

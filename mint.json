@@ -134,6 +134,26 @@
       "pages": ["applications/se-bank-id"]
     },
     {
+      "group": "CLI",
+      "pages": [
+        "cli/overview",
+        {
+          "group": "Commands",
+          "pages": [
+            "cli/commands/configure",
+            "cli/commands/test-cases",
+            "cli/commands/applications",
+            "cli/commands/environments",
+            "cli/commands/run",
+            "cli/commands/status",
+            "cli/commands/chat",
+            "cli/commands/tunnel",
+            "cli/commands/init"
+          ]
+        }
+      ]
+    },
+    {
       "group": "API Reference",
       "pages": [
         "api-reference/introduction",
