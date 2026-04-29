@@ -110,6 +110,7 @@
         "core-concepts/tests-and-results",
         "core-concepts/ownership",
         "core-concepts/output-state-optimization",
+        "core-concepts/session-state-lifetime",
         "core-concepts/agent-cache",
         "core-concepts/configs",
         "core-concepts/issues",

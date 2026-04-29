@@ -1,0 +1,68 @@
+---
+title: 'Session State Lifetime'
+description: 'Control how long saved browser states from dependency tests remain valid before requiring a fresh run'
+icon: 'clock'
+---
+
+Session State Lifetime controls how long [dependency output states](/core-concepts/output-state-optimization) are considered valid. When a test with a ["Resume From" dependency](/core-concepts/dependencies#resume-from) completes successfully, QA.tech captures the browser session state — cookies, local storage, and indexed DB — at the end of the test. Other tests that depend on it can then resume from that saved state instead of re-running the dependency.
+
+Once the Session State Lifetime expires, the saved state is no longer reused. The dependency test runs again from scratch to produce a fresh state.
+
+<Tip>
+  The default lifetime is **6 hours**, which works well for most applications. You only need to change this if your tests are failing due to expired sessions or if you want to optimize execution time for long-lived sessions.
+</Tip>
+
+## Why Change the Default?
+
+The right lifetime depends on how long your application's sessions stay valid.
+
+**If your sessions are shorter than 6 hours**, tests resuming from an old output state will encounter expired sessions and fail. Lowering the lifetime to match your token expiry prevents this.
+
+**If your sessions are longer than 6 hours**, you can increase the lifetime to reduce how often dependency tests re-run, saving execution time.
+
+### Common Scenarios
+
+| Application Type | Typical Session Duration | Recommended Lifetime |
+|:---|:---|:---|
+| Banking / financial apps | 15–30 minutes | 15 or 30 minutes |
+| Apps with short-lived JWT tokens | 1–2 hours | 1–2 hours |
+| Standard web applications | 4–8 hours | 6 hours (default) |
+| Apps with "remember me" or long-lived sessions | 12–24+ hours | 12–24 hours |
+
+## How to Configure
+
+<Steps>
+  <Step title="Open Application Settings">
+    Go to **Project Settings → Applications**, then select the application you want to configure and click **Edit**.
+  </Step>
+  <Step title="Set the Lifetime">
+    Find the **Session State Lifetime** dropdown and choose a value between 5 minutes and 7 days.
+  </Step>
+  <Step title="Save">
+    Click **Update Application**. The change takes effect immediately for all tests under that application.
+  </Step>
+</Steps>
+
+<Note>
+  Existing output states older than the new lifetime are immediately considered expired. If you lower the lifetime, dependency tests that were previously skipped may need to run again on the next execution.
+</Note>
+
+## How It Affects Test Execution
+
+When QA.tech runs a test with dependencies, it checks whether a valid (non-expired) output state exists for each "Resume From" dependency:
+
+- **Valid state exists** — the dependency test is skipped and the saved browser state is used directly
+- **No valid state** (expired or never created) — the dependency test runs first to produce a fresh state
+
+This means:
+
+- **Lowering the lifetime** → dependency tests run more frequently. More reliable when sessions expire quickly, but increases total execution time.
+- **Raising the lifetime** → dependency tests are skipped more often. Faster execution, but risks resuming from a stale session if your application's tokens expire before the lifetime does.
+
+## Important Notes
+
+- **Per-application setting** — different applications in the same project can have different lifetimes.
+- **Retroactive** — changing the lifetime immediately affects whether existing output states are considered valid.
+- **Explicit invalidation** — output states can be [manually invalidated](/core-concepts/output-state-optimization) regardless of the lifetime setting, for example by clicking "Run w. Dependencies" to force a fresh run.
+- **Same-run trust** — when a test is re-run within the same run (e.g., retrying failed tests), output states produced during that run are always trusted regardless of the lifetime setting.
+- **Manual overrides** — output states explicitly selected in the test editor bypass the lifetime check.
