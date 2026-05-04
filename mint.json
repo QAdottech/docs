@@ -162,6 +162,11 @@
         "api-reference/run-status",
         "api-reference/rerun",
         "api-reference/test-cases",
+        "api-reference/list-test-cases",
+        "api-reference/chat",
+        "api-reference/applications",
+        "api-reference/remote-tunnels",
+        "api-reference/application-builds",
         "api-reference/outbound-ips"
       ]
     }

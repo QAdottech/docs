@@ -1,0 +1,199 @@
+---
+title: Applications API
+description: 'List applications and their environments programmatically'
+icon: 'browser'
+---
+
+Retrieve applications and their environments from your project. Use these endpoints to discover application and environment short IDs for use with other API endpoints like [Start Run](/api-reference/start-run) and [Chat](/api-reference/chat).
+
+- **Base URL**: `https://api.qa.tech/v1`
+- **Authentication**: Bearer token (project API token)
+
+## Authentication
+
+Include your project's API token in the `Authorization` header:
+
+```
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+Find your API token in the QA.tech dashboard: **Settings → Integrations → API**.
+
+## List Applications
+
+Retrieve all applications in your project.
+
+**Endpoint**: `GET /applications`
+
+### Response (200)
+
+```json
+{
+  "applications": [
+    {
+      "shortId": "app_gXeBl2",
+      "name": "Main Web App",
+      "kind": "web"
+    },
+    {
+      "shortId": "app_mK9pR4",
+      "name": "Mobile App",
+      "kind": "ios"
+    },
+    {
+      "shortId": "app_dF7nT1",
+      "name": "Android App",
+      "kind": "android"
+    }
+  ]
+}
+```
+
+### Response Fields
+
+| Field          | Type   | Description                                  |
+| -------------- | ------ | -------------------------------------------- |
+| `applications` | array  | Array of application objects                 |
+
+### Application Fields
+
+| Field     | Type   | Description                                      |
+| --------- | ------ | ------------------------------------------------ |
+| `shortId` | string | Application short ID (e.g. `app_gXeBl2`)         |
+| `name`    | string | Application display name                         |
+| `kind`    | string | Application type: `web`, `ios`, or `android`     |
+
+### Example
+
+```bash
+curl "https://api.qa.tech/v1/applications" \
+  -H "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+## List Environments
+
+Retrieve all environments for a specific application.
+
+**Endpoint**: `GET /applications/{applicationShortId}/environments`
+
+### Path Parameters
+
+| Parameter            | Type   | Required | Description                              |
+| -------------------- | ------ | -------- | ---------------------------------------- |
+| `applicationShortId` | string | Yes      | Application short ID (e.g. `app_gXeBl2`) |
+
+### Response (200)
+
+```json
+{
+  "environments": [
+    {
+      "shortId": "env_aB3xY9",
+      "name": "Production",
+      "url": "https://app.example.com",
+      "isProduction": true
+    },
+    {
+      "shortId": "env_cD5zW2",
+      "name": "Staging",
+      "url": "https://staging.example.com",
+      "isProduction": false
+    },
+    {
+      "shortId": "env_eF7vU4",
+      "name": "Development",
+      "url": "https://dev.example.com",
+      "isProduction": false
+    }
+  ]
+}
+```
+
+### Response Fields
+
+| Field          | Type   | Description                       |
+| -------------- | ------ | --------------------------------- |
+| `environments` | array  | Array of environment objects      |
+
+### Environment Fields
+
+| Field          | Type           | Description                                   |
+| -------------- | -------------- | --------------------------------------------- |
+| `shortId`      | string         | Environment short ID (e.g. `env_aB3xY9`)      |
+| `name`         | string         | Environment display name                      |
+| `url`          | string \| null | Base URL for the environment                  |
+| `isProduction` | boolean        | Whether this is the production environment    |
+
+### Example
+
+```bash
+curl "https://api.qa.tech/v1/applications/app_gXeBl2/environments" \
+  -H "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+## Use Cases
+
+### Discovering IDs for API Calls
+
+Use these endpoints to programmatically discover application and environment IDs:
+
+```bash
+# Get all applications
+APPS=$(curl -s "https://api.qa.tech/v1/applications" \
+  -H "Authorization: Bearer YOUR_API_TOKEN")
+
+# Extract the first application's short ID
+APP_ID=$(echo "$APPS" | jq -r '.applications[0].shortId')
+
+# Get environments for that application
+ENVS=$(curl -s "https://api.qa.tech/v1/applications/$APP_ID/environments" \
+  -H "Authorization: Bearer YOUR_API_TOKEN")
+
+# Find the staging environment
+STAGING_ENV=$(echo "$ENVS" | jq -r '.environments[] | select(.name == "Staging") | .shortId')
+
+echo "Application: $APP_ID"
+echo "Staging Environment: $STAGING_ENV"
+```
+
+### Dynamic Environment Selection in CI/CD
+
+```bash
+# In your CI/CD pipeline
+APP_ID="app_gXeBl2"
+
+# Find the non-production environment to test against
+ENV_ID=$(curl -s "https://api.qa.tech/v1/applications/$APP_ID/environments" \
+  -H "Authorization: Bearer $QATECH_API_TOKEN" \
+  | jq -r '.environments[] | select(.isProduction == false) | .shortId' | head -1)
+
+# Start a test run with the discovered environment
+curl -X POST "https://api.qa.tech/v1/run" \
+  -H "Authorization: Bearer $QATECH_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"testPlanShortId\": \"pln_abc123\",
+    \"applications\": [{
+      \"applicationShortId\": \"$APP_ID\",
+      \"environment\": { \"shortId\": \"$ENV_ID\" }
+    }]
+  }"
+```
+
+## Error Responses
+
+| Status  | Description                                |
+| ------- | ------------------------------------------ |
+| **401** | Missing or invalid API key                 |
+| **403** | Invalid token or organization suspended    |
+| **404** | Project or application not found           |
+| **500** | Server error                               |
+
+Error responses include a body: `{ "message": "Error description" }`.
+
+## Related
+
+- [Start Run API](/api-reference/start-run) – Use application/environment IDs to run tests
+- [Chat API](/api-reference/chat) – Use application overrides in chat conversations
+- [Applications and Environments](/core-concepts/applications-and-environments) – Learn about the application model
+- [API Introduction](/api-reference/introduction) – Authentication and ID reference

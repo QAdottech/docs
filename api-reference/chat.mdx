@@ -1,0 +1,328 @@
+---
+title: Chat API
+description: 'Interact with the QA.tech AI Chat Assistant programmatically'
+icon: 'message-bot'
+---
+
+The Chat API enables programmatic interaction with QA.tech's AI Chat Assistant. Create conversations, send messages, start change reviews, and poll for responses—all via REST API. This is ideal for integrating QA.tech's AI capabilities into your automation workflows, project management systems, or custom tooling.
+
+- **Base URL**: `https://api.qa.tech/v1`
+- **Authentication**: Bearer token (project API token)
+- **Content-Type**: `application/json`
+
+## When to Use This API
+
+- **Automated test creation** – Send context from your system to create tests without opening the QA.tech UI
+- **PR/Change reviews** – Automatically trigger AI-powered change reviews from CI/CD pipelines
+- **Custom integrations** – Build buttons or workflows in your project management tools that interact with QA.tech Chat
+- **AI-assisted QA workflows** – Let your automation systems communicate with QA.tech's AI assistant
+
+## Authentication
+
+All Chat API endpoints require Bearer token authentication:
+
+```
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+Find your API token in the QA.tech dashboard: **Settings → Integrations → API**.
+
+## Create Chat Conversation
+
+Create a new chat conversation and send the first message. Processing is asynchronous—poll the [Get Conversation](#get-conversation) endpoint until the assistant's response is complete.
+
+**Endpoint**: `POST /chat`
+
+### Request Body
+
+| Field                  | Type   | Required | Description                                                              |
+| ---------------------- | ------ | -------- | ------------------------------------------------------------------------ |
+| `message`              | string | Yes      | The message text to send (min 1 character)                               |
+| `applicationOverrides` | array  | No       | Per-application environment overrides for this conversation (see below) |
+
+### Application Overrides
+
+Each object in the `applicationOverrides` array:
+
+| Field                  | Type   | Required | Description                                      |
+| ---------------------- | ------ | -------- | ------------------------------------------------ |
+| `applicationShortId`   | string | Yes      | Application short ID (e.g. `app_gXeBl2`)         |
+| `devicePresetShortId`  | string | No       | Device preset short ID (e.g. `preset_abc123`)    |
+| `environment`          | object | Yes      | Environment override (see below)                 |
+
+**Environment override** – use one of:
+
+- **By URL**: `{ "url": "https://...", "name": "Optional name" }`
+- **By short ID**: `{ "shortId": "env_aB3xY9" }`
+- **By build**: `{ "applicationBuildShortId": "build_abc123" }` (for mobile apps)
+
+### Response (202 Accepted)
+
+```json
+{
+  "shortId": "chat_abc123",
+  "url": "https://app.qa.tech/p/your-project/chat/chat_abc123",
+  "title": null,
+  "createdAt": "2026-05-04T10:30:00.000Z",
+  "updatedAt": "2026-05-04T10:30:00.000Z",
+  "source": "api",
+  "messages": []
+}
+```
+
+The response returns immediately with 202. The `messages` array is empty on creation. Poll [Get Conversation](#get-conversation) to retrieve the assistant's reply.
+
+### Example
+
+```bash
+curl -X POST https://api.qa.tech/v1/chat \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Generate a login flow test for our staging environment"
+  }'
+```
+
+### Example with Environment Override
+
+```bash
+curl -X POST https://api.qa.tech/v1/chat \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Create a test for the checkout flow",
+    "applicationOverrides": [
+      {
+        "applicationShortId": "app_gXeBl2",
+        "environment": {
+          "url": "https://pr-123.preview.example.com",
+          "name": "PR-123 Preview"
+        }
+      }
+    ]
+  }'
+```
+
+## Start Change Review
+
+Create a conversation that initiates an AI-powered change review. Supports two modes: reviewing a pull request URL or raw code changes.
+
+**Endpoint**: `POST /chat/change-review`
+
+### Request Body (PR Mode)
+
+| Field                  | Type   | Required | Description                                              |
+| ---------------------- | ------ | -------- | -------------------------------------------------------- |
+| `mode`                 | string | Yes      | Must be `"pr"`                                           |
+| `prUrl`                | string | Yes      | Pull request URL to review                               |
+| `vcsProviderId`        | string | Yes      | VCS provider: `"github"` or `"gitlab"`                   |
+| `applicationOverrides` | array  | Yes      | Application environment overrides (see above)            |
+| `context`              | string | No       | Additional context to help the AI understand the changes |
+
+### Request Body (Raw Changes Mode)
+
+| Field                        | Type   | Required | Description                                              |
+| ---------------------------- | ------ | -------- | -------------------------------------------------------- |
+| `mode`                       | string | Yes      | Must be `"rawChanges"`                                   |
+| `changes.changeDescription`  | string | Yes      | Description of the changes (min 1 character)             |
+| `changes.diff`               | string | Yes      | Git diff content (min 1 character)                       |
+| `applicationOverrides`       | array  | Yes      | Application environment overrides (see above)            |
+| `context`                    | string | No       | Additional context to help the AI understand the changes |
+
+### Response (202 Accepted)
+
+Same format as [Create Chat Conversation](#create-chat-conversation).
+
+### Example: Review a Pull Request
+
+```bash
+curl -X POST https://api.qa.tech/v1/chat/change-review \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "pr",
+    "prUrl": "https://github.com/your-org/your-repo/pull/123",
+    "vcsProviderId": "github",
+    "applicationOverrides": [
+      {
+        "applicationShortId": "app_gXeBl2",
+        "environment": { "shortId": "env_aB3xY9" }
+      }
+    ],
+    "context": "This PR updates the payment processing flow"
+  }'
+```
+
+### Example: Review Raw Changes
+
+```bash
+curl -X POST https://api.qa.tech/v1/chat/change-review \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "rawChanges",
+    "changes": {
+      "changeDescription": "Updated login validation to require email format",
+      "diff": "diff --git a/src/auth.js b/src/auth.js\n..."
+    },
+    "applicationOverrides": [
+      {
+        "applicationShortId": "app_gXeBl2",
+        "environment": { "shortId": "env_aB3xY9" }
+      }
+    ]
+  }'
+```
+
+## Send Message to Conversation
+
+Send a follow-up message to an existing conversation. Returns 202 immediately—poll [Get Conversation](#get-conversation) for the assistant's reply.
+
+**Endpoint**: `POST /chat/{chatConversationShortId}`
+
+### Path Parameters
+
+| Parameter                 | Type   | Required | Description                              |
+| ------------------------- | ------ | -------- | ---------------------------------------- |
+| `chatConversationShortId` | string | Yes      | Conversation short ID (e.g. `chat_abc123`) |
+
+### Request Body
+
+Same as [Create Chat Conversation](#create-chat-conversation).
+
+### Response (202 Accepted)
+
+Same format as [Create Chat Conversation](#create-chat-conversation), with existing messages included.
+
+### Example
+
+```bash
+curl -X POST https://api.qa.tech/v1/chat/chat_abc123 \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Can you also add a test for the forgot password flow?"
+  }'
+```
+
+## Get Conversation
+
+Retrieve conversation metadata and messages. Use this to poll for the assistant's response after sending a message.
+
+**Endpoint**: `GET /chat/{chatConversationShortId}`
+
+### Path Parameters
+
+| Parameter                 | Type   | Required | Description                              |
+| ------------------------- | ------ | -------- | ---------------------------------------- |
+| `chatConversationShortId` | string | Yes      | Conversation short ID (e.g. `chat_abc123`) |
+
+### Query Parameters
+
+| Parameter | Type    | Default | Description                    |
+| --------- | ------- | ------- | ------------------------------ |
+| `limit`   | integer | 20      | Number of messages to return   |
+
+### Response (200 OK)
+
+```json
+{
+  "shortId": "chat_abc123",
+  "url": "https://app.qa.tech/p/your-project/chat/chat_abc123",
+  "title": "Login Flow Test",
+  "createdAt": "2026-05-04T10:30:00.000Z",
+  "updatedAt": "2026-05-04T10:35:00.000Z",
+  "source": "api",
+  "messages": [
+    {
+      "id": "msg_123",
+      "role": "user",
+      "createdAt": "2026-05-04T10:30:00.000Z",
+      "text": "Generate a login flow test for our staging environment",
+      "status": "COMPLETED",
+      "isStreaming": false
+    },
+    {
+      "id": "msg_456",
+      "role": "assistant",
+      "createdAt": "2026-05-04T10:30:05.000Z",
+      "text": "I'll create a login flow test for your staging environment...",
+      "status": "COMPLETED",
+      "isStreaming": false
+    }
+  ]
+}
+```
+
+### Response Fields
+
+| Field       | Type     | Description                                                           |
+| ----------- | -------- | --------------------------------------------------------------------- |
+| `shortId`   | string   | Conversation short ID (e.g. `chat_abc123`)                            |
+| `url`       | string   | Dashboard URL for the conversation                                    |
+| `title`     | string   | Conversation title (may be null initially)                            |
+| `createdAt` | string   | ISO 8601 timestamp                                                    |
+| `updatedAt` | string   | ISO 8601 timestamp                                                    |
+| `source`    | string   | Where the conversation originated: `api`, `ui`, `github`, `gitlab`, `system` |
+| `messages`  | array    | Recent messages, newest first                                         |
+
+### Message Fields
+
+| Field         | Type    | Description                                                       |
+| ------------- | ------- | ----------------------------------------------------------------- |
+| `id`          | string  | Message identifier                                                |
+| `role`        | string  | `"user"` or `"assistant"`                                         |
+| `createdAt`   | string  | ISO 8601 timestamp                                                |
+| `text`        | string  | The message content                                               |
+| `status`      | string  | `INITIATED`, `PARTIAL`, `COMPLETED`, `CANCELLED`, or `FAILED`     |
+| `isStreaming` | boolean | `true` while the assistant is still generating the response       |
+
+### Polling for Completion
+
+To wait for the assistant's response, poll until the most recent `assistant` message has `status: "COMPLETED"`:
+
+```bash
+while true; do
+  RESPONSE=$(curl -s "https://api.qa.tech/v1/chat/chat_abc123" \
+    -H "Authorization: Bearer YOUR_API_TOKEN")
+  
+  STATUS=$(echo "$RESPONSE" | jq -r '.messages[0].status')
+  ROLE=$(echo "$RESPONSE" | jq -r '.messages[0].role')
+  
+  if [[ "$ROLE" == "assistant" && "$STATUS" == "COMPLETED" ]]; then
+    echo "Response complete:"
+    echo "$RESPONSE" | jq '.messages[0].text'
+    break
+  elif [[ "$STATUS" == "FAILED" || "$STATUS" == "CANCELLED" ]]; then
+    echo "Response failed or cancelled"
+    break
+  fi
+  
+  sleep 2
+done
+```
+
+### Example
+
+```bash
+curl "https://api.qa.tech/v1/chat/chat_abc123?limit=50" \
+  -H "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+## Error Responses
+
+| Status  | Description                                        |
+| ------- | -------------------------------------------------- |
+| **400** | Validation error or malformed request body         |
+| **401** | Missing or invalid API key                         |
+| **403** | Invalid token or organization suspended            |
+| **404** | Conversation or project not found                  |
+| **500** | Server error                                       |
+
+Error responses include a body: `{ "message": "Error description" }`.
+
+## Related
+
+- [AI Chat Assistant](/core-concepts/ai-chat-assistant) – Learn about QA.tech's AI assistant
+- [API Introduction](/api-reference/introduction) – Authentication and ID reference
+- [Start Run API](/api-reference/start-run) – Trigger test runs programmatically
