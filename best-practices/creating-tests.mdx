@@ -4,18 +4,53 @@ icon: plus
 description: "Learn how to create effective test cases in QA.tech and write tests that the AI agent can execute reliably."
 ---
 
-## What should be a test?
+## When to Create Tests
+
+QA.tech works best when tests target **features that already exist** in your application. Since the AI agent crawls your site and builds a knowledge graph to design test cases, it relies on the feature being built and accessible.
+
+### Testing Features That Don't Exist Yet
+
+If you ask the chat to create a test for something that isn't built yet (e.g., "Go to the Admin page and add a user" when there's no Admin page), the agent will either:
+- Spend time searching for a feature it can't find
+- Report that it doesn't know how to complete the task
+
+This isn't a productive use of your time or the agent's capabilities.
+
+### Recommended Workflow for New Features
+
+Instead of creating tests before the feature exists, **document what should be tested in your ticket or PR description**:
+
+<Steps>
+  <Step title="Add Acceptance Criteria to Your Ticket">
+    When creating a Linear, Jira, or other ticket for a new feature, include acceptance criteria that describe what should be tested. For example:
+    - "User can navigate to Admin page and add a new user"
+    - "New user receives invitation email"
+    - "Admin can see the new user in the user list"
+  </Step>
+  <Step title="Include Test Requirements in PR Description">
+    When you open the PR, include testing requirements in the description. The [GitHub App](/configuration/github-app) agent reads your PR and uses this context to create appropriate tests.
+  </Step>
+  <Step title="Tests Are Created Automatically">
+    When the PR is published and your preview environment is ready, our agent analyzes the PR changes and acceptance criteria, then creates and runs tests for the new functionality. See [GitHub App for PR Reviews](/configuration/github-app) for details.
+  </Step>
+</Steps>
+
+<Tip>
+  This workflow means you spend time describing *what* to test (which you'd do anyway for acceptance criteria), and the agent handles *how* to test it once the feature is ready.
+</Tip>
+
+## What Should Be a Test?
 
 A good example of a test is something a user would like to do, or achieve. A user story or user journey should probably map 1:1 to a test case.
 
-#### Test examples
+#### Test Examples
 
 - Log in with correct credentials
 - Log in with incorrect credentials
 - Create a new task
 - Edit a task's due date
 
-## Creating a test
+## Creating a Test
 
 You can create test cases through the UI with AI-generated suggestions, or conversationally through the AI Chat Assistant.
 
