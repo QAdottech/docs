@@ -17,6 +17,10 @@ The Chat API enables programmatic interaction with QA.tech's AI Chat Assistant. 
 - **Custom integrations** – Build buttons or workflows in your project management tools that interact with QA.tech Chat
 - **AI-assisted QA workflows** – Let your automation systems communicate with QA.tech's AI assistant
 
+<Tip>
+  For simpler chat interactions, consider using the [CLI chat command](/cli/commands/chat) which handles polling automatically: `qatech chat "Create a login test"`
+</Tip>
+
 ## Authentication
 
 All Chat API endpoints require Bearer token authentication:
@@ -279,7 +283,11 @@ Retrieve conversation metadata and messages. Use this to poll for the assistant'
 
 ### Polling for Completion
 
-To wait for the assistant's response, poll until the most recent `assistant` message has `status: "COMPLETED"`:
+To wait for the assistant's response, poll until the most recent `assistant` message has `status: "COMPLETED"`. We recommend polling every **2-5 seconds**.
+
+<Note>
+  Assistant responses typically complete within 10-60 seconds depending on the complexity of the request. Test creation and execution may take several minutes.
+</Note>
 
 ```bash
 while true; do
@@ -298,7 +306,7 @@ while true; do
     break
   fi
   
-  sleep 2
+  sleep 3  # Poll every 3 seconds
 done
 ```
 

@@ -10,6 +10,10 @@ List and filter test cases in your project. Use this endpoint to retrieve test c
 - **Authentication**: Bearer token (project API token)
 - **Base URL**: `https://api.qa.tech/v1`
 
+<Note>
+  The test case `id` (UUID) is used when creating tests with dependencies or running specific test cases via the [Rerun API](/api-reference/rerun). For most run operations, use test plans instead of individual test case IDs.
+</Note>
+
 ## Authentication
 
 Include your project's API token in the `Authorization` header:

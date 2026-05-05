@@ -10,6 +10,30 @@ The Remote Tunnels API enables you to programmatically create secure tunnels tha
 - **Authentication**: Bearer token (project API token)
 - **Content-Type**: `application/json`
 
+## Prerequisites
+
+Before using the Remote Tunnels API, you need:
+
+1. **cloudflared** – Cloudflare's tunnel client must be installed on your machine or CI runner
+   ```bash
+   # macOS
+   brew install cloudflared
+   
+   # Linux (Debian/Ubuntu)
+   curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+   sudo dpkg -i cloudflared.deb
+   
+   # See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/
+   ```
+
+2. **Your application running locally** – The tunnel exposes local ports, so your app must be running
+
+## Tunnel Expiration
+
+<Warning>
+  Tunnels expire **12 hours** after creation. The `expiresAt` field in the response indicates when the tunnel will be automatically torn down. For long-running development, you'll need to create a new tunnel when the current one expires.
+</Warning>
+
 ## When to Use Remote Tunnels
 
 - **Local development testing** – Test your local environment without deploying
@@ -123,7 +147,11 @@ After creating a tunnel, start the cloudflared daemon with the returned token:
 cloudflared tunnel run --token YOUR_TUNNEL_TOKEN
 ```
 
-The tunnel will remain active as long as cloudflared is running.
+The tunnel will remain active as long as cloudflared is running and has not expired (12-hour maximum lifetime).
+
+<Tip>
+  For simpler tunnel management, consider using the [CLI tunnel command](/cli/commands/tunnel) which handles cloudflared automatically: `qatech tunnel start --port 3000`
+</Tip>
 
 ## List Remote Tunnels
 
