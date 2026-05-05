@@ -158,16 +158,69 @@
       "group": "API Reference",
       "pages": [
         "api-reference/introduction",
-        "api-reference/start-run",
-        "api-reference/run-status",
-        "api-reference/rerun",
-        "api-reference/test-cases",
-        "api-reference/list-test-cases",
-        "api-reference/chat",
-        "api-reference/applications",
-        "api-reference/remote-tunnels",
-        "api-reference/application-builds",
-        "api-reference/outbound-ips"
+        {
+          "group": "Runs",
+          "pages": [
+            "api-reference/start-run",
+            "api-reference/run-status",
+            "api-reference/rerun"
+          ]
+        },
+        {
+          "group": "Test Cases",
+          "pages": [
+            "api-reference/test-cases",
+            "api-reference/list-test-cases",
+            "api-reference/test-cases/list-test-cases"
+          ]
+        },
+        {
+          "group": "Applications",
+          "pages": [
+            "api-reference/applications",
+            "api-reference/applications/list-applications",
+            "api-reference/applications/list-application-environments"
+          ]
+        },
+        {
+          "group": "Application Builds",
+          "pages": [
+            "api-reference/application-builds",
+            "api-reference/application-builds/get-build-upload-url",
+            "api-reference/application-builds/create-application-build"
+          ]
+        },
+        {
+          "group": "Status Badge",
+          "pages": [
+            "api-reference/status-badge/get-status-badge",
+            "api-reference/status-badge/get-example-status-badge"
+          ]
+        },
+        {
+          "group": "Remote Tunnels",
+          "pages": [
+            "api-reference/remote-tunnels",
+            "api-reference/remote-tunnels/create-remote-tunnel",
+            "api-reference/remote-tunnels/list-remote-tunnels",
+            "api-reference/remote-tunnels/get-remote-tunnel-status",
+            "api-reference/remote-tunnels/delete-remote-tunnel"
+          ]
+        },
+        {
+          "group": "Chat",
+          "pages": [
+            "api-reference/chat",
+            "api-reference/chat/start-chat-conversation",
+            "api-reference/chat/start-change-review-chat",
+            "api-reference/chat/send-chat-message",
+            "api-reference/chat/get-chat-conversation"
+          ]
+        },
+        {
+          "group": "Infrastructure",
+          "pages": ["api-reference/outbound-ips"]
+        }
       ]
     }
   ],
