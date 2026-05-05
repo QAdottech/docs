@@ -9,11 +9,14 @@ The QA.tech REST API allows you to programmatically control test runs, create te
 ## What Can You Do?
 
 - **Start test runs** programmatically from CI/CD pipelines or scripts
-- **Create test cases** via API for importing tests or generating them dynamically
+- **Create and list test cases** via API for importing tests or generating them dynamically
 - **Check run status** and retrieve test results
 - **Rerun tests** (all or a subset) from a previous run
+- **Chat with AI assistant** to create tests and review changes via API
+- **List applications and environments** for dynamic test configuration
+- **Create remote tunnels** to test local environments
+- **Upload mobile app builds** for iOS and Android testing
 - **Get outbound IPs** for firewall allowlisting
-- **View metrics** and test execution data
 
 ## Quick Start
 
@@ -63,6 +66,8 @@ QA.tech uses **prefixed short IDs** for most API resources. The prefix indicates
 | **Config Short ID**        | `cfg_` + alphanumeric      | Settings → Configs                     | `configShortIds` array                      | `cfg_xyz789`      |
 | **Device Preset Short ID** | `preset_` + alphanumeric   | Settings → Device Presets              | `devicePresetShortId` in applications array | `preset_abc123`   |
 | **Scenario Short ID**      | `scenario_` + alphanumeric | Scenarios                              | `scenarioShortId` in test-cases body        | `scenario_abc123` |
+| **Chat Conversation ID**   | `chat_` + alphanumeric     | Chat API response                      | `chatConversationShortId` in chat endpoints | `chat_abc123`     |
+| **Application Build ID**   | `build_` + alphanumeric    | Build API response                     | `applicationBuildShortId` in environment    | `build_abc123`    |
 
 ### Finding Application and Environment Short IDs
 
@@ -89,6 +94,11 @@ Application and Environment Short IDs are shown in the UI with their `app_` and 
 - **[Get Run Status](/api-reference/run-status)** - Wait for test completion in CI/CD pipelines
 - **[Rerun Tests](/api-reference/rerun)** - Rerun all or failed tests from a previous run
 - **[Create Test Cases](/api-reference/test-cases)** - Create tests via API
+- **[List Test Cases](/api-reference/list-test-cases)** - Retrieve test cases from your project
+- **[Chat API](/api-reference/chat)** - Interact with the AI assistant programmatically
+- **[Applications API](/api-reference/applications)** - List applications and environments
+- **[Remote Tunnels API](/api-reference/remote-tunnels)** - Create tunnels to test local environments
+- **[Application Builds API](/api-reference/application-builds)** - Upload mobile app builds
 - **[Get Outbound IPs](/api-reference/outbound-ips)** - Retrieve IPs for firewall allowlisting
 - **[View OpenAPI Spec](/api-reference/api.json)** - Complete API reference with all endpoints
 

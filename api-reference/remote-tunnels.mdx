@@ -1,0 +1,351 @@
+---
+title: Remote Tunnels API
+description: 'Create and manage secure tunnels to expose local environments'
+icon: 'tunnel'
+---
+
+The Remote Tunnels API enables you to programmatically create secure tunnels that expose local ports via Cloudflare. This allows QA.tech to access locally-running applications for testing without deploying them to a public server.
+
+- **Base URL**: `https://api.qa.tech/v1`
+- **Authentication**: Bearer token (project API token)
+- **Content-Type**: `application/json`
+
+## Prerequisites
+
+Before using the Remote Tunnels API, you need:
+
+1. **cloudflared** – Cloudflare's tunnel client must be installed on your machine or CI runner
+   ```bash
+   # macOS
+   brew install cloudflared
+   
+   # Linux (Debian/Ubuntu)
+   curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+   sudo dpkg -i cloudflared.deb
+   
+   # See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/
+   ```
+
+2. **Your application running locally** – The tunnel exposes local ports, so your app must be running
+
+## Tunnel Expiration
+
+<Warning>
+  Tunnels expire **12 hours** after creation. The `expiresAt` field in the response indicates when the tunnel will be automatically torn down. For long-running development, you'll need to create a new tunnel when the current one expires.
+</Warning>
+
+## When to Use Remote Tunnels
+
+- **Local development testing** – Test your local environment without deploying
+- **CI/CD pipelines** – Expose ephemeral test servers during build processes
+- **Preview environments** – Create temporary public URLs for testing
+- **Firewall-protected environments** – Access applications behind corporate firewalls
+
+<Note>
+  For CLI-based tunnel management, see the [tunnel command](/cli/commands/tunnel) documentation. The CLI provides a simpler interface for common tunnel operations.
+</Note>
+
+## Authentication
+
+Include your project's API token in the `Authorization` header:
+
+```
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+Find your API token in the QA.tech dashboard: **Settings → Integrations → API**.
+
+## Create Remote Tunnel
+
+Create a new tunnel that exposes one or more local ports via Cloudflare. Returns a `tunnelToken` to start the cloudflared daemon.
+
+**Endpoint**: `POST /remote-tunnels`
+
+### Request Body
+
+| Field    | Type    | Required | Description                                                    |
+| -------- | ------- | -------- | -------------------------------------------------------------- |
+| `ports`  | array   | Yes      | Array of port mappings to expose (see below)                   |
+| `public` | boolean | No       | If `true`, tunnel is publicly accessible without auth          |
+
+### Port Mapping Fields
+
+| Field       | Type    | Required | Description                                                         |
+| ----------- | ------- | -------- | ------------------------------------------------------------------- |
+| `localPort` | integer | Yes      | Local port number to expose                                         |
+| `protocol`  | string  | No       | Protocol: `"http"` (default) or `"https"`                           |
+| `subdomain` | string  | No       | Optional subdomain label (e.g. `"api"` → `r-{id}-api.quack.run`)    |
+
+### Response (200)
+
+```json
+{
+  "runnerId": "tunnel_abc123",
+  "hostnames": [
+    {
+      "localPort": 3000,
+      "url": "https://r-tunnel_abc123-app.quack.run"
+    },
+    {
+      "localPort": 8080,
+      "url": "https://r-tunnel_abc123-api.quack.run"
+    }
+  ],
+  "tunnelToken": "eyJhIjoiYWJjMTIzLi4uIiwidCI6Ii4uLiJ9",
+  "expiresAt": "2026-05-04T22:30:00.000Z"
+}
+```
+
+### Response Fields
+
+| Field         | Type   | Description                                           |
+| ------------- | ------ | ----------------------------------------------------- |
+| `runnerId`    | string | Tunnel identifier for subsequent API calls            |
+| `hostnames`   | array  | Public hostnames mapped to local ports                |
+| `tunnelToken` | string | Token to start the cloudflared daemon                 |
+| `expiresAt`   | string | ISO 8601 timestamp when the tunnel expires            |
+
+### Hostname Fields
+
+| Field       | Type    | Description                           |
+| ----------- | ------- | ------------------------------------- |
+| `localPort` | integer | Local port this hostname maps to      |
+| `url`       | string  | Public HTTPS URL for this port        |
+
+### Example: Single Port
+
+```bash
+curl -X POST "https://api.qa.tech/v1/remote-tunnels" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ports": [
+      { "localPort": 3000 }
+    ]
+  }'
+```
+
+### Example: Multiple Ports with Subdomains
+
+```bash
+curl -X POST "https://api.qa.tech/v1/remote-tunnels" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ports": [
+      { "localPort": 3000, "subdomain": "app" },
+      { "localPort": 8080, "subdomain": "api", "protocol": "http" }
+    ]
+  }'
+```
+
+### Starting the Tunnel
+
+After creating a tunnel, start the cloudflared daemon with the returned token:
+
+```bash
+cloudflared tunnel run --token YOUR_TUNNEL_TOKEN
+```
+
+The tunnel will remain active as long as cloudflared is running and has not expired (12-hour maximum lifetime).
+
+<Tip>
+  For simpler tunnel management, consider using the [CLI tunnel command](/cli/commands/tunnel) which handles cloudflared automatically: `qatech tunnel start --port 3000`
+</Tip>
+
+## List Remote Tunnels
+
+List all active tunnels for your project.
+
+**Endpoint**: `GET /remote-tunnels`
+
+### Response (200)
+
+```json
+{
+  "tunnels": [
+    {
+      "runnerId": "tunnel_abc123",
+      "hostnames": [
+        { "localPort": 3000, "url": "https://r-tunnel_abc123.quack.run" }
+      ],
+      "createdAt": "2026-05-04T10:30:00.000Z",
+      "expiresAt": "2026-05-04T22:30:00.000Z",
+      "isExpired": false
+    },
+    {
+      "runnerId": "tunnel_def456",
+      "hostnames": [
+        { "localPort": 8080, "url": "https://r-tunnel_def456.quack.run" }
+      ],
+      "createdAt": "2026-05-03T14:00:00.000Z",
+      "expiresAt": "2026-05-04T02:00:00.000Z",
+      "isExpired": true
+    }
+  ]
+}
+```
+
+### Response Fields
+
+| Field     | Type  | Description                    |
+| --------- | ----- | ------------------------------ |
+| `tunnels` | array | Array of tunnel summary objects |
+
+### Tunnel Summary Fields
+
+| Field       | Type    | Description                                    |
+| ----------- | ------- | ---------------------------------------------- |
+| `runnerId`  | string  | Tunnel identifier                              |
+| `hostnames` | array   | Public hostnames for the tunnel                |
+| `createdAt` | string  | ISO 8601 creation timestamp                    |
+| `expiresAt` | string  | ISO 8601 expiration timestamp                  |
+| `isExpired` | boolean | Whether the tunnel has expired                 |
+
+### Example
+
+```bash
+curl "https://api.qa.tech/v1/remote-tunnels" \
+  -H "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+## Get Tunnel Status
+
+Check the live health status of a tunnel via Cloudflare.
+
+**Endpoint**: `GET /remote-tunnels/{runnerId}/status`
+
+### Path Parameters
+
+| Parameter  | Type   | Required | Description        |
+| ---------- | ------ | -------- | ------------------ |
+| `runnerId` | string | Yes      | Tunnel identifier  |
+
+### Response (200)
+
+```json
+{
+  "status": "healthy",
+  "connections": 4,
+  "hostnames": [
+    { "localPort": 3000, "url": "https://r-tunnel_abc123.quack.run" }
+  ]
+}
+```
+
+### Response Fields
+
+| Field         | Type    | Description                                           |
+| ------------- | ------- | ----------------------------------------------------- |
+| `status`      | string  | `"inactive"`, `"degraded"`, or `"healthy"`            |
+| `connections` | integer | Number of active Cloudflare edge connections          |
+| `hostnames`   | array   | Public hostnames for the tunnel                       |
+
+### Status Values
+
+| Status     | Connections | Description                          |
+| ---------- | ----------- | ------------------------------------ |
+| `inactive` | 0           | No active connections                |
+| `degraded` | 1-3         | Tunnel is running but not optimal    |
+| `healthy`  | 4+          | Tunnel is fully operational          |
+
+### Example
+
+```bash
+curl "https://api.qa.tech/v1/remote-tunnels/tunnel_abc123/status" \
+  -H "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+## Delete Remote Tunnel
+
+Tear down a tunnel and remove its DNS records.
+
+**Endpoint**: `DELETE /remote-tunnels/{runnerId}`
+
+### Path Parameters
+
+| Parameter  | Type   | Required | Description        |
+| ---------- | ------ | -------- | ------------------ |
+| `runnerId` | string | Yes      | Tunnel identifier  |
+
+### Response (200)
+
+```json
+{
+  "deleted": true
+}
+```
+
+### Example
+
+```bash
+curl -X DELETE "https://api.qa.tech/v1/remote-tunnels/tunnel_abc123" \
+  -H "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+## Complete Workflow Example
+
+Here's a complete example of creating a tunnel, using it for testing, and cleaning up:
+
+```bash
+# 1. Create the tunnel
+TUNNEL_RESPONSE=$(curl -s -X POST "https://api.qa.tech/v1/remote-tunnels" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"ports": [{"localPort": 3000}]}')
+
+RUNNER_ID=$(echo "$TUNNEL_RESPONSE" | jq -r '.runnerId')
+TUNNEL_TOKEN=$(echo "$TUNNEL_RESPONSE" | jq -r '.tunnelToken')
+PUBLIC_URL=$(echo "$TUNNEL_RESPONSE" | jq -r '.hostnames[0].url')
+
+echo "Tunnel created: $PUBLIC_URL"
+
+# 2. Start cloudflared in the background
+cloudflared tunnel run --token "$TUNNEL_TOKEN" &
+CLOUDFLARED_PID=$!
+
+# 3. Wait for tunnel to become healthy
+sleep 5
+STATUS=$(curl -s "https://api.qa.tech/v1/remote-tunnels/$RUNNER_ID/status" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" | jq -r '.status')
+echo "Tunnel status: $STATUS"
+
+# 4. Run tests against the tunnel URL
+curl -X POST "https://api.qa.tech/v1/run" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"testPlanShortId\": \"pln_abc123\",
+    \"applications\": [{
+      \"applicationShortId\": \"app_gXeBl2\",
+      \"environment\": {
+        \"url\": \"$PUBLIC_URL\",
+        \"name\": \"Local Tunnel\"
+      }
+    }]
+  }"
+
+# 5. Clean up
+kill $CLOUDFLARED_PID
+curl -X DELETE "https://api.qa.tech/v1/remote-tunnels/$RUNNER_ID" \
+  -H "Authorization: Bearer YOUR_API_TOKEN"
+```
+
+## Error Responses
+
+| Status  | Description                                |
+| ------- | ------------------------------------------ |
+| **400** | Validation error or malformed request      |
+| **401** | Missing or invalid API key                 |
+| **403** | Invalid token or organization suspended    |
+| **404** | Tunnel or project not found                |
+| **500** | Server error                               |
+
+Error responses include a body: `{ "message": "Error description" }`.
+
+## Related
+
+- [Tunnel CLI Command](/cli/commands/tunnel) – CLI interface for tunnel management
+- [SSH Tunnel](/configuration/ssh-tunnel) – Alternative tunneling via SSH
+- [Start Run API](/api-reference/start-run) – Use tunnel URLs as environment overrides
+- [API Introduction](/api-reference/introduction) – Authentication and ID reference

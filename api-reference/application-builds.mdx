@@ -1,0 +1,291 @@
+---
+title: Application Builds API
+description: 'Upload and manage mobile app builds for testing'
+icon: 'mobile'
+---
+
+The Application Builds API enables you to upload mobile app builds (APK/IPA files) for testing with QA.tech. Use these endpoints to integrate mobile app build uploads into your CI/CD pipelines and automation workflows.
+
+- **Base URL**: `https://api.qa.tech/v1`
+- **Authentication**: Bearer token (project API token)
+- **Content-Type**: `application/json`
+
+## When to Use This API
+
+- **CI/CD integration** – Automatically upload builds after successful compilation
+- **Mobile app testing** – Upload iOS and Android builds for automated testing
+- **Version management** – Track and test different build versions
+
+<Note>
+  This API is for **mobile applications** (iOS and Android) only. For web applications, use environment URLs directly in the [Start Run API](/api-reference/start-run) or [Chat API](/api-reference/chat).
+</Note>
+
+## Supported File Types
+
+| Platform | File Types |
+| -------- | ---------- |
+| Android  | `.apk`, `.aab` |
+| iOS      | `.ipa` |
+
+<Tip>
+  For mobile app testing concepts and setup, see [Mobile App Testing](/test-features/mobile-app-testing).
+</Tip>
+
+## Authentication
+
+Include your project's API token in the `Authorization` header:
+
+```
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+Find your API token in the QA.tech dashboard: **Settings → Integrations → API**.
+
+## Upload Workflow
+
+Uploading a build is a two-step process:
+
+1. **Get upload URL** – Request a presigned URL to upload the file directly to storage
+2. **Create build record** – Register the uploaded file as a build in QA.tech
+
+This two-step process allows efficient direct uploads to cloud storage without passing the file through the API server.
+
+## Get Upload URL
+
+Request a presigned URL to upload a build file.
+
+**Endpoint**: `POST /applications/{applicationShortId}/builds/upload-url`
+
+### Path Parameters
+
+| Parameter            | Type   | Required | Description                              |
+| -------------------- | ------ | -------- | ---------------------------------------- |
+| `applicationShortId` | string | Yes      | Application short ID (e.g. `app_gXeBl2`) |
+
+### Request Body
+
+| Field      | Type   | Required | Description                                                    |
+| ---------- | ------ | -------- | -------------------------------------------------------------- |
+| `fileName` | string | Yes      | Original file name (e.g. `my-app.apk`). Used for display and file type detection. |
+
+### Response (200)
+
+```json
+{
+  "uploadUrl": "https://storage.example.com/presigned-upload-url?signature=...",
+  "buildToken": "tok_abc123xyz789"
+}
+```
+
+### Response Fields
+
+| Field       | Type   | Description                                        |
+| ----------- | ------ | -------------------------------------------------- |
+| `uploadUrl` | string | Presigned URL to PUT the file                      |
+| `buildToken`| string | Token to use when creating the build record        |
+
+### Example
+
+```bash
+curl -X POST "https://api.qa.tech/v1/applications/app_gXeBl2/builds/upload-url" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fileName": "my-app-v1.2.3.apk"
+  }'
+```
+
+## Upload the File
+
+After obtaining the presigned URL, upload your file directly to storage using a PUT request:
+
+```bash
+curl -X PUT "$UPLOAD_URL" \
+  --upload-file ./my-app-v1.2.3.apk \
+  -H "Content-Type: application/octet-stream"
+```
+
+<Warning>
+  The presigned URL is temporary and expires quickly. Upload the file immediately after requesting the URL.
+</Warning>
+
+## Create Application Build
+
+After uploading the file, create a build record to register it in QA.tech.
+
+**Endpoint**: `POST /applications/{applicationShortId}/builds`
+
+### Path Parameters
+
+| Parameter            | Type   | Required | Description                              |
+| -------------------- | ------ | -------- | ---------------------------------------- |
+| `applicationShortId` | string | Yes      | Application short ID (e.g. `app_gXeBl2`) |
+
+### Request Body
+
+| Field        | Type   | Required | Description                                  |
+| ------------ | ------ | -------- | -------------------------------------------- |
+| `platform`   | string | Yes      | Mobile platform: `"ios"` or `"android"`      |
+| `buildToken` | string | Yes      | Token from the upload-url response           |
+
+### Response (200)
+
+```json
+{
+  "applicationBuildShortId": "build_abc123",
+  "platform": "android",
+  "fileName": "my-app-v1.2.3.apk",
+  "fileSizeBytes": 52428800
+}
+```
+
+### Response Fields
+
+| Field                     | Type    | Description                                      |
+| ------------------------- | ------- | ------------------------------------------------ |
+| `applicationBuildShortId` | string  | Build short ID to use in run API (e.g. `build_abc123`) |
+| `platform`                | string  | `"ios"` or `"android"`                           |
+| `fileName`                | string  | Original file name                               |
+| `fileSizeBytes`           | integer | File size in bytes                               |
+
+### Example
+
+```bash
+curl -X POST "https://api.qa.tech/v1/applications/app_gXeBl2/builds" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "platform": "android",
+    "buildToken": "tok_abc123xyz789"
+  }'
+```
+
+## Using Builds in Test Runs
+
+After creating a build, use the `applicationBuildShortId` in the [Start Run API](/api-reference/start-run) to test against that specific build:
+
+```bash
+curl -X POST "https://api.qa.tech/v1/run" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "testPlanShortId": "pln_abc123",
+    "applications": [
+      {
+        "applicationShortId": "app_gXeBl2",
+        "environment": {
+          "applicationBuildShortId": "build_abc123"
+        }
+      }
+    ]
+  }'
+```
+
+## Complete Workflow Example
+
+Here's a complete example of uploading a build and running tests against it:
+
+```bash
+#!/bin/bash
+
+APP_ID="app_gXeBl2"
+BUILD_FILE="./app/build/outputs/apk/release/app-release.apk"
+FILE_NAME=$(basename "$BUILD_FILE")
+
+# 1. Get the upload URL
+echo "Requesting upload URL..."
+UPLOAD_RESPONSE=$(curl -s -X POST "https://api.qa.tech/v1/applications/$APP_ID/builds/upload-url" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"fileName\": \"$FILE_NAME\"}")
+
+UPLOAD_URL=$(echo "$UPLOAD_RESPONSE" | jq -r '.uploadUrl')
+BUILD_TOKEN=$(echo "$UPLOAD_RESPONSE" | jq -r '.buildToken')
+
+# 2. Upload the file
+echo "Uploading build file..."
+curl -X PUT "$UPLOAD_URL" \
+  --upload-file "$BUILD_FILE" \
+  -H "Content-Type: application/octet-stream"
+
+# 3. Create the build record
+echo "Creating build record..."
+BUILD_RESPONSE=$(curl -s -X POST "https://api.qa.tech/v1/applications/$APP_ID/builds" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"platform\": \"android\",
+    \"buildToken\": \"$BUILD_TOKEN\"
+  }")
+
+BUILD_SHORT_ID=$(echo "$BUILD_RESPONSE" | jq -r '.applicationBuildShortId')
+echo "Build created: $BUILD_SHORT_ID"
+
+# 4. Start a test run with this build
+echo "Starting test run..."
+RUN_RESPONSE=$(curl -s -X POST "https://api.qa.tech/v1/run" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"testPlanShortId\": \"pln_abc123\",
+    \"applications\": [{
+      \"applicationShortId\": \"$APP_ID\",
+      \"environment\": {
+        \"applicationBuildShortId\": \"$BUILD_SHORT_ID\"
+      }
+    }]
+  }")
+
+RUN_URL=$(echo "$RUN_RESPONSE" | jq -r '.run.url')
+echo "Test run started: $RUN_URL"
+```
+
+## CI/CD Integration
+
+### GitHub Actions Example
+
+```yaml
+- name: Upload build to QA.tech
+  env:
+    QATECH_API_TOKEN: ${{ secrets.QATECH_API_TOKEN }}
+  run: |
+    # Get upload URL
+    UPLOAD_RESPONSE=$(curl -s -X POST "https://api.qa.tech/v1/applications/app_gXeBl2/builds/upload-url" \
+      -H "Authorization: Bearer $QATECH_API_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{"fileName": "app-release.apk"}')
+    
+    UPLOAD_URL=$(echo "$UPLOAD_RESPONSE" | jq -r '.uploadUrl')
+    BUILD_TOKEN=$(echo "$UPLOAD_RESPONSE" | jq -r '.buildToken')
+    
+    # Upload file
+    curl -X PUT "$UPLOAD_URL" \
+      --upload-file ./app/build/outputs/apk/release/app-release.apk
+    
+    # Create build record
+    BUILD_RESPONSE=$(curl -s -X POST "https://api.qa.tech/v1/applications/app_gXeBl2/builds" \
+      -H "Authorization: Bearer $QATECH_API_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d "{\"platform\": \"android\", \"buildToken\": \"$BUILD_TOKEN\"}")
+    
+    echo "BUILD_SHORT_ID=$(echo $BUILD_RESPONSE | jq -r '.applicationBuildShortId')" >> $GITHUB_ENV
+```
+
+## Error Responses
+
+| Status  | Description                                       |
+| ------- | ------------------------------------------------- |
+| **400** | Validation error, invalid file type, or malformed request |
+| **401** | Missing or invalid API key                        |
+| **403** | Invalid token or organization suspended           |
+| **404** | Application or project not found                  |
+| **500** | Server error                                      |
+
+Error responses include a body: `{ "message": "Error description" }`.
+
+## Related
+
+- [Mobile App Testing](/test-features/mobile-app-testing) – Mobile testing concepts
+- [Start Run API](/api-reference/start-run) – Run tests against uploaded builds
+- [Applications API](/api-reference/applications) – List applications
+- [API Introduction](/api-reference/introduction) – Authentication and ID reference

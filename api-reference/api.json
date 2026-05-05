@@ -3,11 +3,401 @@
   "info": {
     "title": "QA.tech API",
     "version": "1.0.0",
-    "description": "API for managing test runs, test cases, and project configuration"
+    "contact": {
+      "name": "QA.tech",
+      "url": "https://qa.tech",
+      "email": "support@qa.tech"
+    },
+    "description": "REST API for triggering and managing AI-powered test runs. Authenticate with a project API token (Authorization: Bearer <token>) found in Project Settings -> Integrations."
   },
-  "tags": [],
+  "tags": [
+    {
+      "name": "Runs"
+    },
+    {
+      "name": "Infrastructure"
+    },
+    {
+      "name": "Test Cases"
+    },
+    {
+      "name": "Application Builds"
+    },
+    {
+      "name": "Status badge"
+    },
+    {
+      "name": "Remote Tunnels"
+    },
+    {
+      "name": "Chat"
+    },
+    {
+      "name": "Applications"
+    }
+  ],
   "paths": {
-    "/outbound-ips": {
+    "/v1/applications": {
+      "get": {
+        "operationId": "ListApplications",
+        "description": "List all applications for the project",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListApplicationsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Applications"
+        ],
+        "summary": "List applications"
+      }
+    },
+    "/v1/applications/{applicationShortId}/builds": {
+      "post": {
+        "operationId": "ApplicationBuildCreate",
+        "description": "Create an application build record from a previously uploaded file. Use buildShortId in run API with environment.applicationBuildShortId.",
+        "parameters": [
+          {
+            "name": "applicationShortId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ApplicationShortId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationBuildCreateResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Application Builds"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationBuildCreateRequest"
+              }
+            }
+          }
+        },
+        "summary": "Create application build"
+      }
+    },
+    "/v1/applications/{applicationShortId}/builds/upload-url": {
+      "post": {
+        "operationId": "ApplicationBuildUploadUrl",
+        "description": "Get a presigned URL to upload a build file directly to storage",
+        "parameters": [
+          {
+            "name": "applicationShortId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ApplicationShortId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationBuildUploadUrlResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Application Builds"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationBuildUploadUrlRequest"
+              }
+            }
+          }
+        },
+        "summary": "Get build upload URL"
+      }
+    },
+    "/v1/applications/{applicationShortId}/environments": {
+      "get": {
+        "operationId": "ListApplicationEnvironments",
+        "description": "List environments for a specific application",
+        "parameters": [
+          {
+            "name": "applicationShortId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ApplicationShortId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListApplicationEnvironmentsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Applications"
+        ],
+        "summary": "List application environments"
+      }
+    },
+    "/v1/badge-example.svg": {
+      "get": {
+        "operationId": "GetStatusBadgeExampleSvg",
+        "description": "Get a sample status badge as SVG (no token). For live project badges use GET /v1/badge.svg.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/BadgeExampleSvgQuery"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Status badge"
+        ],
+        "security": [
+          {}
+        ],
+        "summary": "Get example status badge"
+      }
+    },
+    "/v1/badge.svg": {
+      "get": {
+        "operationId": "GetStatusBadgeSvg",
+        "description": "Get status badge as SVG. Authenticate with the token query parameter (not the API Bearer key). Project is resolved from the token.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/BadgeSvgQuery"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Status badge"
+        ],
+        "security": [
+          {}
+        ],
+        "summary": "Get status badge"
+      }
+    },
+    "/v1/chat": {
+      "post": {
+        "operationId": "Chat",
+        "description": "Create a new chat conversation and send its first message.\n\nReturns 202 immediately with the created conversation. Processing is asynchronous: poll\n`GET /chat/{chatConversationShortId}` until the latest assistant message has\n`status: 'COMPLETED'` to read the reply.",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": "The request has been accepted for processing, but processing has not yet completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatConversationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Chat"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          }
+        },
+        "summary": "Start chat conversation"
+      }
+    },
+    "/v1/chat/change-review": {
+      "post": {
+        "operationId": "StartChangeReviewChat",
+        "description": "Create a new chat conversation and start an autonomous change review from either a PR URL or raw change input.",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": "The request has been accepted for processing, but processing has not yet completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatConversationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Chat"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartChangeReviewRequest"
+              }
+            }
+          }
+        },
+        "summary": "Start change review chat"
+      }
+    },
+    "/v1/chat/{chatConversationShortId}": {
+      "post": {
+        "operationId": "AppendChatMessage",
+        "description": "Send a chat message to an existing conversation.\n\nReturns 202 immediately. Poll `GET /chat/{chatConversationShortId}` until the latest\nassistant message has `status: 'COMPLETED'` to read the reply.",
+        "parameters": [
+          {
+            "name": "chatConversationShortId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatConversationShortId"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The request has been accepted for processing, but processing has not yet completed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatConversationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Chat"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          }
+        },
+        "summary": "Send chat message"
+      },
+      "get": {
+        "operationId": "GetChatConversation",
+        "description": "Get conversation metadata and recent messages (newest first).\n\nUse `limit` to control how many messages are returned (default 20). To detect when an\nassistant reply is finished, poll until the most recent `assistant` message has\n`status: 'COMPLETED'` (or `CANCELLED`/`FAILED`).",
+        "parameters": [
+          {
+            "name": "chatConversationShortId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChatConversationShortId"
+            }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/GetChatConversationQuery"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatConversationResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Chat"
+        ],
+        "summary": "Get chat conversation"
+      }
+    },
+    "/v1/outbound-ips": {
       "get": {
         "operationId": "GetOutboundIps",
         "description": "Get outbound IP addresses",
@@ -22,29 +412,136 @@
                 }
               }
             }
-          },
-          "500": {
-            "description": "Server error",
+          }
+        },
+        "tags": [
+          "Infrastructure"
+        ],
+        "summary": "Get outbound IPs"
+      }
+    },
+    "/v1/remote-tunnels": {
+      "post": {
+        "operationId": "CreateRemoteTunnel",
+        "description": "Create a new remote tunnel that exposes local ports via Cloudflare. Returns a tunnelToken to start the cloudflared daemon.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/CreateRemoteTunnelResponse"
                 }
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Remote Tunnels"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRemoteTunnelRequest"
+              }
+            }
+          }
+        },
+        "summary": "Create remote tunnel"
+      },
+      "get": {
+        "operationId": "ListRemoteTunnels",
+        "description": "List remote tunnels for the authenticated project",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListRemoteTunnelsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Remote Tunnels"
+        ],
+        "summary": "List remote tunnels"
       }
     },
-    "/run": {
+    "/v1/remote-tunnels/{runnerId}": {
+      "delete": {
+        "operationId": "DeleteRemoteTunnel",
+        "description": "Tear down a remote tunnel and its DNS records",
+        "parameters": [
+          {
+            "name": "runnerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteRemoteTunnelResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Remote Tunnels"
+        ],
+        "summary": "Delete remote tunnel"
+      }
+    },
+    "/v1/remote-tunnels/{runnerId}/status": {
+      "get": {
+        "operationId": "GetRemoteTunnelStatus",
+        "description": "Get the live Cloudflare health status of a remote tunnel",
+        "parameters": [
+          {
+            "name": "runnerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoteTunnelStatusResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Remote Tunnels"
+        ],
+        "summary": "Get remote tunnel status"
+      }
+    },
+    "/v1/run": {
       "post": {
         "operationId": "RunProject",
-        "description": "Execute a run for a given project",
+        "description": "Execute a run for a given project. Supports API or GITHUB trigger. When using GITHUB trigger, provide actor, branch, commitHash, commitMessage, and repository. Use applications to override environment or device preset per run.",
         "parameters": [],
         "responses": {
           "200": {
@@ -56,100 +553,13 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Validation error or bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Usage limit exceeded",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Account suspended or invalid token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Resource not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
           }
         },
+        "tags": [
+          "Runs"
+        ],
         "requestBody": {
-          "required": false,
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
@@ -158,14 +568,10 @@
             }
           }
         },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        "summary": "Start test run"
       }
     },
-    "/run/{shortId}": {
+    "/v1/run/{shortId}": {
       "get": {
         "operationId": "GetRun",
         "description": "Get a run by shortId with test cases",
@@ -179,17 +585,13 @@
             }
           },
           {
-            "name": "testCases",
+            "name": "query",
             "in": "query",
-            "required": false,
+            "required": true,
             "schema": {
-              "type": "string",
-              "enum": [
-                "failed",
-                "all"
-              ]
+              "$ref": "#/components/schemas/GetRunQuery"
             },
-            "description": "Return run with test cases: \"failed\" (only failed/skipped/error) or \"all\""
+            "explode": false
           }
         ],
         "responses": {
@@ -202,73 +604,12 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Validation error or bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Account suspended or invalid token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Resource not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
           }
         },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Get run"
       },
       "post": {
         "operationId": "RerunRunOp",
@@ -293,98 +634,11 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Validation error or bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "Usage limit exceeded",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Account suspended or invalid token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Resource not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
           }
         },
+        "tags": [
+          "Runs"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -395,14 +649,10 @@
             }
           }
         },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        "summary": "Rerun run"
       }
     },
-    "/test-cases": {
+    "/v1/test-cases": {
       "post": {
         "operationId": "CreateTestCase",
         "description": "Create a new test case for a project",
@@ -417,83 +667,11 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Validation error or bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid API key",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Account suspended or invalid token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Resource not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
           }
         },
+        "tags": [
+          "Test Cases"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -504,16 +682,122 @@
             }
           }
         },
-        "security": [
+        "summary": "Create test case"
+      },
+      "get": {
+        "operationId": "ListTestCases",
+        "description": "List test cases for a project",
+        "parameters": [
           {
-            "bearerAuth": []
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListTestCasesQuery"
+            },
+            "explode": false
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListTestCasesResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Test Cases"
+        ],
+        "summary": "List test cases"
       }
     }
   },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
   "components": {
     "schemas": {
+      "ApplicationBuildCreateRequest": {
+        "type": "object",
+        "required": [
+          "platform",
+          "buildToken"
+        ],
+        "properties": {
+          "platform": {
+            "$ref": "#/components/schemas/MobilePlatform"
+          },
+          "buildToken": {
+            "type": "string"
+          }
+        },
+        "description": "Request body for creating an application build after uploading via presigned URL"
+      },
+      "ApplicationBuildCreateResponse": {
+        "type": "object",
+        "required": [
+          "applicationBuildShortId",
+          "platform",
+          "fileName",
+          "fileSizeBytes"
+        ],
+        "properties": {
+          "applicationBuildShortId": {
+            "$ref": "#/components/schemas/ApplicationBuildShortId"
+          },
+          "platform": {
+            "$ref": "#/components/schemas/MobilePlatform"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "Response with created application build metadata. Use buildShortId in run API environment override."
+      },
+      "ApplicationBuildShortId": {
+        "type": "string",
+        "pattern": "^build(-.+_.+|_.+)$"
+      },
+      "ApplicationBuildUploadUrlRequest": {
+        "type": "object",
+        "required": [
+          "fileName"
+        ],
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "description": "Original file name (e.g. 'my-app.apk'). Preserved in storage for display and file type detection."
+          }
+        },
+        "description": "Request body for getting a presigned upload URL"
+      },
+      "ApplicationBuildUploadUrlResponse": {
+        "type": "object",
+        "required": [
+          "uploadUrl",
+          "buildToken"
+        ],
+        "properties": {
+          "uploadUrl": {
+            "type": "string"
+          },
+          "buildToken": {
+            "type": "string"
+          }
+        },
+        "description": "Presigned upload URL response"
+      },
       "ApplicationEnvironmentOverride": {
         "anyOf": [
           {
@@ -521,8 +805,23 @@
           },
           {
             "$ref": "#/components/schemas/ApplicationEnvironmentOverrideByShortId"
+          },
+          {
+            "$ref": "#/components/schemas/ApplicationEnvironmentOverrideByApplicationBuildShortId"
           }
         ]
+      },
+      "ApplicationEnvironmentOverrideByApplicationBuildShortId": {
+        "type": "object",
+        "required": [
+          "applicationBuildShortId"
+        ],
+        "properties": {
+          "applicationBuildShortId": {
+            "$ref": "#/components/schemas/ApplicationBuildShortId"
+          }
+        },
+        "description": "Use a specific application build (from POST /v1/application/builds). Creates or reuses an environment with this build."
       },
       "ApplicationEnvironmentOverrideByShortId": {
         "type": "object",
@@ -542,9 +841,29 @@
         ],
         "properties": {
           "url": {
-            "type": "string"
+            "type": "string",
+            "format": "uri"
           },
           "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ApplicationItem": {
+        "type": "object",
+        "required": [
+          "shortId",
+          "name",
+          "kind"
+        ],
+        "properties": {
+          "shortId": {
+            "$ref": "#/components/schemas/ApplicationShortId"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
             "type": "string"
           }
         }
@@ -558,21 +877,323 @@
           "applicationShortId": {
             "$ref": "#/components/schemas/ApplicationShortId"
           },
+          "devicePresetShortId": {
+            "$ref": "#/components/schemas/DevicePresetShortId"
+          },
           "environment": {
             "$ref": "#/components/schemas/ApplicationEnvironmentOverride"
+          }
+        },
+        "description": "Override application, environment, or device preset for a specific run"
+      },
+      "ApplicationOverrideBase": {
+        "type": "object",
+        "required": [
+          "applicationShortId"
+        ],
+        "properties": {
+          "applicationShortId": {
+            "$ref": "#/components/schemas/ApplicationShortId"
           },
           "devicePresetShortId": {
             "$ref": "#/components/schemas/DevicePresetShortId"
           }
         }
       },
+      "ApplicationOverrideWithRequiredEnvironment": {
+        "type": "object",
+        "required": [
+          "applicationShortId",
+          "environment"
+        ],
+        "properties": {
+          "applicationShortId": {
+            "$ref": "#/components/schemas/ApplicationShortId"
+          },
+          "devicePresetShortId": {
+            "$ref": "#/components/schemas/DevicePresetShortId"
+          },
+          "environment": {
+            "$ref": "#/components/schemas/ApplicationEnvironmentOverride"
+          }
+        },
+        "description": "Application override with a required environment"
+      },
       "ApplicationShortId": {
         "type": "string",
         "pattern": "^app(-.+_.+|_.+)$"
       },
+      "BadgeExampleSvgQuery": {
+        "type": "object",
+        "required": [
+          "example"
+        ],
+        "properties": {
+          "example": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusBadgeExampleName"
+              }
+            ],
+            "description": "Example preset name. Required."
+          },
+          "label": {
+            "type": "string"
+          },
+          "style": {
+            "$ref": "#/components/schemas/StatusBadgeStyle"
+          },
+          "showDate": {
+            "type": "boolean",
+            "description": "When true, show relative time since last run."
+          },
+          "historyCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Query parameters for GET /v1/badge-example.svg (deterministic sample badges for docs and demos; no project token)."
+      },
+      "BadgeSvgQuery": {
+        "type": "object",
+        "required": [
+          "token",
+          "testPlanShortId"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Status badge secret (project status_badge_token). Required."
+          },
+          "label": {
+            "type": "string"
+          },
+          "style": {
+            "$ref": "#/components/schemas/StatusBadgeStyle"
+          },
+          "showDate": {
+            "type": "boolean",
+            "description": "When true, show relative time since last run."
+          },
+          "historyCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "testPlanShortId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TestPlanShortId"
+              }
+            ],
+            "description": "Filter runs to this test plan (short id, e.g. pln_my-plan_shortid). Required with `token`."
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Filter by user id who created the run."
+          },
+          "trigger": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatusBadgeTriggerFilter"
+              }
+            ],
+            "description": "Filter runs by how they were triggered."
+          }
+        },
+        "description": "Query parameters for GET /v1/badge.svg (live status badge). Token identifies the project; do not use Bearer auth for this operation."
+      },
+      "ChangeReviewRawChanges": {
+        "type": "object",
+        "required": [
+          "changeDescription",
+          "diff"
+        ],
+        "properties": {
+          "changeDescription": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Description of the changes"
+          },
+          "diff": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Git diff content."
+          }
+        },
+        "description": "Structured raw change data for change review mode"
+      },
+      "ChatConversationResponse": {
+        "type": "object",
+        "required": [
+          "shortId",
+          "url",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "shortId": {
+            "$ref": "#/components/schemas/ChatConversationShortId"
+          },
+          "url": {
+            "type": "string",
+            "description": "Dashboard URL for the conversation."
+          },
+          "title": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "api",
+              "ui",
+              "github",
+              "gitlab",
+              "system"
+            ],
+            "description": "Where the conversation originated. `api` for conversations created via this API, `ui` for the dashboard, `github`/`gitlab` for VCS-triggered chats, and `system` for everything else."
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatMessageItem"
+            },
+            "description": "Recent messages, newest first. Empty on creation; poll `GET /chat/{chatConversationShortId}` to retrieve."
+          }
+        },
+        "description": "Conversation data with recent messages (newest first)."
+      },
+      "ChatConversationShortId": {
+        "type": "string",
+        "pattern": "^chat(-.+_.+|_.+)$"
+      },
+      "ChatMessageItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "createdAt",
+          "text"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "text": {
+            "type": "string",
+            "description": "The plain-text body of the message."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INITIATED",
+              "PARTIAL",
+              "COMPLETED",
+              "CANCELLED",
+              "FAILED"
+            ],
+            "description": "Lifecycle status of the message. Poll until `COMPLETED` to know the assistant has finished."
+          },
+          "isStreaming": {
+            "type": "boolean",
+            "description": "True while the assistant is still streaming tokens for this message."
+          }
+        },
+        "description": "A chat message. Tool calls and reasoning are not exposed in this version; only the text response is returned."
+      },
+      "ChatRequest": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The message text to send. Example: 'Generate a login flow test for staging'."
+          },
+          "applicationOverrides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationOverrideWithRequiredEnvironment"
+            },
+            "description": "Optional per-application environment overrides to apply for this conversation."
+          }
+        },
+        "description": "Request body for sending a chat message"
+      },
       "ConfigShortId": {
         "type": "string",
         "pattern": "^cfg(-.+_.+|_.+)$"
+      },
+      "CreateRemoteTunnelRequest": {
+        "type": "object",
+        "required": [
+          "ports"
+        ],
+        "properties": {
+          "ports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PortMappingRequest"
+            },
+            "description": "One or more local ports to expose via the tunnel"
+          },
+          "public": {
+            "type": "boolean",
+            "description": "If true, the tunnel is publicly accessible without Cloudflare Access authentication"
+          }
+        },
+        "description": "Request body to create a new remote tunnel"
+      },
+      "CreateRemoteTunnelResponse": {
+        "type": "object",
+        "required": [
+          "runnerId",
+          "hostnames",
+          "tunnelToken",
+          "expiresAt"
+        ],
+        "properties": {
+          "runnerId": {
+            "type": "string",
+            "description": "Our identifier for this runner, used in subsequent API calls"
+          },
+          "hostnames": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HostnameInfo"
+            },
+            "description": "Public hostnames mapped to local ports"
+          },
+          "tunnelToken": {
+            "type": "string",
+            "description": "cloudflared token to start the tunnel daemon"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "ISO timestamp when this tunnel will expire"
+          }
+        },
+        "description": "Response after successfully creating a remote tunnel"
       },
       "CreateTestCaseRequest": {
         "type": "object",
@@ -586,7 +1207,8 @@
             "type": "string"
           },
           "goal": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "expectedResult": {
             "type": "string"
@@ -612,7 +1234,8 @@
           "scenarioShortId": {
             "$ref": "#/components/schemas/ScenarioShortId"
           }
-        }
+        },
+        "description": "Request body for creating a new test case linked to a project"
       },
       "CreateTestCaseResponse": {
         "type": "object",
@@ -629,13 +1252,59 @@
           }
         }
       },
+      "DeleteRemoteTunnelResponse": {
+        "type": "object",
+        "required": [
+          "deleted"
+        ],
+        "properties": {
+          "deleted": {
+            "type": "boolean"
+          }
+        },
+        "description": "Response after deleting a remote tunnel"
+      },
       "DevicePresetShortId": {
         "type": "string",
         "pattern": "^preset(-.+_.+|_.+)$"
       },
+      "EnvironmentItem": {
+        "type": "object",
+        "required": [
+          "shortId",
+          "name",
+          "url",
+          "isProduction"
+        ],
+        "properties": {
+          "shortId": {
+            "$ref": "#/components/schemas/EnvironmentShortId"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "isProduction": {
+            "type": "boolean"
+          }
+        }
+      },
       "EnvironmentShortId": {
         "type": "string",
         "pattern": "^env(-.+_.+|_.+)$"
+      },
+      "GetChatConversationQuery": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "default": 20
+          }
+        }
       },
       "GetRunQuery": {
         "type": "object",
@@ -700,6 +1369,174 @@
           }
         }
       },
+      "HostnameInfo": {
+        "type": "object",
+        "required": [
+          "localPort",
+          "url"
+        ],
+        "properties": {
+          "localPort": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The local port this hostname maps to"
+          },
+          "url": {
+            "type": "string",
+            "description": "The public HTTPS URL for this port"
+          }
+        },
+        "description": "A single hostname mapping returned by the tunnel"
+      },
+      "ListApplicationEnvironmentsResponse": {
+        "type": "object",
+        "required": [
+          "environments"
+        ],
+        "properties": {
+          "environments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnvironmentItem"
+            }
+          }
+        }
+      },
+      "ListApplicationsResponse": {
+        "type": "object",
+        "required": [
+          "applications"
+        ],
+        "properties": {
+          "applications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationItem"
+            }
+          }
+        }
+      },
+      "ListRemoteTunnelsResponse": {
+        "type": "object",
+        "required": [
+          "tunnels"
+        ],
+        "properties": {
+          "tunnels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RemoteTunnelSummary"
+            }
+          }
+        },
+        "description": "Response for listing active remote tunnels"
+      },
+      "ListTestCaseItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "isEnabled",
+          "labels",
+          "classification",
+          "applicationShortId",
+          "applicationName",
+          "goal",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "classification": {
+            "type": "string"
+          },
+          "applicationShortId": {
+            "$ref": "#/components/schemas/ApplicationShortId"
+          },
+          "applicationName": {
+            "type": "string"
+          },
+          "goal": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        }
+      },
+      "ListTestCasesQuery": {
+        "type": "object",
+        "properties": {
+          "applicationShortId": {
+            "$ref": "#/components/schemas/ApplicationShortId"
+          },
+          "labels": {
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ListTestCasesResponse": {
+        "type": "object",
+        "required": [
+          "testCases",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "properties": {
+          "testCases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListTestCaseItem"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "MobilePlatform": {
+        "type": "string",
+        "enum": [
+          "ios",
+          "android"
+        ],
+        "description": "Mobile platform for application builds"
+      },
       "NotificationOverride": {
         "type": "object",
         "required": [
@@ -723,7 +1560,8 @@
               "always"
             ]
           }
-        }
+        },
+        "description": "Override notifications for a specific run"
       },
       "OutboundIpsResponse": {
         "type": "object",
@@ -739,6 +1577,96 @@
           }
         }
       },
+      "PortMappingRequest": {
+        "type": "object",
+        "required": [
+          "localPort"
+        ],
+        "properties": {
+          "localPort": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Local port to expose"
+          },
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "http",
+              "https"
+            ],
+            "description": "Protocol for the local service (defaults to http)"
+          },
+          "subdomain": {
+            "type": "string",
+            "description": "Optional subdomain label for this port (e.g. 'api' -> r-{id}-api.quack.run)"
+          }
+        },
+        "description": "A single port mapping to expose through the tunnel"
+      },
+      "RemoteTunnelStatusResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "connections",
+          "hostnames"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "inactive",
+              "degraded",
+              "healthy"
+            ],
+            "description": "inactive = no connections, degraded = 1-3 connections, healthy = 4+ connections"
+          },
+          "connections": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of active Cloudflare edge connections"
+          },
+          "hostnames": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HostnameInfo"
+            },
+            "description": "Public hostnames for this tunnel"
+          }
+        },
+        "description": "Live health status of a remote tunnel from Cloudflare"
+      },
+      "RemoteTunnelSummary": {
+        "type": "object",
+        "required": [
+          "runnerId",
+          "hostnames",
+          "createdAt",
+          "expiresAt",
+          "isExpired"
+        ],
+        "properties": {
+          "runnerId": {
+            "type": "string"
+          },
+          "hostnames": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HostnameInfo"
+            }
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "isExpired": {
+            "type": "boolean",
+            "description": "Whether the tunnel is expired (expires_at is in the past)"
+          }
+        },
+        "description": "Summary of an active remote tunnel"
+      },
       "RerunRequest": {
         "type": "object",
         "properties": {
@@ -751,7 +1679,8 @@
               "type": "string"
             }
           }
-        }
+        },
+        "description": "Request body to rerun prior run."
       },
       "RerunResponse": {
         "type": "object",
@@ -848,6 +1777,12 @@
           "testPlanShortId": {
             "$ref": "#/components/schemas/TestPlanShortId"
           },
+          "testCaseIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "applications": {
             "type": "array",
             "items": {
@@ -860,7 +1795,8 @@
               "$ref": "#/components/schemas/NotificationOverride"
             }
           }
-        }
+        },
+        "description": "Request body for triggering a test run. Supports GitHub trigger fields and application overrides."
       },
       "RunResponse": {
         "type": "object",
@@ -929,6 +1865,122 @@
         "type": "string",
         "pattern": "^scenario(-.+_.+|_.+)$"
       },
+      "StartChangeReviewFromPrRequest": {
+        "type": "object",
+        "required": [
+          "mode",
+          "prUrl",
+          "vcsProviderId",
+          "applicationOverrides"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "pr"
+            ]
+          },
+          "prUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "vcsProviderId": {
+            "$ref": "#/components/schemas/VcsProviderId"
+          },
+          "applicationOverrides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationOverrideWithRequiredEnvironment"
+            }
+          },
+          "context": {
+            "type": "string"
+          }
+        },
+        "description": "Start a change review chat using a pull request URL"
+      },
+      "StartChangeReviewFromRawChangesRequest": {
+        "type": "object",
+        "required": [
+          "mode",
+          "changes",
+          "applicationOverrides"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "rawChanges"
+            ]
+          },
+          "changes": {
+            "$ref": "#/components/schemas/ChangeReviewRawChanges"
+          },
+          "applicationOverrides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationOverrideWithRequiredEnvironment"
+            }
+          },
+          "context": {
+            "type": "string"
+          }
+        },
+        "description": "Start a change review chat using raw change data"
+      },
+      "StartChangeReviewRequest": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/StartChangeReviewFromPrRequest"
+          },
+          {
+            "$ref": "#/components/schemas/StartChangeReviewFromRawChangesRequest"
+          }
+        ],
+        "description": "Request body for starting a change review chat"
+      },
+      "StatusBadgeExampleName": {
+        "type": "string",
+        "enum": [
+          "failing",
+          "passing",
+          "pending",
+          "running",
+          "rainbow",
+          "partial",
+          "error",
+          "skipped",
+          "cancelled",
+          "mixed",
+          "trend-improving",
+          "trend-declining",
+          "trend-fluctuating",
+          "trend-stable",
+          "zero-tests"
+        ],
+        "description": "Named presets for GET /v1/badge-example.svg (deterministic sample SVGs)."
+      },
+      "StatusBadgeStyle": {
+        "type": "string",
+        "enum": [
+          "minimal",
+          "standard",
+          "detailed",
+          "trend"
+        ],
+        "description": "Display style of the status badge."
+      },
+      "StatusBadgeTriggerFilter": {
+        "type": "string",
+        "enum": [
+          "ANY",
+          "MANUAL",
+          "SCHEDULE",
+          "API",
+          "GITHUB"
+        ],
+        "description": "Permitted values for filtering a status badge by run trigger. Omit the parameter to include all triggers; use ANY for the same behavior explicitly."
+      },
       "TestCase": {
         "type": "object",
         "required": [
@@ -966,19 +2018,26 @@
       "TestPlanShortId": {
         "type": "string",
         "pattern": "^pln(-.+_.+|_.+)$"
+      },
+      "VcsProviderId": {
+        "type": "string",
+        "enum": [
+          "github",
+          "gitlab"
+        ],
+        "description": "Supported VCS providers for pull request URL review mode"
       }
     },
     "securitySchemes": {
-      "bearerAuth": {
+      "BearerAuth": {
         "type": "http",
-        "scheme": "bearer",
-        "description": "Project API token from Settings > Integrations > API. The token is scoped to a specific project."
+        "scheme": "Bearer"
       }
     }
   },
   "servers": [
     {
-      "url": "https://api.qa.tech/v1",
+      "url": "https://api.qa.tech",
       "description": "Production",
       "variables": {}
     }
