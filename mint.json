@@ -53,7 +53,8 @@
         "core-concepts/ai-chat-assistant",
         "best-practices/creating-tests",
         "core-concepts/applications-and-environments",
-        "core-concepts/configs"
+        "core-concepts/configs",
+        "core-concepts/config-environment-overrides"
       ]
     },
     {
