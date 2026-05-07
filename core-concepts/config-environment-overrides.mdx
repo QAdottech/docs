@@ -28,26 +28,26 @@ In the SaaS app, you can configure environment-scoped overrides directly on a co
 5. Update the override fields for that environment.
 6. Click **Save** on the config form.
 
-After save, the override is persisted to `configs.environment_overrides` for that environment ID.
+After save, the override is saved on that config and linked to the selected environment.
 
-## Where overrides are stored
+## How overrides are saved
 
-Config rows in `public.configs` include:
+Each config includes:
 
-- `data`: base config payload.
-- `environment_overrides` (`jsonb`): `environment UUID -> config payload`.
-- `application_id` (`uuid | null`): optional application scope used by the SaaS Config editor to limit selectable environments.
+- A base payload used by default.
+- An optional map of `environment ID -> override payload`.
+- Optional application scope so the UI can show the right environments when editing overrides.
 
-`environment_overrides` is persisted directly on each config row, not in a separate table.
+Overrides are stored with the config itself so they can be resolved at run time.
 
 ## How project defaults are built
 
 Project-level defaults are constructed from:
 
-1. Application default environments (`applications.default_environment_id`).
-2. Config row `environment_overrides`, aggregated into a single `configsByEnvironment` map keyed by environment ID, then by config slug.
+1. The application's default environment selection.
+2. Config environment overrides, aggregated into a single `configsByEnvironment` map keyed by environment ID, then by config slug.
 
-If multiple config rows define overrides for the same environment, each config slug is merged into that environment map.
+If multiple configs define overrides for the same environment, each config slug is merged into that environment map.
 
 ## Merge order across project, test plan, and run request
 
@@ -63,7 +63,7 @@ This merged object is written to the blueprint and used during test preparation 
 
 For a given test and config slug, resolved value precedence is:
 
-1. Base payload from `configs.data`.
+1. Base payload from the config.
 2. `parameters.configsByEnvironment[environmentId][configSlug]` (if the test has an environment ID and a matching override exists).
 3. `parameters.configs[configSlug]`.
 
