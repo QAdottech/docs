@@ -30,16 +30,6 @@ In the SaaS app, you can configure environment-scoped overrides directly on a co
 
 After save, the override is saved on that config and linked to the selected environment.
 
-## How overrides are saved
-
-Each config includes:
-
-- A base payload used by default.
-- An optional map of `environment ID -> override payload`.
-- Optional application scope so the UI can show the right environments when editing overrides.
-
-Overrides are stored with the config itself so they can be resolved at run time.
-
 ## How project defaults are built
 
 Project-level defaults are constructed from:
