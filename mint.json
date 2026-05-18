@@ -123,6 +123,7 @@
     {
       "group": "Integrations",
       "pages": [
+        "integrations/mcp",
         "integrations/slack",
         "integrations/microsoft-teams",
         "integrations/trello",

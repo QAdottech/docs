@@ -1,0 +1,190 @@
+---
+title: QA.tech MCP
+description: 'Connect Claude, Cursor, Continue, or Goose to QA.tech so your AI assistant can list test cases, start runs, and read results.'
+icon: 'plug'
+---
+
+The QA.tech MCP server exposes your test cases, runs, and applications to any AI client that speaks the [Model Context Protocol](https://modelcontextprotocol.io). Once connected, your assistant can answer questions like _"what runs failed today?"_ or _"rerun the failed cases from run UkxK"_ without you leaving the chat.
+
+## Supported Clients
+
+| Client            | Format | Setup                  |
+| ----------------- | ------ | ---------------------- |
+| Claude Desktop    | JSON   | CLI auto-writes config |
+| Cursor            | JSON   | CLI auto-writes config |
+| Continue (VS Code) | YAML   | CLI prints, you paste  |
+| Goose             | YAML   | CLI prints, you paste  |
+
+Any other MCP-compatible client works too. Point it at the [endpoint](#endpoint-details) with a Bearer token.
+
+## Quickstart with the QA.tech CLI
+
+The fastest path. The CLI writes the config for JSON-based clients and prints a ready-to-paste snippet for YAML ones.
+
+<Steps>
+  <Step title="Install and authenticate the CLI">
+    See the [CLI overview](/cli/overview) for installation. Then save your API key:
+    ```bash
+    qatech configure -k <your-api-key>
+    ```
+    Find your API key under **Settings → Integrations → QA.tech MCP** in the dashboard.
+  </Step>
+  <Step title="Configure your client">
+    ```bash
+    qatech mcp configure --client cursor
+    qatech mcp configure --client claude-desktop
+    qatech mcp configure --client continue
+    qatech mcp configure --client goose
+    ```
+    Add `--print` to dump the snippet instead of writing.
+  </Step>
+  <Step title="Restart the client">
+    Claude Desktop and Cursor need a restart to pick up new MCP servers. Continue and Goose reload from disk.
+  </Step>
+</Steps>
+
+## One-click Setup from the Dashboard
+
+Open **Settings → Integrations → QA.tech MCP**. The page shows your API key, the CLI commands above, and a tabbed view with copy-paste snippets for each supported client.
+
+## Manual Configuration
+
+If you prefer to edit the config yourself, use the snippets below. Replace `<API_KEY>` with the key from **Settings → Integrations → QA.tech MCP**.
+
+<Tabs>
+  <Tab title="Claude Desktop">
+    Add to `claude_desktop_config.json` (Settings → Developer → Edit Config):
+
+    ```json
+    {
+      "mcpServers": {
+        "qatech": {
+          "type": "http",
+          "url": "https://api.qa.tech/v1/mcp",
+          "headers": {
+            "Authorization": "Bearer <API_KEY>"
+          }
+        }
+      }
+    }
+    ```
+
+    Config paths:
+    - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+    - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+    - Linux: `~/.config/Claude/claude_desktop_config.json`
+  </Tab>
+  <Tab title="Cursor">
+    Add to `~/.cursor/mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "qatech": {
+          "type": "http",
+          "url": "https://api.qa.tech/v1/mcp",
+          "headers": {
+            "Authorization": "Bearer <API_KEY>"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Continue (VS Code)">
+    Add to `~/.continue/config.yaml`:
+
+    ```yaml
+    mcpServers:
+      - name: qatech
+        type: streamable-http
+        url: https://api.qa.tech/v1/mcp
+        requestOptions:
+          headers:
+            Authorization: Bearer <API_KEY>
+    ```
+  </Tab>
+  <Tab title="Goose">
+    Add to `~/.config/goose/config.yaml`:
+
+    ```yaml
+    extensions:
+      qatech:
+        type: streamable_http
+        uri: https://api.qa.tech/v1/mcp
+        headers:
+          Authorization: Bearer <API_KEY>
+    ```
+  </Tab>
+</Tabs>
+
+## What Your Assistant Can Do
+
+Five tools are exposed. Tools requiring write scope are hidden from read-only API keys.
+
+| Tool               | Scope | What it does                                                                  |
+| ------------------ | ----- | ----------------------------------------------------------------------------- |
+| `list_applications` | read  | Lists applications under test in the project the API key is bound to.         |
+| `list_test_cases`   | read  | Lists test cases, optionally filtered by application, labels, or enabled state. |
+| `get_run`           | read  | Fetches a run by short ID. Include nested results with `testCases: "all"` or `"failed"`. |
+| `create_test_case`  | write | Creates a new test case in draft. Burn-in runs start automatically.           |
+| `rerun_run`         | write | Reruns a previous run. Optional `failedOnly` or a specific `projectTestCaseIds` subset. |
+
+### Example prompts
+
+> "Which of my test cases failed in the last run?"
+
+> "Rerun run UkxK, but only the failed cases."
+
+> "Create a test case titled 'Checkout with expired card' for the frontend app."
+
+> "List all enabled test cases tagged 'critical'."
+
+## Authentication
+
+The MCP server uses the same Bearer tokens as the [REST API](/api-reference/introduction).
+
+- **Where to find your key:** **Settings → Integrations → QA.tech MCP**.
+- **Scopes:** A `read` key gives access to the four read tools. A `write` key adds `create_test_case` and `rerun_run`.
+- **Project binding:** The key is bound to one project. Issue separate keys for separate projects.
+
+<Warning>
+  Treat the token like a password. Anyone with the token can read your test data and, with a write key, create and rerun tests. Rotate keys from the dashboard if one leaks.
+</Warning>
+
+## Endpoint Details
+
+| Field             | Value                                |
+| ----------------- | ------------------------------------ |
+| URL               | `https://api.qa.tech/v1/mcp`         |
+| Transport         | Streamable HTTP (JSON-RPC 2.0), stateless |
+| Methods supported | `initialize`, `tools/list`, `tools/call` |
+| Auth header       | `Authorization: Bearer <API_KEY>`    |
+| Protocol version  | `2025-06-18`                         |
+| Server name       | `qatech`                             |
+
+Batch JSON-RPC requests and `GET` upgrades are not supported. Each call is a single `POST` with a JSON body.
+
+### Smoke test with curl
+
+```bash
+curl -sS -X POST 'https://api.qa.tech/v1/mcp' \
+  -H 'Authorization: Bearer <API_KEY>' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+A successful response lists the tools your key has access to.
+
+## Troubleshooting
+
+| Symptom                                | Likely cause                                                          |
+| -------------------------------------- | --------------------------------------------------------------------- |
+| Client lists no QA.tech tools          | Restart the client after editing config. Verify the JSON or YAML parses. |
+| `401` or `403` from the server         | API key missing, malformed, or revoked. Re-copy from the dashboard.   |
+| Some tools missing                     | Key lacks `write` scope. Generate a write key from the dashboard.     |
+| `405 Method Not Allowed`               | The client sent a `GET`. QA.tech MCP is `POST`-only and stateless.    |
+| `qatech mcp configure` says no API key | Run `qatech configure -k <key>` first or pass `--api-key` directly.   |
+
+For anything else, [contact support](https://qa.tech/contact).
