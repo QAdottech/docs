@@ -1,41 +1,31 @@
 ---
 title: MCP Server
-description: 'Connect Claude Code, Claude Desktop, Cursor, Continue, or Goose to QA.tech so your AI assistant can list test cases, start runs, and read results.'
+description: 'Connect Claude Code, Cursor, Codex, Claude Desktop, or Continue to QA.tech so your AI assistant can list test cases, start runs, and read results.'
 icon: 'plug'
 ---
 
 The QA.tech MCP server exposes your test cases, runs, and applications to any AI client that speaks the [Model Context Protocol](https://modelcontextprotocol.io). Once connected, your assistant can answer questions like _"what runs failed today?"_ or _"rerun the failed cases from run UkxK"_ without you leaving the chat.
 
-## Supported Clients
-
-| Client             | One-click install | Notes                                                    |
-| ------------------ | ----------------- | -------------------------------------------------------- |
-| Claude Code        | one-line `claude mcp add` command                  | Requires the [Claude Code CLI](https://claude.ai/code). |
-| Cursor             | "Add to Cursor" button via [cursor.com/install-mcp](https://cursor.com/install-mcp) | Or paste the JSON snippet.               |
-| Claude Desktop     | Paste JSON snippet                                 | Settings → Developer → Edit Config.      |
-| Continue (VS Code) | Paste YAML snippet                                 | Edits `~/.continue/config.yaml`.         |
-| Goose              | Paste YAML snippet                                 | Edits `~/.config/goose/config.yaml`.     |
-
-Any other MCP-compatible client works too. Point it at the [endpoint](#endpoint-details) with a Bearer token.
-
 ## Pick Your Client
 
-Most modern clients have a one-click or one-line install. Open the dashboard at **Settings → Integrations → MCP Server** to copy snippets with your API key pre-filled, or use the patterns below and replace `<API_KEY>` with the key from that page.
+Most modern clients have a one-click or one-line install. Open the dashboard at **Settings → Integrations → MCP Server** to copy snippets with your API key pre-filled, or use the patterns below and replace `<API_KEY>` with the key from that page. Any other MCP-compatible client works too. Point it at the [endpoint](#endpoint-details) with a Bearer token.
 
 <Tabs>
   <Tab title="Claude Code">
-    Run this in any project where you use Claude Code:
+    Run this in any project where you use Claude Code. Requires the [Claude Code CLI](https://claude.ai/code).
 
     ```bash
-    claude mcp add --transport http qatech 'https://api.qa.tech/v1/mcp' --header 'Authorization: Bearer <API_KEY>'
+    claude mcp add --transport http qatech \
+      'https://api.qa.tech/v1/mcp' \
+      --header 'Authorization: Bearer <API_KEY>'
     ```
 
     Claude Code reloads MCP servers automatically.
   </Tab>
   <Tab title="Cursor">
-    The dashboard at **Settings → Integrations → MCP Server** shows an **Add to Cursor** button that opens Cursor and installs the server in one click with your API key pre-filled.
+    The dashboard at **Settings → Integrations → MCP Server** shows an **Install in Cursor** button that opens Cursor via a deeplink and installs the server in one click with your API key pre-filled.
 
-    To do it manually, add this to `~/.cursor/mcp.json`:
+    To do it manually: go to **Settings → Cursor Settings → Tools & MCPs → New MCP server**. Cursor opens `~/.cursor/mcp.json`. Paste this in:
 
     ```json
     {
@@ -51,8 +41,19 @@ Most modern clients have a one-click or one-line install. Open the dashboard at 
     }
     ```
   </Tab>
+  <Tab title="Codex">
+    Run this command to add the MCP server to Codex. Requires the Codex CLI.
+
+    ```bash
+    codex mcp add qatech \
+      --url 'https://api.qa.tech/v1/mcp' \
+      --header 'Authorization: Bearer <API_KEY>'
+    ```
+
+    First time using an MCP server in Codex? Add `experimental_use_rmcp_client = true` under `[features]` in `~/.codex/config.toml`.
+  </Tab>
   <Tab title="Claude Desktop">
-    Add this entry under `mcpServers` in your Claude Desktop config (**Settings → Developer → Edit Config**). Restart Claude Desktop after saving.
+    Go to **Settings → Developer → Edit Config**, paste this under `mcpServers`, then restart Claude Desktop.
 
     ```json
     {
@@ -74,7 +75,7 @@ Most modern clients have a one-click or one-line install. Open the dashboard at 
     - Linux: `~/.config/Claude/claude_desktop_config.json`
   </Tab>
   <Tab title="Continue (VS Code)">
-    Add this to `~/.continue/config.yaml`, then reload the Continue extension:
+    Add this snippet to `~/.continue/config.yaml`, then reload the Continue extension.
 
     ```yaml
     mcpServers:
@@ -84,18 +85,6 @@ Most modern clients have a one-click or one-line install. Open the dashboard at 
         requestOptions:
           headers:
             Authorization: Bearer <API_KEY>
-    ```
-  </Tab>
-  <Tab title="Goose">
-    Add this to `~/.config/goose/config.yaml`, then restart Goose:
-
-    ```yaml
-    extensions:
-      qatech:
-        type: streamable_http
-        uri: https://api.qa.tech/v1/mcp
-        headers:
-          Authorization: Bearer <API_KEY>
     ```
   </Tab>
 </Tabs>
@@ -122,7 +111,6 @@ With the CLI installed and authenticated:
 qatech mcp configure --client claude-desktop
 qatech mcp configure --client cursor
 qatech mcp configure --client continue
-qatech mcp configure --client goose
 ```
 
 Add `--print` to dump the snippet without writing it. See `qatech mcp configure --help` for all flags.
