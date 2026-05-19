@@ -115,7 +115,11 @@ Selected: 12 tests covering payment & checkout flows
 Tests are created only when coverage gaps exist, such as when you're developing a new feature not yet covered by your testing suite.
 
 <Tip>
-  **Writing acceptance criteria?** Include test requirements in your Linear/Jira ticket or PR description. The agent reads this context and uses it to create more accurate tests for your new feature. See [Recommended Workflow for New Features](/best-practices/creating-tests#recommended-workflow-for-new-features) for details.
+  **Writing acceptance criteria?** Include test requirements in your Linear/Jira
+  ticket or PR description. The agent reads this context and uses it to create
+  more accurate tests for your new feature. See [Recommended Workflow for New
+  Features](/best-practices/creating-tests#recommended-workflow-for-new-features)
+  for details.
 </Tip>
 
 | PR Type          | Existing Tests Selected | New Tests Created       | Total |
@@ -250,6 +254,14 @@ No. The agent only creates tests for coverage gaps - most PRs (bug fixes, refact
 **Can I control which tests run?**
 
 The GitHub App is fully autonomous. For manual test selection, use [GitHub Actions](/configuration/github-actions) instead. You can use both: automatic PR reviews + manual deep testing on-demand.
+
+**My project has multiple applications per PR and the App's environment mapping isn't a good fit. What can I do?**
+
+Install the GitHub App as usual, then turn off **Auto-run on PRs** in **Settings → Integrations → GitHub App** and drive reviews from CI with the [Change Review Action](/configuration/github-actions#change-review-action). The action runs the same review agent (and posts the same native PR review) but lets you pass an `applications_config` per PR, so you can route each application short ID to its own preview URL without relying on the App's static environment mapping.
+
+**Can I gate reviews on labels, paths, or a specific deploy job?**
+
+Yes. Use the [Change Review Action](/configuration/github-actions#change-review-action) instead of the automatic trigger and put the gating logic in your workflow (`if:` conditions on labels or paths, `needs:` on a deploy job, etc.). Disable **Auto-run on PRs** if you want only the action to fire; the action posts the native PR review the same way the App does.
 
 **PR reviews aren't posting - what should I check?**
 
