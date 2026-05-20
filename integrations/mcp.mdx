@@ -1,0 +1,187 @@
+---
+title: MCP Server
+description: 'Connect Claude Code, Cursor, Codex, Claude Desktop, or Continue to QA.tech so your AI assistant can list test cases, start runs, and read results.'
+icon: 'plug'
+---
+
+The QA.tech MCP server exposes your test cases, runs, and applications to any AI client that speaks the [Model Context Protocol](https://modelcontextprotocol.io). Once connected, your assistant can answer questions like _"what runs failed today?"_ or _"rerun the failed cases from run UkxK"_ without you leaving the chat.
+
+## Pick Your Client
+
+Most modern clients have a one-click or one-line install. Open the dashboard at **Settings → Integrations → MCP Server** to copy snippets with your API key pre-filled, or use the patterns below and replace `<API_KEY>` with the key from that page. Any other MCP-compatible client works too. Point it at the [endpoint](#endpoint-details) with a Bearer token.
+
+<Tabs>
+  <Tab title="Claude Code">
+    Run this in any project where you use Claude Code. Requires the [Claude Code CLI](https://claude.ai/code).
+
+    ```bash
+    claude mcp add --transport http qatech \
+      'https://api.qa.tech/v1/mcp' \
+      --header 'Authorization: Bearer <API_KEY>'
+    ```
+
+    Claude Code reloads MCP servers automatically.
+  </Tab>
+  <Tab title="Cursor">
+    The dashboard at **Settings → Integrations → MCP Server** shows an **Install in Cursor** button that opens Cursor via a deeplink and installs the server in one click with your API key pre-filled.
+
+    To do it manually: go to **Settings → Cursor Settings → Tools & MCPs → New MCP server**. Cursor opens `~/.cursor/mcp.json`. Paste this in:
+
+    ```json
+    {
+      "mcpServers": {
+        "qatech": {
+          "type": "http",
+          "url": "https://api.qa.tech/v1/mcp",
+          "headers": {
+            "Authorization": "Bearer <API_KEY>"
+          }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Codex">
+    Run this command to add the MCP server to Codex. Requires the Codex CLI.
+
+    ```bash
+    codex mcp add qatech \
+      --url 'https://api.qa.tech/v1/mcp' \
+      --header 'Authorization: Bearer <API_KEY>'
+    ```
+
+    First time using an MCP server in Codex? Add `experimental_use_rmcp_client = true` under `[features]` in `~/.codex/config.toml`.
+  </Tab>
+  <Tab title="Claude Desktop">
+    Go to **Settings → Developer → Edit Config**, paste this under `mcpServers`, then restart Claude Desktop.
+
+    ```json
+    {
+      "mcpServers": {
+        "qatech": {
+          "type": "http",
+          "url": "https://api.qa.tech/v1/mcp",
+          "headers": {
+            "Authorization": "Bearer <API_KEY>"
+          }
+        }
+      }
+    }
+    ```
+
+    Config paths:
+    - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+    - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+    - Linux: `~/.config/Claude/claude_desktop_config.json`
+  </Tab>
+  <Tab title="Continue (VS Code)">
+    Add this snippet to `~/.continue/config.yaml`, then reload the Continue extension.
+
+    ```yaml
+    mcpServers:
+      - name: qatech
+        type: streamable-http
+        url: https://api.qa.tech/v1/mcp
+        requestOptions:
+          headers:
+            Authorization: Bearer <API_KEY>
+    ```
+  </Tab>
+</Tabs>
+
+## Or Use the QA.tech CLI
+
+The QA.tech CLI can write the config for any supported client in one command. Useful if you switch machines often or want the same setup scripted.
+
+<Accordion title="Don't have the QA.tech CLI? Install it">
+  ```bash
+  # Install
+  npm install -g @qadottech/cli
+
+  # Authenticate once
+  qatech configure -k <your-api-key>
+  ```
+
+  Find your API key under **Settings → Integrations → MCP Server** in the dashboard.
+</Accordion>
+
+With the CLI installed and authenticated:
+
+```bash
+qatech mcp configure --client claude-desktop
+qatech mcp configure --client cursor
+qatech mcp configure --client continue
+```
+
+Add `--print` to dump the snippet without writing it. See `qatech mcp configure --help` for all flags.
+
+## What Your Assistant Can Do
+
+Five tools are exposed. Tools requiring `write` scope are hidden from read-only API keys.
+
+| Tool                | Scope | What it does                                                                            |
+| ------------------- | ----- | --------------------------------------------------------------------------------------- |
+| `list_applications` | read  | Lists applications under test in the project the API key is bound to.                   |
+| `list_test_cases`   | read  | Lists test cases, optionally filtered by application, labels, or enabled state.         |
+| `get_run`           | read  | Fetches a run by short ID. Include nested results with `testCases: "all"` or `"failed"`. |
+| `create_test_case`  | write | Creates a new test case in draft. Burn-in runs start automatically.                     |
+| `rerun_run`         | write | Reruns a previous run. Optional `failedOnly`, or a specific `projectTestCaseIds` subset. |
+
+### Example prompts
+
+> "Which of my test cases failed in the last run?"
+
+> "Rerun run UkxK, but only the failed cases."
+
+> "Create a test case titled 'Checkout with expired card' for the frontend app."
+
+> "List all enabled test cases tagged 'critical'."
+
+## Authentication
+
+The MCP server uses the same Bearer tokens as the [REST API](/api-reference/introduction).
+
+- **Where to find your key:** **Settings → Integrations → MCP Server** in the dashboard.
+- **Scopes:** A `read` key gives access to the four read tools. A `write` key adds `create_test_case` and `rerun_run`.
+- **Project binding:** Each key is bound to one project. Issue separate keys for separate projects.
+
+<Warning>
+  Treat the token like a password. Anyone with the token can read your test data and, with a write key, create and rerun tests. Rotate keys from the dashboard if one leaks.
+</Warning>
+
+## Endpoint Details
+
+| Field             | Value                                     |
+| ----------------- | ----------------------------------------- |
+| URL               | `https://api.qa.tech/v1/mcp`              |
+| Transport         | Streamable HTTP (JSON-RPC 2.0), stateless |
+| Methods supported | `initialize`, `tools/list`, `tools/call`  |
+| Auth header       | `Authorization: Bearer <API_KEY>`         |
+| Protocol version  | `2025-06-18`                              |
+| Server name       | `qatech`                                  |
+
+Batch JSON-RPC requests and `GET` upgrades are not supported. Each call is a single `POST` with a JSON body.
+
+### Smoke test with curl
+
+```bash
+curl -sS -X POST 'https://api.qa.tech/v1/mcp' \
+  -H 'Authorization: Bearer <API_KEY>' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+A successful response lists the tools your key has access to.
+
+## Troubleshooting
+
+| Symptom                                | Likely cause                                                             |
+| -------------------------------------- | ------------------------------------------------------------------------ |
+| Client lists no QA.tech tools          | Restart the client after editing config. Verify the JSON or YAML parses. |
+| `401` or `403` from the server         | API key missing, malformed, or revoked. Re-copy from the dashboard.      |
+| Some tools missing                     | Key lacks `write` scope. Generate a write key from the dashboard.        |
+| `405 Method Not Allowed`               | The client sent a `GET`. QA.tech MCP is `POST`-only and stateless.       |
+| `qatech mcp configure` says no API key | Run `qatech configure -k <key>` first or pass `--api-key` directly.      |
+
+For anything else, [contact support](https://qa.tech/contact).

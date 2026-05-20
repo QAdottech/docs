@@ -1,0 +1,5 @@
+/* Sidebar nav icon overrides for pages without a matching FontAwesome glyph. */
+a[href="/integrations/mcp"] > svg {
+  -webkit-mask-image: url('/images/mcp-logo.svg') !important;
+  mask-image: url('/images/mcp-logo.svg') !important;
+}
