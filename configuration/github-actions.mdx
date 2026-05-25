@@ -170,13 +170,13 @@ jobs:
 
 #### Outputs
 
-| Output         | Description                                                                   |
-| :------------- | :---------------------------------------------------------------------------- |
-| `run_created`  | Whether the test run was created successfully                                 |
-| `run_short_id` | The short ID of the run                                                       |
-| `run_url`      | The URL of the run                                                            |
-| `run_status`   | Final status (`COMPLETED`, `ERROR`, `CANCELLED`) - only when `blocking: true` |
-| `run_result`   | Test result (`PASSED`, `FAILED`, `SKIPPED`) - only when `blocking: true`      |
+| Output         | Description                                                                                   |
+| :------------- | :-------------------------------------------------------------------------------------------- |
+| `run_created`  | Whether the test run was created successfully                                                 |
+| `run_short_id` | The short ID of the run                                                                       |
+| `run_url`      | The URL of the run                                                                            |
+| `run_status`   | Final status (`COMPLETED`, `ERROR`, `CANCELLED`, or `TIMED_OUT`) - only when `blocking: true` |
+| `run_result`   | Test result (`PASSED`, `FAILED`, `SKIPPED`) - only when `blocking: true`                      |
 
 ## Change Review Action
 
@@ -389,22 +389,23 @@ The agent posts its review natively on the PR. These outputs let you link to or 
 | `chat_created`  | `"true"` when the chat conversation was created successfully.                                                                                         |
 | `chat_short_id` | Short ID of the change review chat conversation (e.g. `chat_abc123`).                                                                                 |
 | `chat_url`      | Dashboard URL of the chat. Always set, even when not blocking.                                                                                        |
-| `chat_status`   | Final status of the agent's assistant message: `COMPLETED`, `FAILED`, or `CANCELLED`. Only set when `blocking: true`.                                 |
+| `chat_status`   | Final status of the agent's assistant message: `COMPLETED`, `FAILED`, `CANCELLED`, or `TIMED_OUT`. Only set when `blocking: true`.                    |
 | `chat_response` | The agent's final assistant text in the chat (free-form, may summarize what was done). Not the GitHub PR review body. Only set when `blocking: true`. |
 
 ### How polling works
 
 When `blocking: true`, the action polls [`GET /v1/chat/{chat_short_id}`](/api-reference/chat/get-chat-conversation) every 20 seconds until the latest assistant message reaches a terminal status:
 
-| Assistant status | Action behavior                                                          |
-| :--------------- | :----------------------------------------------------------------------- |
-| `INITIATED`      | Continues polling.                                                       |
-| `PARTIAL`        | Continues polling.                                                       |
-| `COMPLETED`      | Sets `chat_status` and `chat_response`. Step succeeds.                   |
-| `FAILED`         | Sets `chat_status` and `chat_response`. Step fails via `core.setFailed`. |
-| `CANCELLED`      | Sets `chat_status` and `chat_response`. Step fails via `core.setFailed`. |
+| Assistant status       | Action behavior                                                          |
+| :--------------------- | :----------------------------------------------------------------------- |
+| `INITIATED`            | Continues polling.                                                       |
+| `PARTIAL`              | Continues polling.                                                       |
+| `COMPLETED`            | Sets `chat_status` and `chat_response`. Step succeeds.                   |
+| `FAILED`               | Sets `chat_status` and `chat_response`. Step fails via `core.setFailed`. |
+| `CANCELLED`            | Sets `chat_status` and `chat_response`. Step fails via `core.setFailed`. |
+| _(60 minutes elapsed)_ | Sets `chat_status` to `TIMED_OUT`. Step fails via `core.setFailed`.      |
 
-There is no built-in timeout. Set a [`timeout-minutes`](https://docs.github.com/en/actions/using-jobs/using-conditions-to-control-job-execution#jobsjob_idstepstimeout-minutes) on the step if you need one.
+Polling stops after an internal 60-minute timeout. Set a shorter [`timeout-minutes`](https://docs.github.com/en/actions/using-jobs/using-conditions-to-control-job-execution#jobsjob_idstepstimeout-minutes) on the step if you need a tighter cap.
 
 ## Direct API alternatives
 
