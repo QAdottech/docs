@@ -8,12 +8,12 @@ The [`QAdottech/run-action`](https://github.com/QAdottech/run-action) repository
 
 | Action                                        | Path                                    | What it does                                                                                        |
 | :-------------------------------------------- | :-------------------------------------- | :-------------------------------------------------------------------------------------------------- |
-| [Test Plan Action](#test-plan-action)         | `QAdottech/run-action@v3`               | Trigger a specific test plan on demand. Full control over which tests run and against which URL.    |
+| [Test Run Action](#test-run-action)           | `QAdottech/run-action@v3`               | Trigger a specific test plan on demand. Full control over which tests run and against which URL.    |
 | [Change Review Action](#change-review-action) | `QAdottech/run-action/change-review@v3` | Trigger a QA.tech autonomous change review on a pull request and (optionally) wait for the verdict. |
 
 <Note>
 **Picking an integration mode:**
-- Use the **Test Plan Action** for regression suites, scheduled runs, and deployment gates where you decide which tests run.
+- Use the **Test Run Action** for regression suites, scheduled runs, and deployment gates where you decide which tests run.
 - Use the **Change Review Action** when the [GitHub App's](/configuration/github-app) automatic PR review is not flexible enough. Common cases: projects with more than one application per PR (where the App's environment mapping is fiddly), workflows that need to trigger reviews on labels or after a specific deploy job, or pipelines that need to route specific application short IDs to specific preview URLs per PR.
 
 Both actions live in the same [`QAdottech/run-action`](https://github.com/QAdottech/run-action) repo. The Change Review Action calls the same review agent the GitHub App runs and **requires the GitHub App to be installed and the repository mapped to the project**; it just lets you drive the review from CI instead of (or alongside) the App's automatic trigger.
@@ -22,7 +22,7 @@ See [CI/CD Integration](/configuration/ci-cd-integration) for the broader pictur
 
 </Note>
 
-## Test Plan Action
+## Test Run Action
 
 Trigger a test plan from a workflow. Use this when you want full control over which tests run, when, and where.
 
@@ -156,7 +156,7 @@ jobs:
   run: echo "Tests failed! See ${{ steps.qatech.outputs.run_url }}"
 ```
 
-### Test Plan Action reference
+### Test Run Action reference
 
 #### Inputs
 
@@ -199,9 +199,9 @@ The Change Review Action runs the same agent as the GitHub App, so the App still
 </Step>
 
 <Step title="Configure Secrets">
-  Reuse the `QATECH_API_TOKEN` secret from the Test Plan Action setup. The
-  Change Review Action does not need `project_id`; your API token already scopes
-  the request to a project.
+  Reuse the `QATECH_API_TOKEN` secret from the Test Run Action setup. The Change
+  Review Action does not need `project_id`; your API token already scopes the
+  request to a project.
 </Step>
 
 <Step title="Find your application short IDs">
