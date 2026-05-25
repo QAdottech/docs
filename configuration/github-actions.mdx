@@ -30,12 +30,11 @@ Trigger a test plan from a workflow. Use this when you want full control over wh
 
 <Steps>
   <Step title="Configure Secrets">
-    Add secrets to your GitHub repository (**Settings → Secrets and variables → Actions**):
+    Add a secret to your GitHub repository (**Settings → Secrets and variables → Actions**):
 
     - `QATECH_API_TOKEN` - Your QA.tech API token
-    - `QATECH_PROJECT_ID` - Your QA.tech project ID
 
-    Find these in your [project settings](https://app.qa.tech/current-project/settings/integrations).
+    Find it in your [project settings](https://app.qa.tech/current-project/settings/integrations).
 
   </Step>
 
@@ -54,7 +53,6 @@ jobs:
     steps:
       - uses: QAdottech/run-action@v3
         with:
-          project_id: ${{ secrets.QATECH_PROJECT_ID }}
           api_token: ${{ secrets.QATECH_API_TOKEN }}
           blocking: true
 ```
@@ -78,7 +76,6 @@ jobs:
     steps:
       - uses: QAdottech/run-action@v3
         with:
-          project_id: ${{ secrets.QATECH_PROJECT_ID }}
           api_token: ${{ secrets.QATECH_API_TOKEN }}
           test_plan_short_id: "smoke-tests"
           blocking: true
@@ -110,7 +107,6 @@ jobs:
     steps:
       - uses: QAdottech/run-action@v3
         with:
-          project_id: ${{ secrets.QATECH_PROJECT_ID }}
           api_token: ${{ secrets.QATECH_API_TOKEN }}
           test_plan_short_id: "regression-suite"
           blocking: true
@@ -141,7 +137,6 @@ jobs:
     steps:
       - uses: QAdottech/run-action@v3
         with:
-          project_id: ${{ secrets.QATECH_PROJECT_ID }}
           api_token: ${{ secrets.QATECH_API_TOKEN }}
           test_plan_short_id: "full-regression"
           blocking: false
@@ -153,7 +148,6 @@ jobs:
 - uses: QAdottech/run-action@v3
   id: qatech
   with:
-    project_id: ${{ secrets.QATECH_PROJECT_ID }}
     api_token: ${{ secrets.QATECH_API_TOKEN }}
     blocking: true
 
@@ -168,12 +162,11 @@ jobs:
 
 | Input                 | Description                                                   | Required | Default               |
 | :-------------------- | :------------------------------------------------------------ | :------- | :-------------------- |
-| `project_id`          | Your QA.tech project ID                                       | Yes      | -                     |
 | `api_token`           | QA.tech API token                                             | Yes      | -                     |
 | `test_plan_short_id`  | Test plan short ID to run                                     | No       | All tests             |
 | `blocking`            | Wait for test results before completing                       | No       | `false`               |
 | `applications_config` | JSON with application environment and device preset overrides | No       | -                     |
-| `api_url`             | Custom API URL                                                | No       | `https://app.qa.tech` |
+| `api_url`             | Custom API URL                                                | No       | `https://api.qa.tech` |
 
 #### Outputs
 
@@ -188,21 +181,6 @@ jobs:
 ## Change Review Action
 
 Trigger a QA.tech autonomous change review on a pull request directly from your workflow. The action calls [`POST /v1/chat/change-review`](/api-reference/chat/start-change-review-chat) with the PR URL and your per-PR environment overrides. QA.tech then runs the same review agent the [GitHub App](/configuration/github-app) uses: it selects relevant tests, fills coverage gaps, runs everything against your preview, and posts a native PR review on GitHub when it's done. The action exposes the chat conversation URL as a workflow output, and (in blocking mode) the agent's final assistant message and status.
-
-### Action vs the GitHub App automatic trigger
-
-Both run the same review agent and both post the same native PR review to GitHub. The action is for cases where the App's automatic trigger is too rigid about _when_ it fires and _which_ application URLs it tests against.
-
-| Capability                                                  | Change Review Action                                                 | GitHub App auto-trigger                                 |
-| :---------------------------------------------------------- | :------------------------------------------------------------------- | :------------------------------------------------------ |
-| Runs the same change review agent                           | Yes                                                                  | Yes                                                     |
-| Posts a native PR review on GitHub                          | Yes                                                                  | Yes                                                     |
-| Picks app URLs per PR (e.g. multiple apps, branch-specific) | Yes (you supply `applications_config`)                               | Limited (static environment mapping)                    |
-| Trigger logic (labels, paths, gated on a deploy job)        | You define it in the workflow                                        | Fires on every PR open/sync                             |
-| Exposes chat URL and agent status as workflow outputs       | Yes (`chat_url` always; `chat_status`/`chat_response` when blocking) | No (chat URL is linked from the review comment instead) |
-| Requires the [GitHub App](/configuration/github-app)        | Yes (installed + repo mapped)                                        | Yes                                                     |
-
-If the App's automatic trigger works for you, prefer it: zero workflow code. Reach for the action when you need custom orchestration on top.
 
 ### Setup
 
