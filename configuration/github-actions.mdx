@@ -1,27 +1,43 @@
 ---
 title: GitHub Actions
-description: 'Integrate QA.tech testing into GitHub Actions workflows'
-icon: 'github'
+description: "Integrate QA.tech testing and PR reviews into GitHub Actions workflows"
+icon: "github"
 ---
 
-Use the official QA.tech GitHub Action to trigger test runs from your workflows. This gives you full control over which test plans run, when they run, and which environments to test.
+The [`QAdottech/run-action`](https://github.com/QAdottech/run-action) repository ships two GitHub Actions you can use from any workflow:
+
+| Action                                        | Path                                    | What it does                                                                                        |
+| :-------------------------------------------- | :-------------------------------------- | :-------------------------------------------------------------------------------------------------- |
+| [Test Run Action](#test-run-action)           | `QAdottech/run-action@v3`               | Trigger a specific test plan on demand. Full control over which tests run and against which URL.    |
+| [Change Review Action](#change-review-action) | `QAdottech/run-action/change-review@v3` | Trigger a QA.tech autonomous change review on a pull request and (optionally) wait for the verdict. |
 
 <Note>
-**Looking for AI-powered testing?** The [GitHub App](/configuration/github-app) provides automatic test creation and PR reviews. This page covers the GitHub Action for API-driven testing.
+**Picking an integration mode:**
+- Use the **Test Run Action** for regression suites, scheduled runs, and deployment gates where you decide which tests run.
+- Use the **Change Review Action** when the [GitHub App's](/configuration/github-app) automatic PR review is not flexible enough. Common cases: projects with more than one application per PR (where the App's environment mapping is fiddly), workflows that need to trigger reviews on labels or after a specific deploy job, or pipelines that need to route specific application short IDs to specific preview URLs per PR.
+
+Both actions live in the same [`QAdottech/run-action`](https://github.com/QAdottech/run-action) repo. The Change Review Action calls the same review agent the GitHub App runs and **requires the GitHub App to be installed and the repository mapped to the project**; it just lets you drive the review from CI instead of (or alongside) the App's automatic trigger.
+
+See [CI/CD Integration](/configuration/ci-cd-integration) for the broader picture.
+
 </Note>
 
-## Setup
+## Test Run Action
+
+Trigger a test plan from a workflow. Use this when you want full control over which tests run, when, and where.
+
+### Setup
 
 <Steps>
   <Step title="Configure Secrets">
-    Add secrets to your GitHub repository (**Settings → Secrets and variables → Actions**):
-    
+    Add a secret to your GitHub repository (**Settings → Secrets and variables → Actions**):
+
     - `QATECH_API_TOKEN` - Your QA.tech API token
-    - `QATECH_PROJECT_ID` - Your QA.tech project ID
-    
-    Find these in your [project settings](https://app.qa.tech/current-project/settings/integrations).
+
+    Find it in your [project settings](https://app.qa.tech/current-project/settings/integrations).
+
   </Step>
-  
+
   <Step title="Create Workflow">
     Create `.github/workflows/qatech.yml`:
 
@@ -35,18 +51,18 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: QAdottech/run-action@v2
+      - uses: QAdottech/run-action@v3
         with:
-          project_id: ${{ secrets.QATECH_PROJECT_ID }}
           api_token: ${{ secrets.QATECH_API_TOKEN }}
           blocking: true
 ```
+
   </Step>
 </Steps>
 
-## Implementation Patterns
+### Implementation patterns
 
-### Run on Pull Requests
+#### Run on pull requests
 
 ```yaml
 name: PR Tests
@@ -58,15 +74,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: QAdottech/run-action@v2
+      - uses: QAdottech/run-action@v3
         with:
-          project_id: ${{ secrets.QATECH_PROJECT_ID }}
           api_token: ${{ secrets.QATECH_API_TOKEN }}
-          test_plan_short_id: 'smoke-tests'
+          test_plan_short_id: "smoke-tests"
           blocking: true
 ```
 
-### Test Preview Deployments
+#### Test preview deployments
 
 ```yaml
 name: Test Preview
@@ -90,11 +105,10 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: QAdottech/run-action@v2
+      - uses: QAdottech/run-action@v3
         with:
-          project_id: ${{ secrets.QATECH_PROJECT_ID }}
           api_token: ${{ secrets.QATECH_API_TOKEN }}
-          test_plan_short_id: 'regression-suite'
+          test_plan_short_id: "regression-suite"
           blocking: true
           applications_config: |
             {
@@ -109,33 +123,31 @@ jobs:
             }
 ```
 
-### Scheduled Testing
+#### Scheduled testing
 
 ```yaml
 name: Nightly Tests
 on:
   schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+    - cron: "0 2 * * *" # Daily at 2 AM UTC
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: QAdottech/run-action@v2
+      - uses: QAdottech/run-action@v3
         with:
-          project_id: ${{ secrets.QATECH_PROJECT_ID }}
           api_token: ${{ secrets.QATECH_API_TOKEN }}
-          test_plan_short_id: 'full-regression'
+          test_plan_short_id: "full-regression"
           blocking: false
 ```
 
-### Use Action Outputs
+#### Use action outputs
 
 ```yaml
-- uses: QAdottech/run-action@v2
+- uses: QAdottech/run-action@v3
   id: qatech
   with:
-    project_id: ${{ secrets.QATECH_PROJECT_ID }}
     api_token: ${{ secrets.QATECH_API_TOKEN }}
     blocking: true
 
@@ -144,36 +156,269 @@ jobs:
   run: echo "Tests failed! See ${{ steps.qatech.outputs.run_url }}"
 ```
 
-## Action Reference
+### Test Run Action reference
 
-### Inputs
+#### Inputs
 
-| Input | Description | Required | Default |
-|:------|:------------|:---------|:--------|
-| `project_id` | Your QA.tech project ID | Yes | - |
-| `api_token` | QA.tech API token | Yes | - |
-| `test_plan_short_id` | Test plan short ID to run | No | All tests |
-| `blocking` | Wait for test results before completing | No | `false` |
-| `applications_config` | JSON with application environment and device preset overrides | No | - |
-| `api_url` | Custom API URL | No | `https://app.qa.tech` |
+| Input                 | Description                                                   | Required | Default               |
+| :-------------------- | :------------------------------------------------------------ | :------- | :-------------------- |
+| `api_token`           | QA.tech API token                                             | Yes      | -                     |
+| `test_plan_short_id`  | Test plan short ID to run                                     | No       | All tests             |
+| `blocking`            | Wait for test results before completing                       | No       | `false`               |
+| `applications_config` | JSON with application environment and device preset overrides | No       | -                     |
+| `api_url`             | Custom API URL                                                | No       | `https://api.qa.tech` |
 
-### Outputs
+#### Outputs
 
-| Output | Description |
-|:-------|:------------|
-| `run_created` | Whether the test run was created successfully |
-| `run_short_id` | The short ID of the run |
-| `run_url` | The URL of the run |
-| `run_status` | Final status (`COMPLETED`, `ERROR`, `CANCELLED`) - only when `blocking: true` |
-| `run_result` | Test result (`PASSED`, `FAILED`, `SKIPPED`) - only when `blocking: true` |
+| Output         | Description                                                                                   |
+| :------------- | :-------------------------------------------------------------------------------------------- |
+| `run_created`  | Whether the test run was created successfully                                                 |
+| `run_short_id` | The short ID of the run                                                                       |
+| `run_url`      | The URL of the run                                                                            |
+| `run_status`   | Final status (`COMPLETED`, `ERROR`, `CANCELLED`, or `TIMED_OUT`) - only when `blocking: true` |
+| `run_result`   | Test result (`PASSED`, `FAILED`, `SKIPPED`) - only when `blocking: true`                      |
 
-## Direct API Alternative
+## Change Review Action
 
-If you prefer curl over the Action, use the [Start Run API](/api-reference/start-run) to trigger runs and the [Run Status API](/api-reference/run-status) for polling in non-blocking workflows.
+Trigger a QA.tech autonomous change review on a pull request directly from your workflow. The action calls [`POST /v1/chat/change-review`](/api-reference/chat/start-change-review-chat) with the PR URL and your per-PR environment overrides. QA.tech then runs the same review agent the [GitHub App](/configuration/github-app) uses: it selects relevant tests, fills coverage gaps, runs everything against your preview, and posts a native PR review on GitHub when it's done. The action exposes the chat conversation URL as a workflow output, and (in blocking mode) the agent's final assistant message and status.
 
-## Related Documentation
+### Setup
+
+The Change Review Action runs the same agent as the GitHub App, so the App still needs to be installed and the repository mapped to your project. The action then drives that agent from CI.
+
+<Steps>
+  <Step title="Install the GitHub App and map your repository">
+    If you haven't already, follow [Install GitHub App](/configuration/github-app#how-to-set-it-up) to connect the App at the organization level and select your repository under **Settings → Integrations → GitHub App**. Without this, the action's chat will start but the agent has no permission to read your PR.
+  </Step>
+
+<Step title="Disable Auto-run on PRs (optional)">
+  If you want the action to be the only thing that triggers reviews on this
+  repo, open **Settings → Integrations → GitHub App** and turn off **Auto-run on
+  PRs**. Leave it on if you want both the automatic trigger and on-demand action
+  runs.
+</Step>
+
+<Step title="Configure Secrets">
+  Reuse the `QATECH_API_TOKEN` secret from the Test Run Action setup. The Change
+  Review Action does not need `project_id`; your API token already scopes the
+  request to a project.
+</Step>
+
+<Step title="Find your application short IDs">
+  Open **Test Plans → API Integration** in QA.tech to see which applications
+  belong to your project. Each application has a short ID (e.g. `app_ONdgMD`)
+  that you pass in `applications_config`. Projects with more than one
+  application should pass one entry per app so the agent knows which URL to test
+  against.
+</Step>
+
+  <Step title="Create Workflow">
+    Create `.github/workflows/qatech-change-review.yml`:
+
+```yaml
+name: QA.tech Change Review
+on:
+  pull_request:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: QAdottech/run-action/change-review@v3
+        with:
+          api_token: ${{ secrets.QATECH_API_TOKEN }}
+          applications_config: |
+            {
+              "applications": {
+                "app_ONdgMD": {
+                  "environment": {
+                    "url": "https://preview-${{ github.event.number }}.example.com"
+                  }
+                }
+              }
+            }
+```
+
+    On `pull_request` events the action reads the PR URL from `github.event.pull_request.html_url` automatically, so `pr_url` is optional.
+
+  </Step>
+</Steps>
+
+### Implementation patterns
+
+#### Block the workflow until the review finishes
+
+By default the action returns as soon as the chat conversation is created and the agent starts working. Set `blocking: true` to wait for the agent to finish (and post its native PR review) before the workflow step completes. The step fails when the review ends in `FAILED` or `CANCELLED`, which makes it suitable as a deployment gate.
+
+```yaml
+- uses: QAdottech/run-action/change-review@v3
+  id: review
+  with:
+    api_token: ${{ secrets.QATECH_API_TOKEN }}
+    blocking: true
+    applications_config: |
+      {
+        "applications": {
+          "app_ONdgMD": {
+            "environment": {
+              "url": "https://preview-${{ github.event.number }}.example.com"
+            }
+          }
+        }
+      }
+
+- name: Log conversation
+  if: always()
+  run: |
+    echo "Status: ${{ steps.review.outputs.chat_status }}"
+    echo "Conversation URL: ${{ steps.review.outputs.chat_url }}"
+    echo "Final assistant message: ${{ steps.review.outputs.chat_response }}"
+```
+
+The native review is posted to the PR by the agent itself. `chat_response` is the agent's final assistant text in the chat (which may summarize what it did but is not the GitHub review body); use it for logging or further automation, not as a replacement for the PR review.
+
+#### Route multiple applications to per-PR preview URLs
+
+The most common reason to reach for this action over the GitHub App's automatic trigger: projects with more than one application per PR (for example a frontend, a backend, and an admin dashboard). Pass one entry per application so the agent knows which preview URL to use for each. Each entry must include an `environment` with at least one of `url`, `shortId`, or `applicationBuildShortId`.
+
+```yaml
+- uses: QAdottech/run-action/change-review@v3
+  with:
+    api_token: ${{ secrets.QATECH_API_TOKEN }}
+    applications_config: |
+      {
+        "applications": {
+          "app_frontend": {
+            "environment": {
+              "url": "https://preview-${{ github.event.number }}-web.example.com",
+              "name": "PR-${{ github.event.number }}"
+            }
+          },
+          "app_backend": {
+            "environment": {
+              "url": "https://preview-${{ github.event.number }}-api.example.com",
+              "name": "PR-${{ github.event.number }}"
+            }
+          }
+        }
+      }
+```
+
+#### Override the device preset
+
+Pass `devicePresetShortId` alongside `environment` to run the review against a specific [device preset](/test-features/device-presets):
+
+```yaml
+applications_config: |
+  {
+    "applications": {
+      "app_frontend": {
+        "environment": { "url": "https://preview.example.com" },
+        "devicePresetShortId": "preset_mobile_abc123"
+      }
+    }
+  }
+```
+
+#### Add free-form context
+
+Use the `context` input to guide the review with PR-specific or repo-wide instructions:
+
+```yaml
+- uses: QAdottech/run-action/change-review@v3
+  with:
+    api_token: ${{ secrets.QATECH_API_TOKEN }}
+    context: |
+      Focus on the new Apple Pay flow. Test login is shared with the existing
+      checkout test and uses test-user@example.com.
+    applications_config: |
+      { "applications": { "app_ONdgMD": { "environment": { "url": "https://preview.example.com" } } } }
+```
+
+#### Review a different PR
+
+Set `pr_url` when the workflow runs outside a `pull_request` event (for example on `workflow_dispatch`):
+
+```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      pr_url:
+        description: PR to review
+        required: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: QAdottech/run-action/change-review@v3
+        with:
+          api_token: ${{ secrets.QATECH_API_TOKEN }}
+          pr_url: ${{ inputs.pr_url }}
+          applications_config: |
+            { "applications": { "app_ONdgMD": { "environment": { "url": "https://staging.example.com" } } } }
+```
+
+### Change Review Action reference
+
+#### Inputs
+
+| Input                 | Description                                                                                                                                                         | Required | Default                    |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------- | :------------------------- |
+| `api_token`           | QA.tech API token                                                                                                                                                   | Yes      | -                          |
+| `applications_config` | JSON of `{ "applications": { "<applicationShortId>": { "environment": { ... }, "devicePresetShortId": "..." } } }`. Each application must include an `environment`. | Yes      | -                          |
+| `blocking`            | Wait for the assistant reply and expose it as an output. Fails the step on `FAILED` or `CANCELLED`.                                                                 | No       | `false`                    |
+| `context`             | Free-form context appended to the review.                                                                                                                           | No       | -                          |
+| `pr_url`              | Pull request URL to review. Defaults to the PR URL of the current `pull_request` event.                                                                             | No       | Auto-detected on PR events |
+| `api_url`             | Custom API URL.                                                                                                                                                     | No       | `https://api.qa.tech`      |
+
+Each environment in `applications_config` must include one of:
+
+- `url` (plus optional `name`) to point the application at a preview URL.
+- `shortId` to reference an existing environment short ID.
+- `applicationBuildShortId` to reference a previously uploaded mobile build.
+
+See [Start change review chat API](/api-reference/chat/start-change-review-chat) for the request schema this maps to.
+
+#### Outputs
+
+The agent posts its review natively on the PR. These outputs let you link to or log the chat conversation from your workflow; they are not the PR review body.
+
+| Output          | Description                                                                                                                                           |
+| :-------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `chat_created`  | `"true"` when the chat conversation was created successfully.                                                                                         |
+| `chat_short_id` | Short ID of the change review chat conversation (e.g. `chat_abc123`).                                                                                 |
+| `chat_url`      | Dashboard URL of the chat. Always set, even when not blocking.                                                                                        |
+| `chat_status`   | Final status of the agent's assistant message: `COMPLETED`, `FAILED`, `CANCELLED`, or `TIMED_OUT`. Only set when `blocking: true`.                    |
+| `chat_response` | The agent's final assistant text in the chat (free-form, may summarize what was done). Not the GitHub PR review body. Only set when `blocking: true`. |
+
+### How polling works
+
+When `blocking: true`, the action polls [`GET /v1/chat/{chat_short_id}`](/api-reference/chat/get-chat-conversation) every 20 seconds until the latest assistant message reaches a terminal status:
+
+| Assistant status       | Action behavior                                                          |
+| :--------------------- | :----------------------------------------------------------------------- |
+| `INITIATED`            | Continues polling.                                                       |
+| `PARTIAL`              | Continues polling.                                                       |
+| `COMPLETED`            | Sets `chat_status` and `chat_response`. Step succeeds.                   |
+| `FAILED`               | Sets `chat_status` and `chat_response`. Step fails via `core.setFailed`. |
+| `CANCELLED`            | Sets `chat_status` and `chat_response`. Step fails via `core.setFailed`. |
+| _(60 minutes elapsed)_ | Sets `chat_status` to `TIMED_OUT`. Step fails via `core.setFailed`.      |
+
+Polling stops after an internal 60-minute timeout. Set a shorter [`timeout-minutes`](https://docs.github.com/en/actions/using-jobs/using-conditions-to-control-job-execution#jobsjob_idstepstimeout-minutes) on the step if you need a tighter cap.
+
+## Direct API alternatives
+
+If you prefer `curl` over the Actions:
+
+- Test runs: use the [Start Run API](/api-reference/start-run) to trigger runs and the [Run Status API](/api-reference/run-status) for polling.
+- Change reviews: use the [Start change review chat API](/api-reference/chat/start-change-review-chat) and poll with [Get chat conversation](/api-reference/chat/get-chat-conversation) until the latest assistant message reaches `COMPLETED`.
+
+## Related documentation
 
 - **[CI/CD Integration](/configuration/ci-cd-integration)** - Overview of integration modes
-- **[GitHub App](/configuration/github-app)** - AI-powered automatic PR reviews
-- **[API Reference](/api-reference/start-run)** - Complete API documentation
+- **[GitHub App](/configuration/github-app)** - AI-powered automatic PR reviews via the GitHub App
+- **[GitLab](/configuration/gitlab)** - Same patterns for GitLab CI and merge request reviews
+- **[Start Run API](/api-reference/start-run)** - Complete test-run API documentation
+- **[Start change review chat API](/api-reference/chat/start-change-review-chat)** - Complete change review API documentation
 - **[Notifications](/core-concepts/notifications)** - Slack notification configuration

@@ -71,19 +71,28 @@ QA.tech exploratory review integrations automatically analyze pull/merge request
 4. **Runs tests** - Executes against PR preview deployment
 5. **Posts review** - Comments on the request with test results and approval/rejection
 
+### Ways to trigger a change review
+
+| Trigger                                                                             | Best for                                                                                                       | Posts review to PR/MR?                                                |
+| :---------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| **[GitHub App](/configuration/github-app)** (automatic)                             | Default for GitHub: every PR open/sync triggers a review, with environments resolved from the App's mapping    | Yes (native PR review)                                                |
+| **[GitLab MR integration](/configuration/gitlab)** (automatic)                      | GitLab teams with native deployment signals or `@qa.tech` comments                                             | Yes (MR review note)                                                  |
+| **[Change Review Action](/configuration/github-actions#change-review-action)** (CI) | Custom flows on top of the GitHub App: multiple applications per PR, label-gated triggers, deploy-job ordering | Yes (same native PR review the App posts)                             |
+| **[Start change review chat API](/api-reference/chat/start-change-review-chat)**    | GitLab CI or any pipeline that can make HTTP requests                                                          | Yes when invoked with `mode: "pr"` and a connected GitHub/GitLab repo |
+
 ### Requirements
 
-- GitHub App or GitLab integration connected to your repository
-- Preview deployment context available (native deployment signals or manual `@qa.tech` comment with preview URL)
-- Repository selected in QA.tech integration settings
+- Connected VCS integration: the [GitHub App](/configuration/github-app) (for GitHub triggers, including the Change Review Action) or the [GitLab integration](/configuration/gitlab) (for GitLab triggers)
+- Repository selected in **Settings → Integrations** so the review agent has permission to read the PR/MR
+- Preview deployment context available: native deployment signals, a manual `@qa.tech` comment with the preview URL, or `applications_config` supplied to the action/API
 
 <Note>
-AI exploratory testing is available through:
-- **[GitHub App for PR Reviews](/configuration/github-app)** for GitHub pull requests
-- **[GitLab Merge Request Reviews](/configuration/gitlab)** for GitLab merge requests
-
-For other platforms, use API-driven testing.
-
+  All four triggers run the same review agent and post the same native PR/MR
+  review. The difference is who detects the PR and what you can customize around
+  it. Use the automatic GitHub App or GitLab integration for zero-config reviews
+  on every PR/MR; reach for the Change Review Action or API when you need custom
+  orchestration on top of that integration (e.g. routing application short IDs
+  to specific URLs per PR, or gating reviews behind a deploy job).
 </Note>
 
 ## Related Documentation
