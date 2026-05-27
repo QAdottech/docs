@@ -1,0 +1,230 @@
+---
+title: 'Cloudflare WAF & Turnstile'
+description: 'Allow QA.tech through Cloudflare edge blocking (WAF) and app-embedded Turnstile widgets'
+icon: 'cloud'
+---
+
+Cloudflare can block QA.tech tests in **two different ways**. They look similar to testers (“something stopped the page”) but are configured in **different places** and need **different fixes**.
+
+## Two types of Cloudflare blockers
+
+| | **1. Edge blocking (WAF / firewall)** | **2. Cloudflare Turnstile (in your app)** |
+| --- | --- | --- |
+| **What you see** | The **whole page** fails to load—403/1020, “Access denied”, JS challenge, or an interstitial before your HTML | Your app loads, but a small **“Verify that you are human”** widget blocks a form or action |
+| **Who controls it** | **You**, in the [Cloudflare dashboard](https://dash.cloudflare.com) (WAF, firewall rules, Bot Fight Mode, etc.) | **You**, in **your application code**—you add the Turnstile widget and validate tokens on your server |
+| **Fixed by** | WAF custom rules, IP allowlists, verified-bot skips (this page, [§ WAF](#waf-and-firewall-rules)) | Test sitekeys, staging config, or server-side bypass—not WAF rules ([§ Turnstile](#cloudflare-turnstile-in-your-application)) |
+
+<Warning>
+**WAF and firewall rules do not remove an embedded Turnstile widget.** If users see the small human-verification box on your login or checkout form, that is application Turnstile—you must change how your app loads or validates Turnstile, not only Cloudflare Security settings.
+</Warning>
+
+QA.tech traffic identifies as [**QATechBot**](/bot). Use the sections below based on which blocker you hit.
+
+---
+
+## WAF and firewall rules
+
+When Cloudflare blocks at the **edge**, the browser often never receives your app—or gets a Cloudflare error page instead. Configure this in the dashboard under **Security → WAF** (custom rules, managed rules) and related firewall / bot settings.
+
+<Note>
+On the **Free plan**, you cannot allow a single verified bot—you can only allow **all** verified bots at once, or match traffic another way. See [Free plan limitations](#free-plan-limitations) below.
+</Note>
+
+### Approaches at the edge
+
+| Approach | Best for | Security |
+| -------- | -------- | -------- |
+| Allow all verified bots (`cf.client.bot`) | Free plan; QA.tech is a Cloudflare-verified bot | High—Cloudflare validates bot IPs |
+| User-Agent + verified bot | Free plan; only QATechBot, when verified | Highest for a single bot |
+| User-Agent only | Allow only QATechBot by name | Lower—User-Agent can be spoofed |
+| [IP allowlist](/configuration/ip-access-control) | Any plan; works without verified bot status | High when combined with reverse DNS |
+
+### Free plan limitations
+
+Cloudflare exposes different bot signals by plan:
+
+| Signal | Plan | What it does |
+| ------ | ---- | ------------ |
+| `cf.client.bot` | Free | Boolean: `true` or `false`. Matches **all** verified bots or **none**. You cannot target one bot. |
+| `cf.bot_management.verified_bot` + `cf.verified_bot_category` | Enterprise | Target specific bot categories or individual bots. |
+
+So on Free you either allow every Cloudflare-verified bot, match **QATechBot** by User-Agent, or combine User-Agent with `cf.client.bot` when QA.tech traffic is verified.
+
+See [Verifying QATechBot traffic](/bot#verifying-qatechbot-traffic) for IP allowlists, reverse DNS, and Web Bot Auth.
+
+### Option 1: Allow all verified bots (recommended on Free)
+
+Create a WAF custom rule that skips remaining rules for any Cloudflare-verified bot (including QATechBot when verified):
+
+<Steps>
+  <Step title="Open WAF custom rules">
+    In the Cloudflare dashboard, go to **Security → WAF → Custom rules**.
+  </Step>
+  <Step title="Create the rule">
+    **Expression:**
+
+    ```
+    (cf.client.bot)
+    ```
+
+    **Action:** **Skip** → **All remaining custom rules**
+
+    **Place at:** **First** (top of the list).
+  </Step>
+  <Step title="Save and deploy">
+    Save the rule. Changes usually propagate within a few minutes.
+  </Step>
+</Steps>
+
+This lets Googlebot, Bingbot, monitoring bots, QATechBot (when verified), and other Cloudflare-verified bots through without hitting your other custom WAF rules.
+
+### Option 2: Allow QATechBot by User-Agent only
+
+If you only want to allow traffic that identifies as QATechBot (and accept Free-plan limits on per-bot verification):
+
+<Steps>
+  <Step title="Create a WAF custom rule">
+    **Expression:**
+
+    ```
+    (http.user_agent contains "QATechBot")
+    ```
+
+    **Action:** **Skip** → **All remaining custom rules**
+
+    **Place at:** **First**
+  </Step>
+</Steps>
+
+<Warning>
+User-Agent strings are easy to spoof. Any client can send `User-Agent: ...QATechBot...`. This is less secure than `cf.client.bot`, which checks the client against Cloudflare’s verified bot IP data.
+</Warning>
+
+The canonical suffix is documented on the [QA.tech Bot](/bot) page.
+
+### Option 3: User-Agent and verified bot (best security on Free)
+
+Require both the QATechBot User-Agent **and** Cloudflare verified-bot status:
+
+<Steps>
+  <Step title="Create a WAF custom rule">
+    **Expression:**
+
+    ```
+    (http.user_agent contains "QATechBot" and cf.client.bot)
+    ```
+
+    **Action:** **Skip** → **All remaining custom rules**
+
+    **Place at:** **First**
+  </Step>
+</Steps>
+
+The request must claim to be QATechBot **and** pass Cloudflare’s verified-bot check. Use this when QA.tech egress is recognized as a verified bot.
+
+### Enterprise: target specific bots
+
+On **Enterprise**, you can use Bot Management fields instead of allowing all verified bots:
+
+- `cf.bot_management.verified_bot`
+- `cf.verified_bot_category`
+
+Use Cloudflare’s bot category documentation to build rules that allow only the categories that include QATechBot, without opening all verified bots.
+
+---
+
+## Cloudflare Turnstile in your application
+
+**Turnstile** is a CAPTCHA-style widget **you embed** in HTML (login, signup, checkout, etc.). It is **not** configured with WAF custom rules. QA.tech cannot “skip” production Turnstile from the Cloudflare dashboard alone—you need an application-level strategy.
+
+### What testers usually see
+
+- The rest of the page renders normally.
+- A compact **“Verify that you are human”** (or invisible) challenge sits on the form QA.tech is trying to submit.
+- Tests fail on submit or timeout waiting for the widget.
+
+### What to do instead
+
+Pick one or combine approaches below. All of these are **application changes**—not Cloudflare dashboard settings.
+
+### Bypass Turnstile with a shared header
+
+On staging or other non-production URLs shared with QA.tech, skip rendering and validating Turnstile when a request carries a secret header only your team and QA.tech know.
+
+1. Store a secret in your environment (e.g. `CAPTCHA_BYPASS_SECRET`)—never commit it or expose it in client-side code.
+2. In your app, **do not render** the widget and **skip server-side siteverify** when the header matches:
+
+```javascript
+const PRE_SHARED_SECRET = process.env.CAPTCHA_BYPASS_SECRET;
+
+function shouldBypassTurnstile(headers) {
+  return headers['x-bypass-captcha'] === PRE_SHARED_SECRET;
+}
+
+// When rendering the page
+if (shouldBypassTurnstile(request.headers)) {
+  // doNotRender() — omit the Turnstile script/widget
+} else {
+  // render Turnstile as usual
+}
+
+// When handling form submit
+if (shouldBypassTurnstile(request.headers)) {
+  // skip Turnstile siteverify
+} else {
+  // verify cf-turnstile-response with Cloudflare
+}
+```
+
+3. In QA.tech, send the same header on every request—for example via [**Custom Headers** on a device preset](/test-features/device-presets#custom-headers):
+
+| Header | Value |
+| ------ | ----- |
+| `x-bypass-captcha` | Your `CAPTCHA_BYPASS_SECRET` value |
+
+<Warning>
+Treat the secret like a password. Use it only on environments where bypass is acceptable, rotate it if leaked, and never enable this check in production unless you fully accept the risk.
+</Warning>
+
+### Allow QA.tech traffic server-side
+
+If you prefer not to use a shared header, bypass Turnstile only when you can confidently identify QA.tech—for example:
+
+- Request comes from a [QA.tech allowlisted IP](/configuration/ip-access-control)
+- `User-Agent` contains `QATechBot` (see [QA.tech Bot](/bot)) **and** you validate IP or use other checks—not User-Agent alone on production
+
+Apply the same **do not render** and **skip siteverify** logic as the header approach, using your server-side detection instead of `x-bypass-captcha`.
+
+### Use Turnstile test keys (non-production)
+
+Cloudflare provides [dummy sitekeys and secret keys](https://developers.cloudflare.com/turnstile/troubleshooting/testing/) for automated testing—no real challenge, predictable pass/fail.
+
+<Steps>
+  <Step title="Pick test credentials">
+    For example, sitekey `1x00000000000000000000AA` with secret `1x0000000000000000000000000000000AA` always validates successfully.
+  </Step>
+  <Step title="Wire keys per environment">
+    In staging, preview, or QA.tech target environments, render the **test** sitekey in your frontend and validate with the matching **test** secret on your server. Keep production keys only in production.
+  </Step>
+</Steps>
+
+<Note>
+Production secret keys **reject** dummy tokens from test sitekeys. You must use the paired test secret key in the environment where test sitekeys are rendered.
+</Note>
+
+Do **not** rely on WAF skip rules or verified-bot expressions to clear an in-app Turnstile widget on production keys—those only affect **edge** security.
+
+---
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="QA.tech Bot" icon="robot" href="/bot">
+    User-Agent format, IP verification, and Web Bot Auth
+  </Card>
+  <Card title="IP Access" icon="globe" href="/configuration/ip-access-control">
+    Allowlist QA.tech egress IPs (helps edge blocking, optional app bypass)
+  </Card>
+</CardGroup>
+
+**External:** [Cloudflare WAF custom rules](https://developers.cloudflare.com/waf/custom-rules/), [Verified bots](https://developers.cloudflare.com/bots/get-started/verified-bots/), [Turnstile testing](https://developers.cloudflare.com/turnstile/troubleshooting/testing/)

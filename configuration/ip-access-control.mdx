@@ -32,6 +32,8 @@ Whitelisting QA.tech's IP addresses allows your tests to:
 
 ## Cloudflare Configuration
 
+For **Cloudflare edge blocking** (WAF / firewall) vs **Turnstile widgets in your app**, see **[Cloudflare WAF & Turnstile](/configuration/cloudflare-waf-turnstile)**.
+
 ### Recommended: AI Crawl Control
 
 Cloudflare's [AI Crawl Control](https://developers.cloudflare.com/ai-crawl-control/) is designed for managing automated traffic like QA.tech testing.
@@ -43,7 +45,7 @@ Cloudflare's [AI Crawl Control](https://developers.cloudflare.com/ai-crawl-contr
 
 **Why this works best:** Automatically manages bot traffic with built-in analytics and zero configuration for most users.
 
-### Alternative: WAF IP Rules
+### IP allowlist (WAF tools)
 
 If you need traditional IP whitelisting:
 

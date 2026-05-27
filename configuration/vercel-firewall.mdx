@@ -1,0 +1,90 @@
+---
+title: 'Vercel Firewall'
+description: 'Allow QATechBot traffic through the Vercel Firewall with a custom bypass rule'
+icon: 'shield'
+---
+
+When your app is hosted on Vercel, the **Vercel Firewall** (WAF) can block QA.tech before your application runs. QA.tech identifies as [**QATechBot**](/bot) in the `User-Agent` header—you can add a firewall rule to **bypass** security checks for that traffic.
+
+<Note>
+This is separate from **[Vercel Preview Protection](/configuration/vercel-preview-protection)** (password protection, Vercel Authentication, deployment protection). Use this page for **Firewall / WAF** rules; use the preview guide for protected preview URLs.
+</Note>
+
+## Allow QATechBot with a custom rule
+
+Create a custom firewall rule in your Vercel project that bypasses remaining rules when the User-Agent contains `QATechBot`:
+
+<Steps>
+  <Step title="Open Firewall settings">
+    In the [Vercel dashboard](https://vercel.com), open your project → **Firewall** (or **Security → Firewall**).
+  </Step>
+  <Step title="Add a custom rule">
+    Create a new custom rule with these settings:
+
+    | Field | Value |
+    | ----- | ----- |
+    | **Name** | `Allow QATechBot traffic` |
+    | **Description** (optional) | `Bypass security rules for QATechBot user agent to allow monitoring and testing` |
+    | **If** | **User Agent** → **Contains** → `QATechBot` |
+    | **Then** | **Bypass** |
+  </Step>
+  <Step title="Publish the rule">
+    Save and publish the rule. Vercel applies firewall changes globally within seconds—no redeploy required.
+  </Step>
+</Steps>
+
+<Frame>
+  <img
+    src="/images/vercel-firewall-qatechbot-rule.png"
+    alt="Vercel Firewall custom rule: User Agent contains QATechBot, action Bypass"
+  />
+</Frame>
+
+The **Bypass** action lets matching requests skip subsequent custom firewall rules (challenge, deny, rate limit, etc.) so QA.tech can load pages and run tests.
+
+<Warning>
+**User-Agent can be spoofed.** Any client can send `User-Agent: ...QATechBot...`. For stronger assurance, combine this rule with [QA.tech IP allowlisting](/configuration/ip-access-control) or validate traffic using [bot verification](/bot#verifying-qatechbot-traffic).
+</Warning>
+
+## User-Agent reference
+
+QA.tech appends this suffix to browser automation traffic:
+
+```http
+QATechBot/1.0 (+https://docs.qa.tech/bot)
+```
+
+Your rule should match on `QATechBot` (substring), which covers the full automation User-Agent.
+
+## CLI example
+
+You can also add the rule with the [Vercel CLI](https://vercel.com/docs/cli/firewall):
+
+```bash
+vercel firewall rules add \
+  --action bypass \
+  --condition "user_agent,sub,QATechBot" \
+  --name "Allow QATechBot traffic" \
+  --description "Bypass security rules for QATechBot user agent to allow monitoring and testing"
+```
+
+Publish staged firewall changes when prompted.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Vercel Preview Protection" icon="shield-check" href="/configuration/vercel-preview-protection">
+    Bypass deployment protection on preview URLs
+  </Card>
+  <Card title="QA.tech Bot" icon="robot" href="/bot">
+    User-Agent format and traffic verification
+  </Card>
+  <Card title="IP Access" icon="globe" href="/configuration/ip-access-control">
+    Allowlist QA.tech egress IPs
+  </Card>
+  <Card title="Cloudflare WAF & Turnstile" icon="cloud" href="/configuration/cloudflare-waf-turnstile">
+    Edge blocking and Turnstile on Cloudflare
+  </Card>
+</CardGroup>
+
+**External:** [Vercel WAF custom rules](https://vercel.com/docs/vercel-firewall/vercel-waf/custom-rules), [Vercel Firewall CLI](https://vercel.com/docs/cli/firewall)

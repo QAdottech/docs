@@ -40,7 +40,11 @@ User-Agent: QATechBot/1.0 (+https://docs.qa.tech/bot)
 
 ## Verifying QATechBot traffic
 
-If you use **Cloudflare Verified Bot** (or similar controls), QA.tech supports verification in two complementary ways:
+If you use **Cloudflare** at the edge (WAF / firewall) or embed **Turnstile** in your app, see **[Cloudflare WAF & Turnstile](/configuration/cloudflare-waf-turnstile)**—edge rules are configured in the dashboard; Turnstile is configured in your application.
+
+If you use the **Vercel Firewall**, see **[Vercel Firewall](/configuration/vercel-firewall)** to allow QATechBot traffic with a bypass rule.
+
+QA.tech supports verification in two complementary ways:
 
 ### 1. IP allowlist and reverse DNS
 
