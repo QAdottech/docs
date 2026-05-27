@@ -75,6 +75,7 @@
         "configuration/gitlab",
         "configuration/envoyer",
         "configuration/vercel-preview-protection",
+        "configuration/vercel-firewall",
         "configuration/cloudflare-waf-turnstile",
         "configuration/authentication",
         "configuration/ip-access-control",
