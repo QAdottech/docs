@@ -103,7 +103,7 @@ The assistant understands context and can handle follow-up questions, so you can
 
 The assistant automatically searches your knowledge base and [knowledge graph](/core-concepts/knowledge-graph) when generating tests and answering questions, giving you context-aware responses tailored to your specific application.
 
-**Note:** Knowledge and the knowledge graph are used when creating tests through chat, but not during test execution. When tests run, the agent only uses the test's goal, steps, and [Global Context](/core-concepts/knowledge#global-context) to navigate and verify results.
+**Note:** Knowledge and the knowledge graph are used when creating tests through chat, but not during test execution. When tests run, the agent only uses the test's goal, steps, and a targeted subset of knowledge - [Agent Rules](/core-concepts/knowledge#rules), Agent Visuals, the Project Summary, and any knowledge items attached to the test - to navigate and verify results.
 
 </Note>
 

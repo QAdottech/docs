@@ -4,60 +4,19 @@ description: Manage project knowledge and context for better AI assistance
 icon: "book-open"
 ---
 
-QA.tech's knowledge system helps AI assistants understand your project by providing context through knowledge items, global configuration, and auto-generated summaries. This enables more accurate test generation and better project-specific guidance.
+QA.tech's knowledge system helps AI assistants understand your project and helps the test agent run reliably. **Assistant** knowledge shapes how the chat assistant answers questions and creates tests, while **Test Agent** knowledge guides the agent as it executes those tests. Together they bring more accurate test generation and better project-specific guidance.
 
-## Types of Knowledge
+## Settings → Knowledge
 
-### Knowledge Items
+Knowledge lives in a sidebar group under [**Settings → Knowledge**](https://app.qa.tech/current-project/settings/knowledge), split into three tabs. Opening **Settings → Knowledge** lands you on the **Assistant** tab.
 
-Add documentation, links, and text content that AI assistants can reference when generating tests and answering questions. Knowledge items are stored at the project level and shared across all team members.
+### Assistant tab
 
-**What You Can Add:**
+Knowledge used by the [AI Chat Assistant](/core-concepts/ai-chat-assistant) and during test creation.
 
-- **URLs**: Link to documentation sites, help pages, API docs
-- **Text Content**: Add custom instructions, project notes, or guidelines
+#### Project Summary
 
-### Global Context
-
-Global context is included in the AI agent's prompt for **all test executions** and **chat conversations** in your project. Use this to specify project-specific behaviors, requirements, or guidelines that should always apply.
-
-**How It Works:**
-
-- Loaded once when a test starts executing
-- Passed to the AI on every decision it makes during test execution
-- Changes take effect immediately for new test runs (not mid-run)
-- Applies to both test execution and chat conversations
-
-**Use Cases with Examples:**
-
-| Use Case            | Example                                                                                          | What It Achieves                      |
-| ------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------- |
-| Domain knowledge    | "This is a railway booking system for American routes. Stations use AMTRAK codes."               | Agent understands domain terminology  |
-| Quality standards   | "Tests should fail if obvious typos or broken layouts are detected."                             | Agent enforces quality expectations   |
-| Data requirements   | "When creating test users, always use Swedish names and addresses."                              | Agent generates appropriate test data |
-| UI conventions      | "Red buttons indicate destructive actions - verify confirmation dialogs appear before clicking." | Agent handles UI patterns correctly   |
-| Auth flows          | "Login requires SMS 2FA. The code will be available in the test inbox."                          | Agent knows to check inbox for 2FA    |
-| Timing expectations | "Page loads may take up to 10 seconds in staging. Wait for loading indicators to disappear."     | Agent waits appropriately             |
-| Known limitations   | "The checkout flow is broken on mobile viewports - skip mobile tests for checkout."              | Agent avoids known issues             |
-
-**Best Practices:**
-
-- Keep it concise but specific - the agent sees this on every action
-- Focus on universal rules that apply to all tests
-- Include domain-specific terminology and behaviors
-- Mention any unusual UI patterns or interactions
-- Update when your product behavior changes
-
-**What NOT to Include:**
-
-- **Test-specific instructions** - put these in test steps instead
-- **Credentials** - use [Configs](/core-concepts/configs) instead
-- **URLs** - use [Applications and Environments](/core-concepts/applications-and-environments) instead
-- **Temporary workarounds** - document in test steps where needed
-
-### Project Summary
-
-An AI-generated summary of your website's functionality and structure, created by analyzing your pages and user interactions. This summary updates automatically as your site evolves.
+An AI-generated summary of your website's functionality and structure, created by analyzing your pages and user interactions. The summary is always part of chat context and updates as your site evolves.
 
 **What's Included:**
 
@@ -74,7 +33,7 @@ An AI-generated summary of your website's functionality and structure, created b
     Knowledge**](https://app.qa.tech/current-project/settings/knowledge).
   </Step>
   <Step title="Find Project Summary">
-    Find the **"Project Summary"** section on the page.
+    Find the **"Project Summary"** section on the **Assistant** tab.
   </Step>
   <Step title="Refresh Summary">
     Click **"Refresh"** to generate an updated summary based on your latest site
@@ -87,47 +46,123 @@ An AI-generated summary of your website's functionality and structure, created b
   appears, ensure you've run some tests or site analysis first.
 </Note>
 
+#### Assistant Rules
+
+Rules the chat assistant always follows when answering questions and creating tests. See [Rules](#rules) below.
+
+#### PR Review Rules
+
+Rules applied during PR review. See [Rules](#rules) below.
+
+#### Library
+
+Link and text knowledge items that AI assistants can reference when generating tests and answering questions. Library items are stored at the project level and shared across all team members.
+
+**What You Can Add:**
+
+- **URLs**: Link to documentation sites, help pages, API docs. URLs are crawled and indexed.
+- **Text Content**: Add custom instructions, project notes, or guidelines. Text items are stored and summarized.
+
+See [Adding Library Items](#adding-library-items) for steps.
+
+#### Memories
+
+Knowledge items the assistant creates automatically from your conversations, capturing useful facts it learns as you work. You can review, edit, and delete memories from the **Assistant** tab so the assistant keeps an accurate picture of your project.
+
+### Test Agent tab
+
+Knowledge used by the test agent during test execution.
+
+#### Agent Rules
+
+Rules the test agent follows while executing tests. Agent Rules support **targeting filters** - by application, labels, scenario, or URL path - so a rule applies only to matching tests instead of every test in the project. See [Rules](#rules) below.
+
+#### Agent Visuals
+
+Image uploads that help the agent visually identify UI elements during execution. Add screenshots of buttons, icons, or layouts the agent should recognize so it can act on them reliably.
+
+### Crawling tab
+
+Manage crawling sessions, your project domains (suggested domains and excluded paths), and the **Reset Knowledge Graph** action. See [Crawling Sessions](/core-concepts/crawling) for how crawling builds the agent's understanding of your application.
+
+## Rules
+
+Rules are how you give the AI persistent instructions that should always apply. There are three kinds, each used at a different stage:
+
+- **Assistant Rules** - followed by the chat assistant during chat and test creation.
+- **PR Review Rules** - applied during PR review.
+- **Agent Rules** - followed by the test agent during test execution. Agent Rules support targeting filters (by application, labels, scenario, or URL path) so a rule applies only to matching tests.
+
+As a guideline: execution-relevant guidance belongs in **Agent Rules**, while creation-relevant guidance belongs in **Assistant Rules**.
+
+**Good Rules - Use Cases with Examples:**
+
+| Use Case            | Example                                                                                          | What It Achieves                      |
+| ------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------- |
+| Domain knowledge    | "This is a railway booking system for American routes. Stations use AMTRAK codes."               | Agent understands domain terminology  |
+| Quality standards   | "Tests should fail if obvious typos or broken layouts are detected."                             | Agent enforces quality expectations   |
+| Data requirements   | "When creating test users, always use Swedish names and addresses."                              | Agent generates appropriate test data |
+| UI conventions      | "Red buttons indicate destructive actions - verify confirmation dialogs appear before clicking." | Agent handles UI patterns correctly   |
+| Auth flows          | "Login requires SMS 2FA. The code will be available in the test inbox."                          | Agent knows to check inbox for 2FA    |
+| Timing expectations | "Page loads may take up to 10 seconds in staging. Wait for loading indicators to disappear."     | Agent waits appropriately             |
+| Known limitations   | "The checkout flow is broken on mobile viewports - skip mobile tests for checkout."              | Agent avoids known issues             |
+
+**Best Practices:**
+
+- Keep rules concise but specific - Agent Rules are consulted on every relevant action.
+- Focus on guidance that applies broadly; use Agent Rule targeting filters when something should apply only to certain tests.
+- Include domain-specific terminology and behaviors.
+- Mention any unusual UI patterns or interactions.
+- Update rules when your product behavior changes.
+
+**What NOT to Include:**
+
+- **Test-specific instructions** - put these in test steps instead
+- **Credentials** - use [Configs](/core-concepts/configs) instead
+- **URLs** - use [Applications and Environments](/core-concepts/applications-and-environments) instead
+- **Temporary workarounds** - document in test steps where needed
+
 ## How Knowledge Works
 
 Knowledge has different roles during test creation versus test execution:
 
-| Knowledge Type  | Test Creation (Chat)                   | Test Execution           |
-| --------------- | -------------------------------------- | ------------------------ |
-| Knowledge Items | Used - AI searches for relevant docs   | Not used                 |
-| Knowledge Graph | Used - provides site structure context | Not used                 |
-| Global Context  | Used - domain understanding            | Used - every AI decision |
-| Project Summary | Used - overall context                 | Not used                 |
-| Uploaded Files  | Used - in that chat session            | Not used                 |
-
-<Note>
-  **Uploaded files are temporary**: Files you upload to chat are only available
-  within that specific conversation and their content is compressed after
-  approximately 3 message exchanges. For information you need long-term or
-  across multiple chats, add it to your [Project
-  Knowledge](/core-concepts/knowledge#adding-knowledge-items) instead, or ask
-  the AI Chat to generate a knowledge item based on the conversation for you.
-</Note>
+| Knowledge Type             | Test Creation (Chat)                    | Test Execution                                          |
+| -------------------------- | --------------------------------------- | ------------------------------------------------------- |
+| Library (link/text items)  | Used - searched semantically            | Not used (unless attached to the test)                  |
+| Memories                   | Used                                    | Not used (unless attached to the test)                  |
+| Knowledge Graph            | Used - site structure + semantic search | Not used                                                |
+| Project Summary            | Used                                    | Used (via agent context)                                |
+| Assistant Rules            | Used                                    | Not used                                                |
+| Agent Rules                | Not used                                | Used - every relevant decision (subject to targeting filters) |
+| Agent Visuals              | Not used                                | Used                                                    |
+| Chat file uploads (attachments) | Used in that chat only             | Not used                                                |
 
 **During Test Creation (Chat & Test Generation):**
 
-- AI searches knowledge items for relevant documentation and specifications
-- Global context helps the AI understand your product domain
-- Project summary provides overall context about your application
-- Chat assistants use knowledge to answer questions and suggest tests
-- The AI generates **test steps** based on all the above context
+- The assistant searches your knowledge on demand - semantic search across your Library, Memories, and the site/feature knowledge graph - rather than stuffing everything into the prompt.
+- The Project Summary provides overall context about your application.
+- Assistant Rules shape how the assistant answers and what tests it proposes.
+- The AI generates **test steps** based on all the above context.
 
 **During Test Execution:**
 
-- Only the generated **test steps**, goal, expected result, and **global context** are used
-- Knowledge items and knowledge graph are not accessed
-- [Configs](/core-concepts/configs) provide credentials, environment URLs, and test files
-- Tests execute based on the instructions that were created, not the original documentation
+Only a targeted subset of knowledge is available to the test agent:
+
+- Knowledge items **explicitly attached to the test** (text and memory items only; links are excluded as too large)
+- **Agent Visuals**
+- **Agent Rules** matching that test (subject to targeting filters)
+- The **Project Summary**
+
+Semantic search does **not** run at execution time. The agent works from the test's goal, steps, and the targeted context above. [Configs](/core-concepts/configs) provide credentials, environment URLs, and test files.
 
 <Note>
   This separation means you can safely update knowledge without affecting tests
-  that are already running or scheduled. Global context is the only knowledge
-  type that affects both creation and execution.
+  that are already running or scheduled.
 </Note>
+
+### Attaching Knowledge to a Specific Test
+
+Library and Memory items aren't used during execution by default. To give the agent a specific item as context while a test runs, **attach the knowledge item to that test case**. This is the supported way to make a Library or Memory item available during execution (text and memory items only; links are excluded as too large).
 
 ### Project Knowledge vs. Chat-Local Files
 
@@ -142,34 +177,39 @@ Understanding the scope of your knowledge helps you organize it effectively:
 
 **Chat-Local Files** (uploaded directly to a chat):
 
-- **Only exists in that specific chat conversation**
-- **Other users' chats cannot access it**
-- **Not added to project knowledge automatically**
+- **Per-message attachments** scoped to a single conversation
+- **Other users' chats cannot access them**
+- **Not persisted as project knowledge** - they do not automatically become reusable Library items
 - **Best for:** Experimental specs, PR descriptions, feature branch docs, exploratory work
 
-This isolation prevents work-in-progress information from affecting other team members. When your experimental work becomes final, ask the AI Chat to create a knowledge item from the conversation.
+This isolation prevents work-in-progress information from affecting other team members. When your experimental work becomes final, add it to the Library or ask the AI Chat to create a knowledge item from the conversation.
 
-### Semantic Search
+### Knowledge Graph & Semantic Search
 
-Knowledge items are automatically indexed using embeddings, allowing the AI to find relevant information based on meaning rather than exact keywords. When you ask a question or generate tests, the system:
+Crawled documentation and indexed knowledge are stored in a [Knowledge Graph](/core-concepts/knowledge-graph) with embeddings that enable semantic search - finding relevant information based on meaning rather than exact keywords.
+
+During chat and test creation, the assistant searches your knowledge automatically and on demand:
 
 1. Analyzes your request to understand intent
-2. Searches knowledge items for semantically similar content
+2. Searches your Library, Memories, and the site/feature knowledge graph for semantically similar content
 3. Provides the most relevant information to the AI assistant
-4. Uses clear file names to improve search accuracy
+4. Uses clear titles to improve search accuracy
 
-## Adding Knowledge Items
+The **Reset Knowledge Graph** control lives on the [Crawling](#crawling-tab) tab.
+
+## Adding Library Items
 
 <Steps>
   <Step title="Navigate to Knowledge Settings">
     Navigate to [**Settings →
-    Knowledge**](https://app.qa.tech/current-project/settings/knowledge).
+    Knowledge**](https://app.qa.tech/current-project/settings/knowledge) and open
+    the **Assistant** tab.
   </Step>
-  <Step title="Add New Knowledge">
-    Click **"Add Knowledge"** to create a new knowledge item.
+  <Step title="Open the Library">
+    Find the **Library** section and click **"Add Knowledge"**.
   </Step>
   <Step title="Choose Content Type">
-    Choose your content type (URL or Text) based on what you want to add.
+    Choose your content type - **URL** or **Text** - based on what you want to add.
   </Step>
   <Step title="Fill in Details">
     Fill in the title and content for your knowledge item. Use clear,
@@ -184,7 +224,7 @@ Knowledge items are automatically indexed using embeddings, allowing the AI to f
 
 ### Organization Tips
 
-- **Use Clear Titles**: Make knowledge items easy to find with specific, descriptive names
+- **Use Clear Titles**: Make Library items easy to find with specific, descriptive names
 - **Keep Content Current**: Regularly review and update documentation links
 - **Remove Outdated Info**: Delete or update knowledge that no longer reflects your product
 - **Test Your Knowledge**: Ask the chat assistant questions to verify it finds the right information
@@ -199,11 +239,11 @@ Knowledge items are automatically indexed using embeddings, allowing the AI to f
 - Verify the content is relevant to your question
 - Use clear, descriptive titles for better semantic search results
 
-**Global context not being applied:**
+**Rules not being applied:**
 
-- Check that you've saved the global context settings
-- Verify the context applies to the type of test you're running
-- Review test results to see if context guidelines are being followed
+- Check that you've saved the rule on the correct tab (Assistant Rules, PR Review Rules, or Agent Rules)
+- For Agent Rules, verify the rule's targeting filters (application, labels, scenario, URL path) actually match the test you're running
+- Review test results to see whether the rule's guidance is being followed
 
 **Summary not generating:**
 
@@ -213,6 +253,6 @@ Knowledge items are automatically indexed using embeddings, allowing the AI to f
 
 **Chat-uploaded files not visible to team:**
 
-- Remember: files uploaded in chat are conversation-specific
-- To share with team, add the file to Project Knowledge instead
-- Other team members need to upload it to their own chats, or use project knowledge
+- Remember: files attached in chat are conversation-specific
+- To share with team, add the content to the Library instead
+- Other team members need to attach it to their own chats, or use project knowledge
