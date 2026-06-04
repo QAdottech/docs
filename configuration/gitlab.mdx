@@ -94,6 +94,38 @@ Example:
 
 If your deployment process is custom, have CI post an MR comment that mentions `@qa.tech` and includes the preview URL. This gives you a consistent trigger pattern without requiring developers to comment manually each time.
 
+### Option D: API trigger (no `@qa.tech` comment)
+
+Trigger the same MR review directly from CI by calling the [Start change review chat API](/api-reference/chat/start-change-review-chat) with `mode: "pr"`. This runs the same review agent as Options A, B, and C and posts the same native MR review note, but you control exactly when it fires and which environment it targets, with no `@qa.tech` comment required.
+
+```yaml
+qatech_mr_review:
+  stage: test
+  only:
+    - merge_requests
+  script: |
+    MR_URL="${CI_MERGE_REQUEST_PROJECT_URL}/-/merge_requests/${CI_MERGE_REQUEST_IID}"
+    curl -sSf -X POST "https://api.qa.tech/v1/chat/change-review" \
+      -H "Authorization: Bearer ${QA_TECH_API_TOKEN}" \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"mode\": \"pr\",
+        \"prUrl\": \"${MR_URL}\",
+        \"vcsProviderId\": \"gitlab\",
+        \"applicationOverrides\": [{
+          \"applicationShortId\": \"${QATECH_APP_SHORT_ID}\",
+          \"environment\": { \"url\": \"${PREVIEW_URL}\" }
+        }]
+      }"
+```
+
+This requires the repository to be connected in **Settings → Integrations → GitLab** so the agent can read the MR and post the review note. The review runs asynchronously; poll [Get chat conversation](/api-reference/chat/get-chat-conversation) if you want CI to wait for the verdict. See [Start change review chat API](/api-reference/chat/start-change-review-chat) for the full request schema.
+
+<Note>
+  Use this same API for **post-merge** reviews when you do not have per-MR
+  preview environments. See [Post-merge change reviews](#post-merge-change-reviews-no-preview-environments).
+</Note>
+
 ## GitLab MR review troubleshooting
 
 **No review starts after MR open**
