@@ -98,6 +98,8 @@ If your deployment process is custom, have CI post an MR comment that mentions `
 
 Trigger the same MR review directly from CI by calling the [Start change review chat API](/api-reference/chat/start-change-review-chat) with `mode: "pr"`. This runs the same review agent as Options A, B, and C and posts the same native MR review note, but you control exactly when it fires and which environment it targets, with no `@qa.tech` comment required.
 
+This requires the repository to be connected in **Settings → Integrations → GitLab** so the agent can read the MR and post the review note.
+
 ```yaml
 qatech_mr_review:
   stage: test
@@ -119,7 +121,7 @@ qatech_mr_review:
       }"
 ```
 
-This requires the repository to be connected in **Settings → Integrations → GitLab** so the agent can read the MR and post the review note. The review runs asynchronously; poll [Get chat conversation](/api-reference/chat/get-chat-conversation) if you want CI to wait for the verdict. See [Start change review chat API](/api-reference/chat/start-change-review-chat) for the full request schema.
+The review runs asynchronously; poll [Get chat conversation](/api-reference/chat/get-chat-conversation) if you want CI to wait for the verdict. See [Start change review chat API](/api-reference/chat/start-change-review-chat) for the full request schema.
 
 <Note>
   Use this same API for **post-merge** reviews when you do not have per-MR
