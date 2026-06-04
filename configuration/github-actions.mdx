@@ -277,6 +277,62 @@ By default the action returns as soon as the chat conversation is created and th
 
 The native review is posted to the PR by the agent itself. `chat_response` is the agent's final assistant text in the chat (which may summarize what it did but is not the GitHub review body); use it for logging or further automation, not as a replacement for the PR review.
 
+#### Post-merge change review (no preview environments)
+
+If you do not have per-PR preview environments, run the change review **after** merging to your main branch. The workflow deploys to staging/production, extracts the PR number from the merge commit, and reviews the merged PR's changes against the deployed environment. Results are posted back on the merged PR as a comment.
+
+```yaml
+name: Deploy and Review
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Your existing deploy steps here
+      - run: echo "Deploy to staging..."
+
+  change-review:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract PR number from merge commit
+        id: pr
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          PR_NUMBER=$(echo "$COMMIT_MSG" | grep -oE '\(#[0-9]+\)' | tail -1 | grep -oE '[0-9]+')
+          if [ -n "$PR_NUMBER" ]; then
+            echo "url=https://github.com/${{ github.repository }}/pull/$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Start QA.tech change review
+        if: steps.pr.outputs.found == 'true'
+        uses: QAdottech/run-action/change-review@v3
+        with:
+          api_token: ${{ secrets.QATECH_API_TOKEN }}
+          pr_url: ${{ steps.pr.outputs.url }}
+          context: "This PR has already been merged and deployed. Test the changes and report any issues found as a comment."
+          applications_config: |
+            {
+              "applications": {
+                "app_ONdgMD": {
+                  "environment": {
+                    "url": "https://staging.example.com"
+                  }
+                }
+              }
+            }
+```
+
+Notes:
+
+- The PR number is extracted from GitHub's default merge/squash commit message format (`(#123)`).
+- Direct pushes to `main` without a PR are skipped automatically (the review step is gated on `steps.pr.outputs.found`).
+- Results are posted back on the merged PR as a comment, since the PR is already closed.
+
 #### Route multiple applications to per-PR preview URLs
 
 The most common reason to reach for this action over the GitHub App's automatic trigger: projects with more than one application per PR (for example a frontend, a backend, and an admin dashboard). Pass one entry per application so the agent knows which preview URL to use for each. Each entry must include an `environment` with at least one of `url`, `shortId`, or `applicationBuildShortId`.
