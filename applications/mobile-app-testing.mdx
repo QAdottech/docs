@@ -1,0 +1,79 @@
+---
+title: 'Mobile App Testing'
+description: 'Test native mobile apps with QA.tech'
+icon: 'mobile'
+---
+
+QA.tech can test native mobile applications on real Android devices. The agent interacts with your app the same way a real user would — tapping, swiping, and navigating through the UI.
+
+## Prerequisites
+
+- Your mobile app must be accessible to QA.tech's testing infrastructure (see [Network Access](#network-access) below)
+- Android apps: provide an APK or app store listing
+- iOS apps: contact support for availability
+
+## Network Access
+
+QA.tech test runs originate from a fixed pool of IP addresses. If your app connects to a backend that has a **firewall, VPN gateway, IP allowlist, or rate-limiting rules**, you must whitelist these IPs to allow test traffic through.
+
+<Warning>
+  Without whitelisting, your tests may fail with network errors, timeouts, or unexpected login failures even though the app itself works fine.
+</Warning>
+
+### QA.tech IP Addresses
+
+```
+38.23.34.72/29
+38.23.46.48/28
+162.253.133.0/24
+162.255.21.0/25
+162.255.23.0/25
+45.148.169.224/27
+185.200.102.224/28
+185.200.100.128/25
+66.96.87.128/26
+149.255.36.192/26
+104.156.63.128/26
+38.23.33.102/32
+```
+
+<Note>
+  The current list is always available in the app at [**Settings → Network**](https://app.qa.tech/current-project/settings/network) or via the [Outbound IPs API](/api-reference/outbound-ips). IP addresses may change — use the live list as the authoritative source.
+</Note>
+
+### How to Add the Whitelist
+
+Add the IP ranges above to your security system's allowlist. The exact steps depend on your setup — see the [IP Access Control](/configuration/ip-access-control) guide for platform-specific instructions covering Cloudflare, AWS CloudFront, and other firewalls.
+
+Common places to add these rules:
+- Backend firewall or security group (AWS, GCP, Azure)
+- API gateway rate-limiting or allowlist rules
+- VPN / zero-trust gateway (e.g. Tailscale, Cloudflare Access, Zscaler)
+- Mobile backend service IP allowlists
+
+## Running Mobile Tests
+
+Mobile tests are created and run the same way as web tests. Select a **Mobile** device preset when creating or running a test to ensure the agent uses the correct screen size and interaction model.
+
+<Steps>
+  <Step title="Create a test">
+    Open [**AI Chat**](https://app.qa.tech/current-project/chat) and describe what you want to test. For example:
+
+    ```
+    Open the app, log in with test@example.com / password123, and verify the dashboard loads.
+    ```
+  </Step>
+  <Step title="Select a Mobile device preset">
+    Choose a Mobile device preset so the agent uses the correct viewport and interaction model. See [Device Presets](/test-features/device-presets) for details.
+  </Step>
+  <Step title="Run and review">
+    Start the test run and review results in the dashboard. Use the live screen stream to watch the agent interact with your app in real time.
+  </Step>
+</Steps>
+
+## Related
+
+- [Device Presets](/test-features/device-presets) — Configure viewport, locale, and user agent for mobile testing
+- [IP Access Control](/configuration/ip-access-control) — Whitelist QA.tech IPs in your firewall or CDN
+- [Handle Authentication](/best-practices/handle-auth) — Manage login state across mobile tests
+- [BankID](/applications/se-bank-id) — Test BankID authentication on mobile

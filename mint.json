@@ -124,6 +124,7 @@
     {
       "group": "Applications",
       "pages": [
+        "applications/mobile-app-testing",
         "applications/se-bank-id"
       ]
     },

@@ -17,9 +17,30 @@ Find the current list of QA.tech IP addresses:
 - **In the app:** [**Settings → Network**](https://app.qa.tech/current-project/settings/network)
 - **Direct access:** [Get Outbound IPs API](/api-reference/outbound-ips) (https://api.qa.tech/v1/outbound-ips)
 
+The current IP ranges are:
+
+```
+38.23.34.72/29
+38.23.46.48/28
+162.253.133.0/24
+162.255.21.0/25
+162.255.23.0/25
+45.148.169.224/27
+185.200.102.224/28
+185.200.100.128/25
+66.96.87.128/26
+149.255.36.192/26
+104.156.63.128/26
+38.23.33.102/32
+```
+
 <Warning>
-IP addresses may change. Always use the current list from [Settings → Network](https://app.qa.tech/current-project/settings/network) or the API endpoint above.
+IP addresses may change. Always verify the current list in [Settings → Network](https://app.qa.tech/current-project/settings/network) or via the [API endpoint](/api-reference/outbound-ips) rather than relying solely on the list above.
 </Warning>
+
+<Tip>
+  **Testing a mobile app?** If your app's backend has firewall or VPN rules, you need to whitelist these same IPs. See [Mobile App Testing](/applications/mobile-app-testing#network-access) for details.
+</Tip>
 
 ## What IP Whitelisting Enables
 
