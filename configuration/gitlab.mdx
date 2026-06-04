@@ -278,6 +278,80 @@ See [Test Plans](/core-concepts/test-plans#scheduled-execution) for QA.tech sche
 
 </Accordion>
 
+## Post-merge change reviews (no preview environments)
+
+If you do not have preview environments for merge requests, you can run QA.tech change reviews **after** merging to your main branch. This tests the changes from each MR against your staging or production environment once they're deployed.
+
+**How it works**
+
+1. An MR is merged to `main`/`dev`/`staging`.
+2. Your deploy job deploys to staging/production.
+3. CI extracts the MR number from the merge commit message.
+4. The agent fetches the MR details (diff, changed files, description).
+5. Tests run against your deployed environment.
+6. Results are posted back on the merged MR as a note.
+
+```yaml
+stages:
+  - deploy
+  - review
+
+deploy:
+  stage: deploy
+  only:
+    - main
+  script:
+    - echo "Your deploy steps..."
+
+change-review:
+  stage: review
+  needs: [deploy]
+  only:
+    - main
+  script: |
+    MR_IID=$(echo "$CI_COMMIT_MESSAGE" | grep -oE '![0-9]+' | tail -1 | tr -d '!')
+    if [ -z "$MR_IID" ]; then
+      echo "No MR number found in commit message, skipping"
+      exit 0
+    fi
+    MR_URL="${CI_PROJECT_URL}/-/merge_requests/${MR_IID}"
+    curl -sSf -X POST "https://api.qa.tech/v1/chat/change-review" \
+      -H "Authorization: Bearer ${QA_TECH_API_TOKEN}" \
+      -H "Content-Type: application/json" \
+      -d "{
+        \"mode\": \"pr\",
+        \"prUrl\": \"${MR_URL}\",
+        \"vcsProviderId\": \"gitlab\",
+        \"applicationOverrides\": [{
+          \"applicationShortId\": \"${QATECH_APP_SHORT_ID}\",
+          \"environment\": { \"url\": \"${STAGING_URL}\" }
+        }],
+        \"context\": \"This MR has already been merged and deployed. Test the changes and report any issues found.\"
+      }"
+```
+
+**Setup**
+
+1. Add `QA_TECH_API_TOKEN`, `QATECH_APP_SHORT_ID`, and `STAGING_URL` as **CI/CD → Variables** (mark the token **Protected** and **Masked**).
+2. Set `QATECH_APP_SHORT_ID` to your application's short ID (found in **Settings → Applications**, e.g. `app_gXeBl2`).
+3. Set `STAGING_URL` to your staging/production URL.
+4. Make sure the `change-review` job runs after your deploy job completes (`needs: [deploy]`).
+5. Connect the repository in **Settings → Integrations → GitLab** so the agent can read the MR and post the review note.
+
+**Notes**
+
+- GitLab's default merge commit message ends with `See merge request namespace/project!123`. The script extracts the last `!<number>` token, so it assumes the MR reference is at the end of the message.
+- If you use squash merges with a custom template, include `%{reference}` in the template so the MR reference is present in the commit message.
+- We extract the MR number from the commit message because `CI_MERGE_REQUEST_IID` is only set in merge request pipelines, not on push-to-`main`.
+- Direct pushes to `main` without an MR are skipped automatically.
+- Results are posted back on the merged MR as a note, since the MR is already merged.
+
+<Note>
+  No MR reference in your commits? Use `mode: "rawChanges"` instead and pass a
+  `changes` object with `changeDescription` and a git `diff` computed in CI. See
+  the [Chat API](/api-reference/chat#start-change-review).
+</Note>
+
 ## API tips
 
 For shared API concepts and platform-agnostic workflows, see [CI/CD Integration](/configuration/ci-cd-integration) and [Start Run API](/api-reference/start-run). The examples below focus on GitLab-specific usage.
