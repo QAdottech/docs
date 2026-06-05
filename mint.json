@@ -80,6 +80,7 @@
         "configuration/vercel-firewall",
         "configuration/cloudflare-waf-turnstile",
         "configuration/authentication",
+        "configuration/organization-access",
         "configuration/ip-access-control",
         "bot",
         "configuration/ssh-tunnel",

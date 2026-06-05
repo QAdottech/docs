@@ -1,0 +1,153 @@
+---
+title: 'Organization Access'
+description: 'Manage who can join your organization and how they sign in — verified domains, auto-join, and SAML SSO'
+icon: 'key'
+---
+
+This page is for **organization admins** (typically IT or security owners) who control how their team gets into QA.tech. It covers three capabilities, built around **verified email domains**:
+
+- **Verify a domain** you own (for example, `company.com`).
+- **Auto-join (JIT provisioning)** — automatically add users from a verified domain instead of inviting them one by one.
+- **SAML 2.0 single sign-on (SSO)** — let your team sign in with your existing identity provider (IdP), such as Okta, Microsoft Entra ID, or Google Workspace.
+
+All of these settings live under **Organization Settings → Authentication**, and only organization admins can manage them.
+
+<Note>
+**Requirements**
+
+- **Domain verification and auto-join:** You must be an organization **Admin or Owner**. No special plan is required.
+- **SAML SSO:** In addition to admin access, **SAML SSO must be enabled for your organization by QA.tech** — it is a plan-level feature. If it is not enabled, the SAML configuration section will not appear. Contact QA.tech or your account representative to have it enabled.
+
+See [Roles and Permissions](/core-concepts/roles-and-permissions) for more on admin access.
+</Note>
+
+<Info>
+Domain verification and auto-join work on their own — you do **not** need SAML SSO to use them. SAML SSO is an additional, optional layer that builds on a verified domain.
+</Info>
+
+## 1. Add and verify a domain
+
+Verifying a domain proves you own the email domain your team uses. It is the foundation for both auto-join and SAML SSO, so start here.
+
+<Steps>
+  <Step title="Open domain settings">
+    Go to **Organization Settings → Authentication** and find the **Domains** section.
+  </Step>
+  <Step title="Add your domain">
+    Enter the email domain your team signs in with — for example, `company.com`.
+
+    <Warning>
+      Public email domains (such as `gmail.com`, `outlook.com`, `yahoo.com`, and other shared providers) cannot be claimed. You must use a domain your organization owns.
+    </Warning>
+  </Step>
+  <Step title="Add the DNS verification record">
+    After adding the domain, QA.tech shows you a verification token. Create the following **TXT** record with your DNS provider:
+
+    | Field | Value |
+    | ----- | ----- |
+    | **Host** | `_qatech-verification.<domain>` (for example, `_qatech-verification.company.com`) |
+    | **Type** | `TXT` |
+    | **Value** | The token shown in the UI, in the format `qatech-domain-verify=<token>` |
+
+    <Note>
+      DNS changes can take up to **48 hours** to propagate, though they are often live much sooner. If verification fails immediately after adding the record, wait and try again.
+    </Note>
+  </Step>
+  <Step title="Verify the domain">
+    Once the DNS record is in place, return to QA.tech and click **Verify domain**. When verification succeeds, the domain shows a **Verified** badge.
+  </Step>
+</Steps>
+
+## 2. User provisioning (auto-join / JIT)
+
+Provisioning controls how users get added to your organization. There are two modes:
+
+| Mode | Behavior |
+| ---- | -------- |
+| **Invite only** *(default)* | Users must be invited before they can access the organization. |
+| **Just-in-time (JIT) / auto-join** | Any user who signs in with a matching **verified** email domain is automatically added as a member on first login, and skips onboarding. |
+
+<Info>
+**Auto-join does not require SAML SSO.** You can enable domain-based auto-join for any verified domain on its own. If you later configure SSO, JIT provisioning also applies to SSO sign-ins — users authenticating through your IdP are added automatically on first login.
+</Info>
+
+<Warning>
+With auto-join enabled, **anyone** with an email on the verified domain who signs in will become a member of your organization. Enable it only for domains where every account on the domain should have access.
+</Warning>
+
+## 3. Configure SAML SSO for a verified domain
+
+SAML SSO lets your team sign in through your identity provider. It builds on a verified domain and requires the SSO feature to be enabled for your organization.
+
+<Info>
+**Prerequisites for this step**
+
+- The domain is **Verified** (Step 1).
+- **SAML SSO is enabled** for your organization by QA.tech.
+
+If SAML SSO is not enabled, the SSO configuration controls will not appear.
+</Info>
+
+<Steps>
+  <Step title="Open SSO settings for the domain">
+    In **Organization Settings → Authentication**, select the verified domain you want to configure and open its **SAML SSO** settings.
+  </Step>
+  <Step title="Provide your IdP metadata">
+    Supply your identity provider's SAML metadata in **one** of the following ways:
+
+    - **Metadata URL** — paste the URL your IdP publishes its metadata at (for example, `https://idp.example.com/saml/metadata`).
+    - **Metadata XML** — paste the raw SAML metadata XML directly.
+
+    You can usually find this metadata in your IdP's admin console under the QA.tech application's SAML or SSO settings.
+  </Step>
+  <Step title="Save">
+    Save your configuration. QA.tech provisions a SAML SSO provider bound to that domain. Once active, the domain shows an **SSO Active** badge.
+  </Step>
+</Steps>
+
+<Note>
+**Disabling or removing SSO**
+
+- Disabling SSO for a domain removes the SAML provider for that domain. Users on that domain will no longer sign in through your IdP.
+- Removing the domain entirely also disables SSO for it.
+</Note>
+
+## 4. End-user sign-in experience
+
+Once SSO is active, your team signs in like this:
+
+<Steps>
+  <Step title="Choose Continue with SSO">
+    On the QA.tech sign-in screen, the user selects **Continue with SSO**.
+  </Step>
+  <Step title="Enter work email">
+    The user enters their work email. QA.tech uses the **email domain** to find the matching organization and redirects the user to that organization's identity provider.
+  </Step>
+  <Step title="Authenticate and return">
+    The user signs in with your IdP and is redirected back to QA.tech to complete sign-in. If JIT provisioning is enabled, first-time users are added to the organization automatically and skip onboarding.
+  </Step>
+</Steps>
+
+<Note>
+If your organization enforces SSO, users on your domain are routed to the SSO sign-in page automatically.
+</Note>
+
+## Troubleshooting
+
+**Domain won't verify**
+
+- Confirm the TXT record host is exactly `_qatech-verification.<domain>` (for example, `_qatech-verification.company.com`) — a common mistake is omitting the `_qatech-verification.` prefix or adding the domain twice.
+- Confirm the record **Type** is `TXT` and the **Value** matches the token shown in the UI exactly, including the `qatech-domain-verify=` prefix.
+- DNS can take up to **48 hours** to propagate. Wait and click **Verify domain** again.
+
+**"No SSO provider configured for this domain" at sign-in**
+
+- The user's email domain does not have an active SAML provider. Confirm the domain is **Verified** and shows the **SSO Active** badge in **Organization Settings → Authentication**.
+- Confirm the user is signing in with their **work email** on the configured domain, not a personal address.
+
+**The SAML SSO section isn't visible**
+
+- SAML SSO is a plan-level feature and must be enabled for your organization by QA.tech. If you don't see the SSO configuration controls, contact QA.tech or your account representative to have it enabled. (Domain verification and auto-join do not depend on this feature and are available without it.)
+- Confirm you are signed in as an organization **Admin or Owner**. The app hides these settings from members.
+
+**Need help?** Contact QA.tech support with your domain and identity provider details.
