@@ -1,6 +1,6 @@
 ---
 title: MCP Server
-description: 'Connect Claude Code, Cursor, Codex, Claude Desktop, or Continue to QA.tech so your AI assistant can list test cases, start runs, and read results.'
+description: 'Connect Claude Code, Cursor, Codex, or Continue to QA.tech so your AI assistant can list test cases, start runs, and read results.'
 icon: 'plug'
 ---
 
@@ -52,28 +52,6 @@ Most modern clients have a one-click or one-line install. Open the dashboard at 
 
     First time using an MCP server in Codex? Add `experimental_use_rmcp_client = true` under `[features]` in `~/.codex/config.toml`.
   </Tab>
-  <Tab title="Claude Desktop">
-    Go to **Settings → Developer → Edit Config**, paste this under `mcpServers`, then restart Claude Desktop.
-
-    ```json
-    {
-      "mcpServers": {
-        "qatech": {
-          "type": "http",
-          "url": "https://api.qa.tech/v1/mcp",
-          "headers": {
-            "Authorization": "Bearer <API_KEY>"
-          }
-        }
-      }
-    }
-    ```
-
-    Config paths:
-    - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-    - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-    - Linux: `~/.config/Claude/claude_desktop_config.json`
-  </Tab>
   <Tab title="Continue (VS Code)">
     Add this snippet to `~/.continue/config.yaml`, then reload the Continue extension.
 
@@ -108,7 +86,6 @@ The QA.tech CLI can write the config for any supported client in one command. Us
 With the CLI installed and authenticated:
 
 ```bash
-qatech mcp configure --client claude-desktop
 qatech mcp configure --client cursor
 qatech mcp configure --client continue
 ```
